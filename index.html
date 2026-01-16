@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перенаправление</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .message {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .welcome-message {
+            font-size: 1.0rem;
+            font-weight: 300;
+            color: #a0d2ff;
+            opacity: 0.9;
+            margin-top: 10px;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .loader-label {
+            font-size: 1.2rem;
+            color: #cccccc;
+            opacity: 0.8;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #FFF;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        .loader::after {
+            content: '';
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 3px solid;
+            border-color: #0078d4 transparent;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <div class="message" id="message">Секунду...</div>
+            <div class="welcome-message">Перенаправление...</div>
+        </div>
+
+        <div class="loader-container">
+            <span class="loader"></span>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageElement = document.getElementById('message');
+            let seconds = 3;
+
+            // Обновляем сообщение в зависимости от оставшегося времени
+            const updateMessage = (sec) => {
+                if (sec === 3) messageElement.textContent = "КСТ";
+                else if (sec === 2) messageElement.textContent = "КСТ";
+                else if (sec === 1) messageElement.textContent = "КСТ";
+            };
+
+            // Инициализация
+            updateMessage(seconds);
+
+            // Таймер обратного отсчета
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                updateMessage(seconds);
+
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    // Перенаправление на сайт Microsoft
+                    window.location.href = "https://nof7351.github.io/V/Home";
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
