@@ -3,19 +3,33 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>6В</title>
     <style>
+        /* Блокировка зума (масштабирования) */
+        html,
+        body {
+            touch-action: pan-x pan-y;
+            -ms-touch-action: pan-x pan-y;
+            overflow-x: hidden;
+        }
+
         /* Блокировка выделения текста */
         * {
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-            -khtml-user-select: none; /* Konqueror HTML */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
         }
-        
+
         /* Для контента, который должен быть доступен для выделения (если нужно) */
         .selectable {
             -webkit-user-select: text;
@@ -23,7 +37,7 @@
             -ms-user-select: text;
             user-select: text;
         }
-        
+
         :root {
             --primary: #4f46e5;
             --bg: #f3f4f6;
@@ -31,6 +45,7 @@
             --text: #1f2937;
             --accent: #10b981;
             --danger: #ef4444;
+            --share-color: #3b82f6;
         }
 
         body {
@@ -40,13 +55,48 @@
             margin: 0;
             padding-bottom: 80px;
             /* Блокировка контекстного меню на мобильных */
-            -webkit-tap-highlight-color: transparent; /* Убирает подсветку при тапе */
-            touch-action: manipulation; /* Оптимизация для касаний */
+            -webkit-tap-highlight-color: transparent;
+            /* Убирает подсветку при тапе */
+            touch-action: pan-y;
+            /* Разрешаем только вертикальную прокрутку */
+            overflow-x: hidden;
+            width: 100%;
+            position: fixed;
+            /* Фиксируем body для блокировки зума */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            /* Разрешаем вертикальную прокрутку */
         }
 
         /* Отключаем стандартное выделение на мобильных */
-        input, textarea, button, select, div, a {
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        input,
+        textarea,
+        button,
+        select,
+        div,
+        a {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
+        /* Скрываем полосу прокрутки для красоты */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
 
         /* --- Header --- */
@@ -56,6 +106,8 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
         }
 
         header h1 {
@@ -93,6 +145,11 @@
                 background: transparent;
                 box-shadow: none;
             }
+
+            body {
+                position: static;
+                overflow-y: visible;
+            }
         }
 
         .nav-item {
@@ -110,6 +167,8 @@
             /* Блокировка выделения на кнопках */
             -webkit-user-select: none;
             user-select: none;
+            touch-action: manipulation;
+            /* Оптимизация для касаний */
         }
 
         .nav-item.active {
@@ -161,6 +220,8 @@
             /* Блокировка выделения в основном контейнере */
             -webkit-user-select: none;
             user-select: none;
+            touch-action: pan-y;
+            /* Разрешаем прокрутку внутри контейнера */
         }
 
         .section {
@@ -231,6 +292,7 @@
             /* Блокировка выделения */
             -webkit-user-select: none;
             user-select: none;
+            touch-action: manipulation;
         }
 
         .day-btn.active {
@@ -286,6 +348,7 @@
             /* Блокировка выделения */
             -webkit-user-select: none;
             user-select: none;
+            touch-action: manipulation;
         }
 
         .album-btn.active {
@@ -319,6 +382,7 @@
             -moz-user-drag: none;
             -o-user-drag: none;
             user-drag: none;
+            touch-action: manipulation;
         }
 
         .media-item:hover {
@@ -427,22 +491,232 @@
             margin-left: 10px;
         }
 
+        /* --- Новости с возможностью поделиться --- */
         .news-item {
             margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
             /* Блокировка выделения новостей */
             -webkit-user-select: none;
             user-select: none;
         }
 
+        /* Подсветка выделенной новости */
+        .news-item.highlighted {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--share-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            animation: pulse-highlight 2s ease-in-out;
+        }
+
+        @keyframes pulse-highlight {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
         .news-date {
             font-size: 0.8rem;
             color: #888;
+            margin-bottom: 5px;
         }
 
         .news-title {
             font-weight: bold;
             font-size: 1.1rem;
             margin: 5px 0;
+            color: var(--text);
+        }
+
+        .news-text {
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+
+        /* Панель "Поделиться" */
+        .share-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .share-btn {
+            background: var(--share-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-btn:hover {
+            background: #2563eb;
+        }
+
+        .share-btn i {
+            font-size: 1.1rem;
+        }
+
+        .share-link-container {
+            flex-grow: 1;
+            margin-right: 15px;
+            position: relative;
+        }
+
+        .share-link {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            background: #f9fafb;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .share-link:hover {
+            background: #f3f4f6;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 3000;
+            animation: fadeInOut 2s ease-in-out;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        /* Модальное окно поделиться */
+        .share-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .share-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-modal-title {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .share-option-btn {
+            background: none;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-option-btn:hover {
+            border-color: var(--share-color);
+            background: #eff6ff;
+            transform: scale(1.1);
+        }
+
+        .share-option-btn.telegram {
+            color: #0088cc;
+        }
+
+        .share-option-btn.whatsapp {
+            color: #25D366;
+        }
+
+        .share-option-btn.vk {
+            color: #4C75A3;
+        }
+
+        .share-option-btn.copy {
+            color: var(--primary);
         }
 
         /* Для отображения "Сейчас" */
@@ -456,18 +730,31 @@
             -webkit-user-select: none;
             user-select: none;
         }
-        
+
         /* Стиль для скрытия контекстного меню */
         .no-context {
             context-menu: none;
         }
-        
+
         /* Блокировка выделения для всех текстовых элементов */
-        p, h1, h2, h3, h4, h5, h6, span, div, td, th, li {
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        span,
+        div,
+        td,
+        th,
+        li {
             -webkit-user-select: none;
             user-select: none;
         }
     </style>
+    <!-- Иконки Font Awesome для кнопок поделиться -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="no-context">
@@ -551,6 +838,40 @@
 
     </div>
 
+    <!-- Модальное окно поделиться -->
+    <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
+        <div class="share-modal-content" onclick="event.stopPropagation()">
+            <h3 class="share-modal-title">Поделиться новостью</h3>
+            <div class="share-options">
+                <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
+                    <i class="fab fa-telegram"></i>
+                </button>
+                <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
+                <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
+                    <i class="fab fa-vk"></i>
+                </button>
+                <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="share-link-container">
+                <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомление о копировании -->
+    <div id="copy-notification" class="copy-notification">
+        <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Ссылка скопирована!
+    </div>
+
     <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
         <span class="close-btn">&times;</span>
 
@@ -559,57 +880,107 @@
         <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
     </div>
 
-
     <script>
+        // ============ БЛОКИРОВКА ЗУМА (МАСШТАБИРОВАНИЯ) ============
+        // Дополнительная защита от зума жестами
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function (event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function (event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function (event) {
+            event.preventDefault();
+        });
+
+        // Блокировка двойного тапа для зума
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Блокировка колесика мыши для зума
+        document.addEventListener('wheel', function (event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
         // Блокировка контекстного меню (правая кнопка мыши)
-        document.addEventListener('contextmenu', function(event) {
+        document.addEventListener('contextmenu', function (event) {
             event.preventDefault();
             return false;
         });
-        
+
         // Блокировка клавиш для копирования (Ctrl+C, Ctrl+A, Ctrl+X, Ctrl+V и др.)
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
             // Блокировка Ctrl+C, Ctrl+X, Ctrl+V
-            if (event.ctrlKey && (event.key === 'c' || event.key === 'C' || 
-                                 event.key === 'x' || event.key === 'X' || 
-                                 event.key === 'v' || event.key === 'V')) {
+            if (event.ctrlKey && (event.key === 'c' || event.key === 'C' ||
+                event.key === 'x' || event.key === 'X' ||
+                event.key === 'v' || event.key === 'V')) {
                 event.preventDefault();
                 return false;
             }
-            
+
             // Блокировка Ctrl+A (выделить все)
             if (event.ctrlKey && (event.key === 'a' || event.key === 'A')) {
                 event.preventDefault();
                 return false;
             }
-            
+
             // Блокировка Ctrl+U (просмотр исходного кода)
             if (event.ctrlKey && (event.key === 'u' || event.key === 'U')) {
                 event.preventDefault();
                 return false;
             }
-            
+
             // Блокировка F12 (инструменты разработчика)
             if (event.key === 'F12') {
                 event.preventDefault();
                 return false;
             }
+
+            // Блокировка Ctrl+ и Ctrl- (зум)
+            if (event.ctrlKey && (event.key === '+' || event.key === '=' ||
+                event.key === '-' || event.key === '_' ||
+                event.key === '0')) {
+                event.preventDefault();
+                return false;
+            }
+
+            // Блокировка Ctrl+колесико мыши
+            if (event.ctrlKey) {
+                event.preventDefault();
+                return false;
+            }
         });
-        
+
         // Блокировка выделения текста с помощью мыши
-        document.addEventListener('selectstart', function(event) {
+        document.addEventListener('selectstart', function (event) {
             event.preventDefault();
             return false;
         });
-        
+
         // Блокировка drag & drop для изображений
-        document.addEventListener('dragstart', function(event) {
+        document.addEventListener('dragstart', function (event) {
             if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
                 event.preventDefault();
                 return false;
             }
         });
-        
+
         /* ================================================================
            ЗОНА РЕДАКТИРОВАНИЯ
         ================================================================ */
@@ -619,9 +990,16 @@
             "🥇 1", "🥈 2", "🥉 3"
         ];
 
-        // 2. НОВОСТИ
+        // 2. НОВОСТИ (добавлено поле id для каждой новости)
         const newsData = [
-            { date: "15.01.2026", title: "Первая новость!", text: "Сайт создан :) Новости уже скоро будут" },
+            {
+                id: 1,
+                date: "15.01.2026",
+                title: "Первая новость!",
+                text: "Сайт создан :) Новости уже скоро будут."
+            },
+            
+            
             
         ];
 
@@ -679,6 +1057,138 @@
             ]
         };
 
+        /* ================================================================
+           СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ
+        ================================================================ */
+
+        let currentNewsId = null;
+        const siteUrl = window.location.origin + window.location.pathname;
+
+        // Функция для создания специальной ссылки на новость
+        function createNewsShareUrl(newsId) {
+            // Удаляем параметры из текущего URL
+            const cleanUrl = siteUrl.split('?')[0];
+            return `${cleanUrl}?news=${newsId}`;
+        }
+
+        // Функция для проверки параметров URL при загрузке
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('news');
+
+            if (newsId) {
+                // Переключаемся на вкладку новостей
+                switchTab('news');
+
+                // Прокручиваем к нужной новости через небольшую задержку
+                setTimeout(() => {
+                    highlightNews(newsId);
+                }, 300);
+            }
+        }
+
+        // Функция для подсветки новости
+        function highlightNews(newsId) {
+            // Убираем подсветку со всех новостей
+            document.querySelectorAll('.news-item').forEach(item => {
+                item.classList.remove('highlighted');
+            });
+
+            // Находим нужную новость и подсвечиваем её
+            const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
+            if (newsElement) {
+                newsElement.classList.add('highlighted');
+
+                // Прокручиваем к новости
+                newsElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                // Через 5 секунд убираем подсветку
+                setTimeout(() => {
+                    newsElement.classList.remove('highlighted');
+                }, 3000);
+            }
+        }
+
+        // Функция для открытия модального окна "Поделиться"
+        function openShareModal(newsId) {
+            currentNewsId = newsId;
+            const shareUrl = createNewsShareUrl(newsId);
+            document.getElementById('share-url-input').value = shareUrl;
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        // Функция для закрытия модального окна
+        function closeShareModal(event) {
+            if (event) {
+                if (event.target.id === 'share-modal' || event.target.classList.contains('share-btn')) {
+                    document.getElementById('share-modal').style.display = 'none';
+                }
+            } else {
+                document.getElementById('share-modal').style.display = 'none';
+            }
+        }
+
+        // Функция для копирования ссылки в буфер обмена
+        function copyShareLink() {
+            const shareUrl = document.getElementById('share-url-input');
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999); // Для мобильных устройств
+
+            try {
+                navigator.clipboard.writeText(shareUrl.value).then(() => {
+                    showCopyNotification();
+                }).catch(err => {
+                    // Fallback для старых браузеров
+                    document.execCommand('copy');
+                    showCopyNotification();
+                });
+            } catch (err) {
+                // Еще один fallback
+                document.execCommand('copy');
+                showCopyNotification();
+            }
+        }
+
+        // Функция для показа уведомления о копировании
+        function showCopyNotification() {
+            const notification = document.getElementById('copy-notification');
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // Функции для расшаривания в соцсетях
+        function shareViaTelegram() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title}\n\n${shareUrl}`) : '';
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${text}`, '_blank');
+        }
+
+        function shareViaWhatsApp() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title} - ${shareUrl}`) : '';
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function shareViaVK() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function (event) {
+            const modal = document.getElementById('share-modal');
+            if (event.target == modal) {
+                closeShareModal(event);
+            }
+        };
 
         /* ================================================================
            СИСТЕМНАЯ ЧАСТЬ
@@ -701,11 +1211,33 @@
             const tbody = document.getElementById('rating-list');
             tbody.innerHTML = students.map(s => `<tr><td>${s}</td><td style="font-weight:bold; color:var(--primary)">0.0</td></tr>`).join('');
 
-            // Новости
+            // Новости с кнопками поделиться
             const newsContainer = document.getElementById('news-container');
-            newsContainer.innerHTML = newsData.slice(0, 3).map(n =>
-                `<div class="news-item"><div class="news-date">${n.date}</div><div class="news-title">${n.title}</div><div>${n.text}</div></div><hr style="opacity:0.3">`
-            ).join('');
+            let newsHtml = '';
+
+            newsData.forEach(news => {
+                const shareUrl = createNewsShareUrl(news.id);
+                newsHtml += `
+                <div class="news-item" data-news-id="${news.id}">
+                    <div class="news-date">📅 ${news.date}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-text">${news.text}</div>
+                    <div class="share-panel">
+                        <div class="share-link-container">
+                            <input type="text" class="share-link" value="${shareUrl}" readonly onclick="this.select()">
+                        </div>
+                        <button class="share-btn" onclick="openShareModal(${news.id})">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+                <hr style="opacity:0.3; margin: 5px 0;">`;
+            });
+
+            newsContainer.innerHTML = newsHtml;
+
+            // Проверяем параметры URL для подсветки новости
+            checkUrlParams();
         }
 
         // --- Альбомы и Видео ---
@@ -872,7 +1404,7 @@
                 'https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png',
                 'https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png'
             ];
-            
+
             icons.forEach(icon => {
                 const img = new Image();
                 img.src = icon;
