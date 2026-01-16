@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6В</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --accent: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 80px;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* --- Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                position: static;
+                width: auto;
+                justify-content: center;
+                gap: 20px;
+                padding: 20px;
+                background: transparent;
+                box-shadow: none;
+            }
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            padding: 5px;
+            width: 70px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 0.9;
+        }
+
+        /* Иконки для каждой кнопки */
+        .nav-item[onclick*="schedule"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+        }
+
+        .nav-item[onclick*="rating"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png');
+        }
+
+        .nav-item[onclick*="news"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png');
+        }
+
+        .nav-item[onclick*="gallery"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* --- Schedule Specific --- */
+        .days-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .day-btn {
+            background: none;
+            border: none;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .lesson-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lesson-time {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 90px;
+            font-size: 0.9rem;
+        }
+
+        .lesson-name {
+            flex-grow: 1;
+        }
+
+        .current-lesson {
+            background-color: #d1fae5;
+            border-left: 5px solid var(--accent);
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        /* --- Gallery & Video --- */
+        .album-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .album-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .album-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .media-item {
+            background: #ddd;
+            padding-bottom: 100%;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .media-item:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .media-item img,
+        .media-item video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Иконка Play для видео */
+        .video-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- Lightbox --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .lightbox-content {
+            max-width: 95%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        /* Rating & News styles */
+        .rating-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rating-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dev-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .news-item {
+            margin-bottom: 20px;
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .news-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 5px 0;
+        }
+
+        /* Для отображения "Сейчас" */
+        #now-lesson-display {
+            font-size: 1.1rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>6В</h1>
+        <p>______________</p>
+    </header>
+
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('schedule')">
+            <div class="nav-icon"></div>
+            Расписание
+        </button>
+        <button class="nav-item" onclick="switchTab('rating')">
+            <div class="nav-icon"></div>
+            Рейтинг
+        </button>
+        <button class="nav-item" onclick="switchTab('news')">
+            <div class="nav-icon"></div>
+            Новости
+        </button>
+        <button class="nav-item" onclick="switchTab('gallery')">
+            <div class="nav-icon"></div>
+            Альбом
+        </button>
+    </nav>
+
+    <div class="container">
+
+        <div id="schedule" class="section active">
+            <div class="card">
+                <h2>Статус урока</h2>
+                <div id="now-lesson-display">Загрузка...</div>
+            </div>
+
+            <div class="card">
+                <h2>Расписание недели</h2>
+                <div class="days-selector">
+                    <button class="day-btn" onclick="selectDay(1)">ПН</button>
+                    <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                    <button class="day-btn" onclick="selectDay(3)">СР</button>
+                    <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                    <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                </div>
+
+                <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник
+                </h3>
+                <div id="daily-schedule-list"></div>
+            </div>
+        </div>
+
+        <div id="rating" class="section">
+            <div class="card">
+                <h2>Социальный рейтинг <span class="dev-badge">В РАЗРАБОТКЕ</span></h2>
+                <p style="font-size: 0.9rem; color: #666;">Уже скоро...</p>
+                <table class="rating-table">
+                    <tbody id="rating-list"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="news" class="section">
+            <div class="card">
+                <h2>Последние новости</h2>
+                <div id="news-container"></div>
+            </div>
+        </div>
+
+        <div id="gallery" class="section">
+            <div class="card">
+                <h2>Альбом</h2>
+                <div class="album-tabs">
+                    <button class="album-btn active" onclick="showAlbum('class5')">5 Класс</button>
+                    <button class="album-btn" onclick="showAlbum('class6')">6 Класс</button>
+                </div>
+                <div id="class5-albums"></div>
+                <div id="class6-albums" style="display: none;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
+        <span class="close-btn">&times;</span>
+
+        <img class="lightbox-content" id="lightbox-img" style="display:none;">
+
+        <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
+    </div>
+
+
+    <script>
+        /* ================================================================
+           ЗОНА РЕДАКТИРОВАНИЯ
+        ================================================================ */
+
+        // 1. УЧЕНИКИ
+        const students = [
+            "🥇 1", "🥈 2", "🥉 3"
+        ];
+
+        // 2. НОВОСТИ
+        const newsData = [
+            { date: "15.01.2026", title: "Первая новость!", text: "Сайт создан :) Новости уже скоро будут" },
+
+        ];
+
+        // 3. ЗВОНКИ
+        const bellSchedule = [
+            { start: "13:30", end: "14:10" },
+            { start: "14:20", end: "15:00" },
+            { start: "15:20", end: "16:00" },
+            { start: "16:20", end: "17:00" },
+            { start: "17:10", end: "17:50" },
+            { start: "18:00", end: "18:40" }
+        ];
+
+        // 4. РАСПИСАНИЕ НА НЕДЕЛЮ (1-ПН, 2-ВТ, 3-СР, 4-ЧТ, 5-ПТ)
+        const weekSchedule = {
+            1: ["Русский язык", "Литература", "Биология", "Математика", "Физическая культура", "Физическая культура"],
+            2: ["Русский язык", "Литература", "История", "Английский язык", "Музыка", "Изобразительное искусство"],
+            3: ["Математика", "География", "Русский язык", "Русский язык", "Труд (Технология)", "Труд (Технология)"],
+            4: ["История", "Английский язык", "Английский язык", "Русский язык", "Литература", "Математика"],
+            5: ["Математика КВ", "История", "Русский язык", "Читательская грамотность КВ", "Математика", "Математика"]
+        };
+
+        // 5. МЕДИА (ФОТО И ВИДЕО)
+        // type: 'photo' -> для картинок (url - ссылка на картинку)
+        // type: 'video' -> для видео (url - ссылка на mp4 файл, preview - ссылка на картинку-заглушку)
+        const albums = {
+            class5: [
+                {
+                    name: "Пуки каки какашки 1",
+                    items: [
+                        { type: 'photo', url: "https://placehold.co/600x400/orange/white" },
+                        { type: 'photo', url: "https://placehold.co/600x800/blue/white" }
+                    ]
+                },
+                {
+                    name: "Пуки каки какашки 2",
+                    items: [
+                        // Пример видео. Замените url на ссылку на ваш mp4 файл
+                        {
+                            type: 'video',
+                            url: "https://www.w3schools.com/html/mov_bbb.mp4",
+                            preview: "https://placehold.co/600x400/black/white?text=Video"
+                        }
+                    ]
+                }
+            ],
+            class6: [
+                {
+                    name: "Влпдавортд",
+                    items: [
+                        { type: 'photo', url: "https://placehold.co/800x600/maroon/white" },
+                        { type: 'photo', url: "https://placehold.co/600x800/navy/white" }
+                    ]
+                }
+            ]
+        };
+
+
+        /* ================================================================
+           СИСТЕМНАЯ ЧАСТЬ
+        ================================================================ */
+
+        // --- Переключение вкладок ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            // Подсветка кнопок меню
+            const menuIndex = ['schedule', 'rating', 'news', 'gallery'].indexOf(tabId);
+            if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
+        }
+
+        // --- Рейтинг и Новости ---
+        function initBasicInfo() {
+            // Рейтинг
+            const tbody = document.getElementById('rating-list');
+            tbody.innerHTML = students.map(s => `<tr><td>${s}</td><td style="font-weight:bold; color:var(--primary)">0.0</td></tr>`).join('');
+
+            // Новости
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = newsData.slice(0, 3).map(n =>
+                `<div class="news-item"><div class="news-date">${n.date}</div><div class="news-title">${n.title}</div><div>${n.text}</div></div><hr style="opacity:0.3">`
+            ).join('');
+        }
+
+        // --- Альбомы и Видео ---
+        function renderAlbums() {
+            const renderGroup = (id, data) => {
+                const container = document.getElementById(id);
+                let html = '';
+                data.forEach(album => {
+                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">📁 ${album.name}</div><div class="gallery-grid">`;
+                    album.items.forEach(item => {
+                        if (item.type === 'photo') {
+                            html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')"><img src="${item.url}"></div>`;
+                        } else if (item.type === 'video') {
+                            // Для видео показываем превью (или черный фон) и значок Play
+                            const poster = item.preview || "https://placehold.co/400x400/000/fff?text=Play";
+                            html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
+                                    <img src="${poster}">
+                                    <div class="video-indicator">▶</div>
+                                 </div>`;
+                        }
+                    });
+                    html += `</div>`;
+                });
+                container.innerHTML = html;
+            }
+            renderGroup('class5-albums', albums.class5);
+            renderGroup('class6-albums', albums.class6);
+        }
+
+        function showAlbum(cls) {
+            document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
+            document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
+            document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // --- Лайтбокс ---
+        function openLightbox(type, url) {
+            const modal = document.getElementById("lightbox-modal");
+            const imgEl = document.getElementById("lightbox-img");
+            const videoEl = document.getElementById("lightbox-video");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+
+            if (type === 'photo') {
+                imgEl.src = url;
+                imgEl.style.display = "block";
+                videoEl.style.display = "none";
+                videoEl.pause();
+            } else {
+                videoEl.src = url;
+                videoEl.style.display = "block";
+                imgEl.style.display = "none";
+                videoEl.play();
+            }
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox-modal' || e.target.classList.contains('close-btn')) {
+                const modal = document.getElementById("lightbox-modal");
+                const videoEl = document.getElementById("lightbox-video");
+
+                modal.style.display = "none";
+                document.body.style.overflow = 'auto';
+                videoEl.pause(); // Остановить видео
+                videoEl.src = ""; // Сбросить источник
+            }
+        }
+
+        // --- Расписание ---
+        let viewingDay = new Date().getDay(); // Какой день смотрим (по умолчанию сегодня)
+        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если выхи, показать понедельник
+
+        function getMinutes(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+
+        // 1. Обновляет статус "Сейчас"
+        function updateLiveStatus() {
+            const now = new Date();
+            const curDay = now.getDay();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            const lessons = weekSchedule[curDay];
+
+            let text = "Свободное время или выходной";
+
+            if (lessons) {
+                lessons.forEach((lsn, idx) => {
+                    if (idx >= bellSchedule.length) return;
+                    const time = bellSchedule[idx];
+                    const start = getMinutes(time.start);
+                    const end = getMinutes(time.end);
+                    const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
+
+                    if (curMin >= start && curMin <= end) text = `🔴 Идет урок: <b>${lsn}</b> (до ${time.end})`;
+                    else if (idx > 0 && curMin > prevEnd && curMin < start) text = `🟢 Перемена! Далее: ${lsn}`;
+                    else if (idx === 0 && curMin < start && curMin > start - 30) text = `Скоро первый урок: ${lsn}`;
+                });
+
+                // Если уроки кончились
+                const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
+                if (curMin > lastEnd) text = "Уроки на сегодня закончились 🎉";
+            }
+            document.getElementById('now-lesson-display').innerHTML = text;
+
+            // Если пользователь смотрит текущий день, обновляем список, чтобы двигалась подсветка
+            if (viewingDay === curDay) renderScheduleList(viewingDay);
+        }
+
+        // 2. Рисует список уроков
+        function renderScheduleList(dayIdx) {
+            const list = document.getElementById('daily-schedule-list');
+            const lessons = weekSchedule[dayIdx] || [];
+            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
+            document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
+
+            // Логика подсветки
+            const now = new Date();
+            const isToday = (dayIdx === now.getDay());
+            const curMin = now.getHours() * 60 + now.getMinutes();
+
+            let html = '';
+            if (lessons.length === 0) {
+                html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
+            } else {
+                lessons.forEach((lsn, i) => {
+                    if (i >= bellSchedule.length) return;
+                    const time = bellSchedule[i];
+
+                    let activeClass = '';
+                    if (isToday) {
+                        const start = getMinutes(time.start);
+                        const end = getMinutes(time.end);
+                        if (curMin >= start && curMin <= end) activeClass = 'current-lesson';
+                    }
+
+                    html += `
+                <div class="lesson-row ${activeClass}">
+                    <div class="lesson-time">${time.start} - ${time.end}</div>
+                    <div class="lesson-name">${lsn}</div>
+                </div>`;
+                });
+            }
+            list.innerHTML = html;
+        }
+
+        function selectDay(dayIdx) {
+            viewingDay = dayIdx;
+
+            // Обновить кнопки
+            document.querySelectorAll('.day-btn').forEach((btn, idx) => {
+                // idx+1 потому что кнопки идут 1..5, а массив кнопок 0..4
+                if (idx + 1 === dayIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            renderScheduleList(dayIdx);
+        }
+
+        // Preload иконки для лучшей производительности
+        function preloadIcons() {
+            const icons = [
+                'https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png',
+                'https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png',
+                'https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png'
+            ];
+
+            icons.forEach(icon => {
+                const img = new Image();
+                img.src = icon;
+            });
+        }
+
+        // Инициализация
+        preloadIcons();
+        initBasicInfo();
+        renderAlbums();
+        selectDay(viewingDay); // Сразу выбрать нужный день
+        updateLiveStatus();
+        setInterval(updateLiveStatus, 60000); // Обновлять статус каждую минуту
+
+    </script>
+
+</body>
+
+</html>
