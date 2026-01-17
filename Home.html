@@ -752,6 +752,17 @@
             -webkit-user-select: none;
             user-select: none;
         }
+
+        /* Стиль для заголовков подальбомов */
+        .sub-album-title {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+            font-size: 1rem;
+            padding: 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
     </style>
     <!-- Иконки Font Awesome для кнопок поделиться -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -828,8 +839,8 @@
             <div class="card">
                 <h2>Альбом</h2>
                 <div class="album-tabs">
-                    <button class="album-btn active" onclick="showAlbum('class5')">5 Класс</button>
-                    <button class="album-btn" onclick="showAlbum('class6')">6 Класс</button>
+                    <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                    <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
                 </div>
                 <div id="class5-albums"></div>
                 <div id="class6-albums" style="display: none;"></div>
@@ -998,9 +1009,6 @@
                 title: "Первая новость!",
                 text: "Сайт создан :) Новости уже скоро будут."
             },
-            
-            
-            
         ];
 
         // 3. ЗВОНКИ
@@ -1022,7 +1030,7 @@
             5: ["Математика КВ", "История", "Русский язык", "Читательская грамотность КВ", "Математика", "Математика"]
         };
 
-        // 5. МЕДИА (ФОТО И ВИДЕО)
+        // 5. МЕДИА (ФОТО И ВИДЕО) - ИСПРАВЛЕННЫЙ СИНТАКСИС
         // type: 'photo' -> для картинок (url - ссылка на картинку)
         // type: 'video' -> для видео (url - ссылка на mp4 файл, preview - ссылка на картинку-заглушку)
         const albums = {
@@ -1044,19 +1052,17 @@
                             type: 'video',
                             url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/FortBoyard/11.mp4",
                             preview: "https://placehold.co/600x400/black/white?text=Video"
-                        }
+                        },
                         {
                             type: 'video',
                             url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/FortBoyard/13.mp4",
                             preview: "https://placehold.co/600x400/black/white?text=Video"
                         }
-                        
                     ]
                 },
                 {
                     name: "2",
                     items: [
-                        // Пример видео. Замените url на ссылку на ваш mp4 файл
                         {
                             type: 'video',
                             url: "https://www.w3schools.com/html/mov_bbb.mp4",
@@ -1070,11 +1076,10 @@
                     name: "Первое сентября",
                     items: [
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/FirstOfSeptember/1.jpg" },
-                        
                     ]
-                }
+                },
                 {
-                    name: "Поездка на башню Хардерсхоф,
+                    name: "Поездка на башню \"Хардерсхоф\"",
                     items: [
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Hardershof/1.jpg" },
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Hardershof/2.jpg" },
@@ -1082,7 +1087,6 @@
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Hardershof/4.jpg" },
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Hardershof/5.jpg" },
                         { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Hardershof/6.jpg" },
-                        
                     ]
                 }
             ]
@@ -1097,7 +1101,6 @@
 
         // Функция для создания специальной ссылки на новость
         function createNewsShareUrl(newsId) {
-            // Удаляем параметры из текущего URL
             const cleanUrl = siteUrl.split('?')[0];
             return `${cleanUrl}?news=${newsId}`;
         }
@@ -1108,10 +1111,8 @@
             const newsId = urlParams.get('news');
 
             if (newsId) {
-                // Переключаемся на вкладку новостей
                 switchTab('news');
 
-                // Прокручиваем к нужной новости через небольшую задержку
                 setTimeout(() => {
                     highlightNews(newsId);
                 }, 300);
@@ -1120,23 +1121,19 @@
 
         // Функция для подсветки новости
         function highlightNews(newsId) {
-            // Убираем подсветку со всех новостей
             document.querySelectorAll('.news-item').forEach(item => {
                 item.classList.remove('highlighted');
             });
 
-            // Находим нужную новость и подсвечиваем её
             const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
             if (newsElement) {
                 newsElement.classList.add('highlighted');
 
-                // Прокручиваем к новости
                 newsElement.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
                 });
 
-                // Через 5 секунд убираем подсветку
                 setTimeout(() => {
                     newsElement.classList.remove('highlighted');
                 }, 3000);
@@ -1166,18 +1163,16 @@
         function copyShareLink() {
             const shareUrl = document.getElementById('share-url-input');
             shareUrl.select();
-            shareUrl.setSelectionRange(0, 99999); // Для мобильных устройств
+            shareUrl.setSelectionRange(0, 99999);
 
             try {
                 navigator.clipboard.writeText(shareUrl.value).then(() => {
                     showCopyNotification();
                 }).catch(err => {
-                    // Fallback для старых браузеров
                     document.execCommand('copy');
                     showCopyNotification();
                 });
             } catch (err) {
-                // Еще один fallback
                 document.execCommand('copy');
                 showCopyNotification();
             }
@@ -1231,7 +1226,6 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
 
-            // Подсветка кнопок меню
             const menuIndex = ['schedule', 'rating', 'news', 'gallery'].indexOf(tabId);
             if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
         }
@@ -1282,7 +1276,6 @@
                         if (item.type === 'photo') {
                             html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')"><img src="${item.url}" draggable="false"></div>`;
                         } else if (item.type === 'video') {
-                            // Для видео показываем превью (или черный фон) и значок Play
                             const poster = item.preview || "https://placehold.co/400x400/000/fff?text=Play";
                             html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
                                     <img src="${poster}" draggable="false">
@@ -1298,7 +1291,7 @@
             renderGroup('class6-albums', albums.class6);
         }
 
-        function showAlbum(cls) {
+        function showAlbum(cls, event) {
             document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
             document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
             document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
@@ -1334,16 +1327,19 @@
 
                 modal.style.display = "none";
                 document.body.style.overflow = 'auto';
-                videoEl.pause(); // Остановить видео
-                videoEl.src = ""; // Сбросить источник
+                videoEl.pause();
+                videoEl.src = "";
             }
         }
 
         // --- Расписание ---
-        let viewingDay = new Date().getDay(); // Какой день смотрим (по умолчанию сегодня)
-        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если выхи, показать понедельник
+        let viewingDay = new Date().getDay();
+        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1;
 
-        function getMinutes(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+        function getMinutes(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
 
         // 1. Обновляет статус "Сейчас"
         function updateLiveStatus() {
@@ -1367,13 +1363,11 @@
                     else if (idx === 0 && curMin < start && curMin > start - 30) text = `Скоро первый урок: ${lsn}`;
                 });
 
-                // Если уроки кончились
                 const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
                 if (curMin > lastEnd) text = "Уроки на сегодня закончились 🎉";
             }
             document.getElementById('now-lesson-display').innerHTML = text;
 
-            // Если пользователь смотрит текущий день, обновляем список, чтобы двигалась подсветка
             if (viewingDay === curDay) renderScheduleList(viewingDay);
         }
 
@@ -1385,7 +1379,6 @@
 
             document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
 
-            // Логика подсветки
             const now = new Date();
             const isToday = (dayIdx === now.getDay());
             const curMin = now.getHours() * 60 + now.getMinutes();
@@ -1418,9 +1411,7 @@
         function selectDay(dayIdx) {
             viewingDay = dayIdx;
 
-            // Обновить кнопки
             document.querySelectorAll('.day-btn').forEach((btn, idx) => {
-                // idx+1 потому что кнопки идут 1..5, а массив кнопок 0..4
                 if (idx + 1 === dayIdx) btn.classList.add('active');
                 else btn.classList.remove('active');
             });
@@ -1446,9 +1437,9 @@
         preloadIcons();
         initBasicInfo();
         renderAlbums();
-        selectDay(viewingDay); // Сразу выбрать нужный день
+        selectDay(viewingDay);
         updateLiveStatus();
-        setInterval(updateLiveStatus, 60000); // Обновлять статус каждую минуту
+        setInterval(updateLiveStatus, 60000);
 
     </script>
 
