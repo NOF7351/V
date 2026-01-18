@@ -256,6 +256,49 @@
             font-size: 1.2rem;
         }
 
+        /* Стили для ограниченного доступа */
+        .restricted-access {
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeIn 0.5s;
+        }
+
+        .restricted-access .lock-icon {
+            font-size: 60px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .restricted-access h3 {
+            color: var(--text);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .restricted-access p {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .login-prompt-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .login-prompt-btn:hover {
+            background: #4338ca;
+        }
+
         /* --- Вкладка Профиль --- */
         .profile-login-form {
             max-width: 400px;
@@ -1104,10 +1147,29 @@
         <div id="rating" class="section">
             <div class="card">
                 <h2>Социальный рейтинг <span class="dev-badge">В РАЗРАБОТКЕ</span></h2>
-                <p style="font-size: 0.9rem; color: #666;">Уже скоро...</p>
-                <table class="rating-table">
-                    <tbody id="rating-list"></tbody>
-                </table>
+                
+                <!-- Контент для авторизованных пользователей -->
+                <div id="rating-content" style="display: none;">
+                    <p style="font-size: 0.9rem; color: #666;">Уже скоро...</p>
+                    <table class="rating-table">
+                        <tbody id="rating-list"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Сообщение об ограничении доступа -->
+                <div id="rating-restricted" class="restricted-access">
+                    <div class="lock-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Доступ ограничен</h3>
+                    <p>Для просмотра рейтинга необходимо войти в аккаунт</p>
+                    <button class="login-prompt-btn" onclick="switchTab('profile')">
+                        <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                    </button>
+                    <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">
+                        Только ученики 6В класса имеют доступ к этому разделу
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -1121,12 +1183,31 @@
         <div id="gallery" class="section">
             <div class="card">
                 <h2>Альбом</h2>
-                <div class="album-tabs">
-                    <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
-                    <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                
+                <!-- Контент для авторизованных пользователей -->
+                <div id="gallery-content" style="display: none;">
+                    <div class="album-tabs">
+                        <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                        <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                    </div>
+                    <div id="class5-albums"></div>
+                    <div id="class6-albums" style="display: none;"></div>
                 </div>
-                <div id="class5-albums"></div>
-                <div id="class6-albums" style="display: none;"></div>
+                
+                <!-- Сообщение об ограничении доступа -->
+                <div id="gallery-restricted" class="restricted-access">
+                    <div class="lock-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Доступ ограничен</h3>
+                    <p>Для просмотра альбома необходимо войти в аккаунт</p>
+                    <button class="login-prompt-btn" onclick="switchTab('profile')">
+                        <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                    </button>
+                    <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">
+                        Фотографии и видео доступны только ученикам 6В класса
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -1537,7 +1618,7 @@
             { "id": 31, "firstName": "Тимур", "lastName": "Шаркевич", "password": "Ck9pYv6b" },
             { "id": 32, "firstName": "Алиса", "lastName": "Шумская", "password": "Gh7mHd9s" },
             { "id": 33, "firstName": "Артём", "lastName": "Яземов", "password": "Lj5nWv6d" },
-            { "id": 33, "firstName": "Тест", "lastName": "1", "password": "Test1" }
+            { "id": 34, "firstName": "Тест", "lastName": "1", "password": "Test1" }
         ];
 
         // Функция для отображения пароля в профиле
@@ -1659,6 +1740,7 @@
                             };
                             showProfile();
                             displayPassword();
+                            updateRestrictedSections();
                             return true;
                         }
                     } else {
@@ -1671,6 +1753,7 @@
                 }
             }
             showLoginForm();
+            updateRestrictedSections();
             return false;
         }
 
@@ -1738,6 +1821,9 @@
                 // Показываем профиль
                 showProfile();
                 displayPassword();
+                
+                // Обновляем видимость разделов с ограниченным доступом
+                updateRestrictedSections();
 
                 // Показываем сообщение об успехе
                 document.getElementById('loginSuccess').textContent = 'Вход выполнен успешно!';
@@ -1762,6 +1848,9 @@
             currentUser = null;
             localStorage.removeItem(STORAGE_KEY);
             showLoginForm();
+            
+            // Обновляем видимость разделов с ограниченным доступом
+            updateRestrictedSections();
 
             // Очищаем поля формы
             document.getElementById('firstName').value = '';
@@ -1823,6 +1912,29 @@
                 const avatar = document.getElementById('profileAvatar');
                 const initials = `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase();
                 avatar.innerHTML = `<span style="font-weight: bold; font-size: 32px;">${initials}</span>`;
+            }
+        }
+
+        // Функция для обновления видимости разделов с ограниченным доступом
+        function updateRestrictedSections() {
+            const isLoggedIn = currentUser !== null;
+            
+            // Альбом
+            if (isLoggedIn) {
+                document.getElementById('gallery-content').style.display = 'block';
+                document.getElementById('gallery-restricted').style.display = 'none';
+            } else {
+                document.getElementById('gallery-content').style.display = 'none';
+                document.getElementById('gallery-restricted').style.display = 'block';
+            }
+            
+            // Рейтинг
+            if (isLoggedIn) {
+                document.getElementById('rating-content').style.display = 'block';
+                document.getElementById('rating-restricted').style.display = 'none';
+            } else {
+                document.getElementById('rating-content').style.display = 'none';
+                document.getElementById('rating-restricted').style.display = 'block';
             }
         }
 
