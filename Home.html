@@ -6,31 +6,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>6В</title>
     <style>
-        /* Блокировка зума (масштабирования) */
+        /* Стили для экрана ввода пароля */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .password-title {
+            font-size: 1.6rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .password-subtitle {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .password-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .password-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .password-dot.filled {
+            background: #4f46e5;
+            transform: scale(1.1);
+        }
+
+        .password-dot.error {
+            background: #ef4444;
+            animation: shake 0.5s;
+        }
+
+        .virtual-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keyboard-btn {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .keyboard-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .keyboard-btn:active {
+            background: #d1d5db;
+            transform: translateY(0);
+        }
+
+        .keyboard-btn.backspace {
+            font-size: 20px;
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .keyboard-btn.backspace:hover {
+            background: #fecaca;
+        }
+
+        .keyboard-btn.submit {
+            grid-column: span 3;
+            background: #4f46e5;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            height: 50px;
+        }
+
+        .keyboard-btn.submit:hover {
+            background: #4338ca;
+        }
+
+        .keyboard-btn.submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            transition: all 0.3s;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        /* Основные стили сайта */
         html,
         body {
             touch-action: pan-x pan-y;
             -ms-touch-action: pan-x pan-y;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Блокировка выделения текста (кроме полей ввода) */
         * {
             -webkit-touch-callout: none;
-            /* iOS Safari */
             -webkit-user-select: none;
-            /* Safari */
             -khtml-user-select: none;
-            /* Konqueror HTML */
             -moz-user-select: none;
-            /* Firefox */
             -ms-user-select: none;
-            /* Internet Explorer/Edge */
             user-select: none;
-            /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
         }
 
-        /* Разрешаем выделение для полей ввода */
         input,
         textarea {
             -webkit-user-select: auto !important;
@@ -45,8 +229,6 @@
             --accent: #10b981;
             --danger: #ef4444;
             --share-color: #3b82f6;
-            --profile-color: #8b5cf6;
-            --teacher-color: #f59e0b;
         }
 
         body {
@@ -59,12 +241,6 @@
             touch-action: pan-y;
             overflow-x: hidden;
             width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow-y: auto;
         }
 
         input,
@@ -141,7 +317,6 @@
             }
 
             body {
-                position: static;
                 overflow-y: visible;
             }
         }
@@ -203,10 +378,6 @@
             background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
         }
 
-        .nav-item[onclick*="profile"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/profile.png');
-        }
-
         /* --- Layout --- */
         .container {
             max-width: 800px;
@@ -255,355 +426,6 @@
             border-bottom: 2px solid var(--bg);
             padding-bottom: 10px;
             font-size: 1.2rem;
-        }
-
-        /* Стили для ограниченного доступа */
-        .restricted-access {
-            text-align: center;
-            padding: 40px 20px;
-            animation: fadeIn 0.5s;
-        }
-
-        .restricted-access .lock-icon {
-            font-size: 60px;
-            color: #9ca3af;
-            margin-bottom: 20px;
-        }
-
-        .restricted-access h3 {
-            color: var(--text);
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-        }
-
-        .restricted-access p {
-            color: #6b7280;
-            margin-bottom: 25px;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-
-        .login-prompt-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-
-        .login-prompt-btn:hover {
-            background: #4338ca;
-        }
-
-        /* --- Вкладка Профиль --- */
-        .profile-login-form {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
-            -webkit-user-select: auto !important;
-            user-select: auto !important;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .form-input.error {
-            border-color: var(--danger);
-            animation: shake 0.5s;
-        }
-
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            10%,
-            30%,
-            50%,
-            70%,
-            90% {
-                transform: translateX(-5px);
-            }
-
-            20%,
-            40%,
-            60%,
-            80% {
-                transform: translateX(5px);
-            }
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 10px;
-        }
-
-        .login-btn:hover {
-            background: #4338ca;
-        }
-
-        .login-btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .error-message {
-            color: var(--danger);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        .success-message {
-            color: var(--accent);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        .profile-welcome {
-            text-align: center;
-            padding: 30px 20px;
-            animation: fadeIn 0.5s;
-        }
-
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, var(--profile-color), var(--primary));
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: white;
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .profile-avatar.teacher {
-            background: linear-gradient(135deg, var(--teacher-color), #d97706);
-            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
-        }
-
-        .profile-name {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-
-        .profile-class {
-            font-size: 1.1rem;
-            color: #6b7280;
-            margin-bottom: 25px;
-        }
-
-        .teacher-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--teacher-color), #d97706);
-            color: white;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-left: 10px;
-            vertical-align: middle;
-            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
-        }
-
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .stat-item {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .logout-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-        }
-
-        /* Стили для отображения пароля */
-        .password-container {
-            margin: 20px 0;
-            padding: 15px;
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-radius: 10px;
-            border: 1px solid #bae6fd;
-        }
-
-        .teacher-password-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 1px solid #fbbf24;
-        }
-
-        .password-label {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .teacher-password-label {
-            color: var(--teacher-color);
-        }
-
-        .password-value {
-            font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            padding: 10px 15px;
-            background: white;
-            border: 2px dashed #38bdf8;
-            border-radius: 6px;
-            text-align: center;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .teacher-password-value {
-            border: 2px dashed var(--teacher-color);
-            background: #fffbeb;
-        }
-
-        .password-value:hover {
-            background: #f0f9ff;
-            border-color: var(--primary);
-        }
-
-        .teacher-password-value:hover {
-            background: #fef3c7;
-            border-color: #d97706;
-        }
-
-        .password-value.copied {
-            background: #d1fae5;
-            border-color: var(--accent);
-            animation: copyFlash 0.5s ease;
-        }
-
-        .teacher-password-value.copied {
-            background: #d1fae5;
-            border-color: var(--accent);
-        }
-
-        @keyframes copyFlash {
-            0% {
-                background: #d1fae5;
-            }
-
-            50% {
-                background: #86efac;
-            }
-
-            100% {
-                background: #d1fae5;
-            }
-        }
-
-        .copy-hint {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 5px;
-            text-align: center;
-        }
-
-        /* Кнопка показать/скрыть пароль */
-        .password-toggle {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            font-size: 0.9rem;
         }
 
         /* --- Schedule Specific --- */
@@ -1093,475 +915,343 @@
             -webkit-user-select: none;
             user-select: none;
         }
-
-        /* Стили для показа пароля при входе */
-        .password-input-wrapper {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-        }
-
-        .forgot-password {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.85rem;
-        }
-
-        .forgot-password a {
-            color: var(--primary);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .forgot-password a:hover {
-            text-decoration: underline;
-        }
-
-        /* Стили для панели учителя */
-        .teacher-panel {
-            margin: 25px 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            border-radius: 12px;
-            border: 2px solid #fbbf24;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
-        }
-
-        .teacher-panel h3 {
-            color: var(--teacher-color);
-            margin-top: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .teacher-panel h3 i {
-            font-size: 1.2rem;
-        }
-
-        .teacher-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .teacher-action-btn {
-            background: white;
-            border: 2px solid #fbbf24;
-            color: var(--teacher-color);
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .teacher-action-btn:hover {
-            background: #fef3c7;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
-        }
-
-        .teacher-action-btn i {
-            font-size: 1.5rem;
-        }
-
-        .teacher-action-btn span {
-            font-size: 0.9rem;
-        }
-
-        /* Панель управления новостями */
-        .news-management {
-            margin: 25px 0;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-        }
-
-        .news-management h4 {
-            color: var(--primary);
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .news-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .add-news-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-            align-self: flex-start;
-        }
-
-        .add-news-btn:hover {
-            background: #0da271;
-        }
-
-        /* Статистика класса */
-        .class-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .class-stat-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .class-stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .class-stat-label {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="no-context">
 
-    <header>
-        <h1>6В</h1>
-        <p>Классный сайт 6В класса</p>
-    </header>
+    <!-- Экран ввода пароля -->
+    <div id="password-screen">
+        <div class="password-container">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="password-title">Доступ к сайту 6В класса</h2>
+            <p class="password-subtitle">Введите 4-значный пароль для входа</p>
 
-    <nav class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('schedule')">
-            <div class="nav-icon"></div>
-            Расписание
-        </button>
-        <button class="nav-item" onclick="switchTab('rating')">
-            <div class="nav-icon"></div>
-            Рейтинг
-        </button>
-        <button class="nav-item" onclick="switchTab('news')">
-            <div class="nav-icon"></div>
-            Новости
-        </button>
-        <button class="nav-item" onclick="switchTab('gallery')">
-            <div class="nav-icon"></div>
-            Альбом
-        </button>
-        <button class="nav-item" onclick="switchTab('profile')">
-            <div class="nav-icon"></div>
-            Профиль
-        </button>
-    </nav>
-
-    <div class="container">
-
-        <div id="schedule" class="section active">
-            <div class="card">
-                <h2>Статус урока</h2>
-                <div id="now-lesson-display">Загрузка...</div>
+            <!-- Индикатор введенных цифр -->
+            <div class="password-display">
+                <div class="password-dot" id="dot1"></div>
+                <div class="password-dot" id="dot2"></div>
+                <div class="password-dot" id="dot3"></div>
+                <div class="password-dot" id="dot4"></div>
             </div>
 
-            <div class="card">
-                <h2>Расписание недели</h2>
-                <div class="days-selector">
-                    <button class="day-btn" onclick="selectDay(1)">ПН</button>
-                    <button class="day-btn" onclick="selectDay(2)">ВТ</button>
-                    <button class="day-btn" onclick="selectDay(3)">СР</button>
-                    <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
-                    <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+            <!-- Сообщения об ошибке/успехе -->
+            <div class="error-message" id="password-error"></div>
+            <div class="success-message" id="password-success"></div>
+
+            <!-- Виртуальная клавиатура -->
+            <div class="virtual-keyboard">
+                <button class="keyboard-btn" onclick="addDigit(1)">1</button>
+                <button class="keyboard-btn" onclick="addDigit(2)">2</button>
+                <button class="keyboard-btn" onclick="addDigit(3)">3</button>
+                <button class="keyboard-btn" onclick="addDigit(4)">4</button>
+                <button class="keyboard-btn" onclick="addDigit(5)">5</button>
+                <button class="keyboard-btn" onclick="addDigit(6)">6</button>
+                <button class="keyboard-btn" onclick="addDigit(7)">7</button>
+                <button class="keyboard-btn" onclick="addDigit(8)">8</button>
+                <button class="keyboard-btn" onclick="addDigit(9)">9</button>
+                <button class="keyboard-btn backspace" onclick="removeDigit()">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="keyboard-btn" onclick="addDigit(0)">0</button>
+                
+            </div>
+
+            <p class="password-hint">
+                <i class="fas fa-info-circle"></i> Если вы забыли пароль, напишите @kolianchic2
+            </p>
+        </div>
+    </div>
+
+    <!-- Основной контент сайта (скрыт до ввода пароля) -->
+    <div id="site-content" style="display: none;">
+
+        <header>
+            <h1>6В</h1>
+            <p>Классный сайт 6В класса</p>
+        </header>
+
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('schedule')">
+                <div class="nav-icon"></div>
+                Расписание
+            </button>
+            <button class="nav-item" onclick="switchTab('rating')">
+                <div class="nav-icon"></div>
+                Рейтинг
+            </button>
+            <button class="nav-item" onclick="switchTab('news')">
+                <div class="nav-icon"></div>
+                Новости
+            </button>
+            <button class="nav-item" onclick="switchTab('gallery')">
+                <div class="nav-icon"></div>
+                Альбом
+            </button>
+        </nav>
+
+        <div class="container">
+
+            <div id="schedule" class="section active">
+                <div class="card">
+                    <h2>Статус урока</h2>
+                    <div id="now-lesson-display">Загрузка...</div>
                 </div>
 
-                <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник
-                </h3>
-                <div id="daily-schedule-list"></div>
+                <div class="card">
+                    <h2>Расписание недели</h2>
+                    <div class="days-selector">
+                        <button class="day-btn" onclick="selectDay(1)">ПН</button>
+                        <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                        <button class="day-btn" onclick="selectDay(3)">СР</button>
+                        <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                        <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                    </div>
+
+                    <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник
+                    </h3>
+                    <div id="daily-schedule-list"></div>
+                </div>
             </div>
-        </div>
 
-        <div id="rating" class="section">
-            <div class="card">
-                <h2>Социальный рейтинг <span class="dev-badge">В РАЗРАБОТКЕ</span></h2>
-
-                <!-- Контент для авторизованных пользователей -->
-                <div id="rating-content" style="display: none;">
+            <div id="rating" class="section">
+                <div class="card">
+                    <h2>Социальный рейтинг <span class="dev-badge">В РАЗРАБОТКЕ</span></h2>
                     <p style="font-size: 0.9rem; color: #666;">Уже скоро...</p>
                     <table class="rating-table">
                         <tbody id="rating-list"></tbody>
                     </table>
                 </div>
+            </div>
 
-                <!-- Сообщение об ограничении доступа -->
-                <div id="rating-restricted" class="restricted-access">
-                    <div class="lock-icon">
-                        <i class="fas fa-lock"></i>
+            <div id="news" class="section">
+                <div class="card">
+                    <h2>Последние новости</h2>
+                    <div id="news-container"></div>
+                </div>
+            </div>
+
+            <div id="gallery" class="section">
+                <div class="card">
+                    <h2>Альбом</h2>
+                    <div id="gallery-content">
+                        <div class="album-tabs">
+                            <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                        </div>
+                        <div id="class5-albums"></div>
+                        <div id="class6-albums" style="display: none;"></div>
                     </div>
-                    <h3>Доступ ограничен</h3>
-                    <p>Для просмотра рейтинга необходимо войти в аккаунт</p>
-                    <button class="login-prompt-btn" onclick="switchTab('profile')">
-                        <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Модальное окно поделиться -->
+        <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
+            <div class="share-modal-content" onclick="event.stopPropagation()">
+                <h3 class="share-modal-title">Поделиться новостью</h3>
+                <div class="share-text-notice" id="share-text-notice">
+                    <strong>Текст для отправки:</strong><br>
+                    <code id="share-text-display">С тобой хотят поделиться новостью:</code>
+                </div>
+                <div class="share-options">
+                    <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
+                        <i class="fab fa-telegram"></i>
                     </button>
-                    <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">
-                        Только ученики 6В класса имеют доступ к этому разделу
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div id="news" class="section">
-            <div class="card">
-                <h2>Последние новости</h2>
-                <div id="news-container"></div>
-            </div>
-        </div>
-
-        <div id="gallery" class="section">
-            <div class="card">
-                <h2>Альбом</h2>
-
-                <!-- Контент для авторизованных пользователей -->
-                <div id="gallery-content" style="display: none;">
-                    <div class="album-tabs">
-                        <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
-                        <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
-                    </div>
-                    <div id="class5-albums"></div>
-                    <div id="class6-albums" style="display: none;"></div>
-                </div>
-
-                <!-- Сообщение об ограничении доступа -->
-                <div id="gallery-restricted" class="restricted-access">
-                    <div class="lock-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h3>Доступ ограничен</h3>
-                    <p>Для просмотра альбома необходимо войти в аккаунт</p>
-                    <button class="login-prompt-btn" onclick="switchTab('profile')">
-                        <i class="fas fa-sign-in-alt"></i> Войти в аккаунт
+                    <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
                     </button>
-                    <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">
-                        Фотографии и видео доступны только ученикам 6В класса
-                    </p>
+                    <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
+                        <i class="fab fa-vk"></i>
+                    </button>
+                    <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="share-link-container">
+                    <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div id="profile" class="section">
-            <div class="card">
-                <h2>Профиль</h2>
-                <div id="login-container">
-                    <div class="profile-login-form">
-                        <h3 style="text-align: center; margin-bottom: 25px; color: var(--primary);">Вход в аккаунт</h3>
-                        <div class="form-group">
-                            <label for="firstName">Имя:</label>
-                            <input type="text" id="firstName" class="form-input" placeholder="Введите ваше имя"
-                                autocomplete="off">
-                            <div class="error-message" id="firstNameError">Пожалуйста, введите имя</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="lastName">Фамилия:</label>
-                            <input type="text" id="lastName" class="form-input" placeholder="Введите вашу фамилию"
-                                autocomplete="off">
-                            <div class="error-message" id="lastNameError">Пожалуйста, введите фамилию</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Пароль:</label>
-                            <div class="password-input-wrapper">
-                                <input type="password" id="password" class="form-input" placeholder="Введите пароль"
-                                    autocomplete="off">
-                                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
-                                    <i class="far fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="error-message" id="passwordError">Пожалуйста, введите пароль</div>
-                        </div>
-                        <div class="error-message" id="loginError" style="text-align: center; margin-top: 15px;"></div>
-                        <div class="success-message" id="loginSuccess" style="text-align: center; margin-top: 15px;">
-                        </div>
-                        <button class="login-btn" id="loginBtn" onclick="login()">Войти</button>
-
-                        <div class="forgot-password">
-                            <a onclick="showPasswordRecovery()">Забыли пароль?</a>
-                        </div>
-
-                        <p style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 0.9rem;">
-                            Введите имя, фамилию и пароль для входа в аккаунт
-                        </p>
-                    </div>
-                </div>
-
-
-                <!-- Форма восстановления пароля -->
-                <div id="password-recovery" style="display: none;">
-                    <div class="profile-login-form">
-                        <h3 style="text-align: center; margin-bottom: 25px; color: var(--primary);">Восстановление
-                            пароля</h3>
-
-                        <!-- ВМЕСТО ФОРМЫ С ПОЛЯМИ ВВОДА ДОБАВИТЬ ПРОСТОЙ ТЕКСТ -->
-                        <div style="text-align: center; padding: 20px;">
-                            <p style="font-size: 1.1rem; color: var(--text); margin-bottom: 20px;">
-                                Если вы забыли/потеряли пароль, то напишите @kolianchic2 в Telegram.
-                            </p>
-                        </div>
-
-                        <button class="login-btn" style="background: #6b7280; margin-top: 10px;"
-                            onclick="hidePasswordRecovery()">
-                            Назад ко входу
-                        </button>
-                    </div>
-                </div>
-
-                <div id="profile-content" style="display: none;">
-                    <div class="profile-welcome">
-                        <div class="profile-avatar" id="profileAvatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <h2 class="profile-name" id="profileName"></h2>
-                        <p class="profile-class" id="profileClass">Ученик 6В класса</p>
-
-                        <!-- Блок с информацией о пароле -->
-                        <div class="password-container" id="passwordContainer">
-                            <span class="password-label" id="passwordLabel">Ваш пароль для входа:</span>
-                            <div class="password-value" id="passwordDisplay" onclick="copyPassword()"></div>
-                            <div class="copy-hint" id="copyHint">Нажмите на пароль, чтобы скопировать</div>
-                            <p style="text-align: center; font-size: 0.85rem; color: #6b7280; margin-top: 10px;">
-                                <i class="fas fa-info-circle"></i> Сохраните этот пароль для будущих входов
-                            </p>
-                        </div>
-
-                        <!-- Панель учителя -->
-                        <div id="teacher-panel" class="teacher-panel" style="display: none;">
-                            <h3><i class="fas fa-chalkboard-teacher"></i> Панель учителя</h3>
-                            <p style="color: #666; margin-bottom: 15px;">Информация</p>
-
-                           
-
-                            <!-- Статистика класса -->
-                            <div class="class-stats">
-                                <div class="class-stat-item">
-                                    <div class="class-stat-value" id="totalStudents">33</div>
-                                    <div class="class-stat-label">Учеников в классе</div>
-                                </div>
-                                
-                                <div class="class-stat-item">
-                                    <div class="class-stat-value" id="totalNews">2</div>
-                                    <div class="class-stat-label">Новостей</div>
-                                </div>
-                                
-                            </div>
-                        </div>
-
-                       
-
-                        <button class="logout-btn" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
-                        </button>
-
-                        <div
-                            style="margin-top: 30px; padding: 15px; background: #f8fafc; border-radius: 8px; text-align: left;">
-                            <h4 style="margin-top: 0; color: var(--primary);">Информация об аккаунте:</h4>
-                            <p style="margin: 5px 0; color: #6b7280;"><strong>Ваш ID:</strong> <span
-                                    id="profileId"></span>
-                            </p>
-                            <p style="margin: 5px 0; color: #6b7280;"><strong>Вход выполнен:</strong> <span
-                                    id="loginTime"></span></p>
-                            <p style="margin: 5px 0; color: #6b7280;"><strong>Данные сохранены на:</strong> <span
-                                    id="deviceInfo"></span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- Уведомление о копировании -->
+        <div id="copy-notification" class="copy-notification">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Пароль скопирован!
         </div>
 
-    </div>
-
-    <!-- Модальное окно поделиться -->
-    <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
-        <div class="share-modal-content" onclick="event.stopPropagation()">
-            <h3 class="share-modal-title">Поделиться новостью</h3>
-            <div class="share-text-notice" id="share-text-notice">
-                <strong>Текст для отправки:</strong><br>
-                <code id="share-text-display">С тобой хотят поделиться новостью:</code>
-            </div>
-            <div class="share-options">
-                <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
-                    <i class="fab fa-telegram"></i>
-                </button>
-                <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </button>
-                <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
-                    <i class="fab fa-vk"></i>
-                </button>
-                <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
-                    <i class="fas fa-copy"></i>
-                </button>
-            </div>
-            <div class="share-link-container">
-                <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
-            </div>
-            <div style="text-align: center; margin-top: 15px;">
-                <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
-                    <i class="fas fa-times"></i> Закрыть
-                </button>
-            </div>
+        <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
+            <span class="close-btn">&times;</span>
+            <img class="lightbox-content" id="lightbox-img" style="display:none;">
+            <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
         </div>
-    </div>
 
-    <!-- Уведомление о копировании -->
-    <div id="copy-notification" class="copy-notification">
-        <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Пароль скопирован!
-    </div>
-
-    <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
-        <span class="close-btn">&times;</span>
-
-        <img class="lightbox-content" id="lightbox-img" style="display:none;">
-
-        <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
     </div>
 
     <script>
+        // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
+        const SITE_PASSWORD = "6730"; // 4-значный пароль для доступа к сайту
+        const PASSWORD_KEY = 'class6v_site_access';
+
+        let enteredPassword = '';
+        let dots = [];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            // Создаем массив точек
+            dots = [
+                document.getElementById('dot1'),
+                document.getElementById('dot2'),
+                document.getElementById('dot3'),
+                document.getElementById('dot4')
+            ];
+
+            // Проверяем сохраненный доступ
+            checkSavedAccess();
+        });
+
+        // Проверяем, был ли уже введен пароль
+        function checkSavedAccess() {
+            const savedAccess = localStorage.getItem(PASSWORD_KEY);
+            if (savedAccess === 'granted') {
+                grantSiteAccess();
+            }
+        }
+
+        // Добавление цифры
+        function addDigit(digit) {
+            if (enteredPassword.length >= 4) return;
+
+            enteredPassword += digit.toString();
+            updateDots();
+            updateSubmitButton();
+
+            // Автопроверка при вводе 4 цифр
+            if (enteredPassword.length === 4) {
+                setTimeout(checkPassword, 300);
+            }
+        }
+
+        // Удаление последней цифры
+        function removeDigit() {
+            if (enteredPassword.length === 0) return;
+
+            enteredPassword = enteredPassword.slice(0, -1);
+            updateDots();
+            updateSubmitButton();
+
+            // Очищаем сообщения об ошибке
+            document.getElementById('password-error').textContent = '';
+        }
+
+        // Обновление индикатора точек
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < enteredPassword.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                    dot.classList.remove('error');
+                }
+            });
+        }
+
+        // Обновление состояния кнопки отправки
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (enteredPassword.length === 4) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Проверка пароля
+        function checkPassword() {
+            const errorElement = document.getElementById('password-error');
+            const successElement = document.getElementById('password-success');
+
+            // Очищаем предыдущие сообщения
+            errorElement.textContent = '';
+            successElement.textContent = '';
+
+            if (enteredPassword.length !== 4) {
+                errorElement.textContent = 'Введите все 4 цифры';
+                shakeDots();
+                return;
+            }
+
+            if (enteredPassword === SITE_PASSWORD) {
+                // Правильный пароль
+                successElement.textContent = 'Правильно! Перенаправление...';
+
+                // Анимация успеха
+                dots.forEach(dot => {
+                    dot.style.background = '#10b981';
+                    dot.style.animation = 'pulse 0.5s ease-in-out';
+                });
+
+                // Сохраняем доступ в localStorage
+                localStorage.setItem(PASSWORD_KEY, 'granted');
+
+                // Показываем сайт с задержкой для анимации
+                setTimeout(grantSiteAccess, 800);
+            } else {
+                // Неправильный пароль
+                errorElement.textContent = 'Неверный пароль';
+                shakeDots();
+
+                // Сбрасываем пароль через время
+                setTimeout(() => {
+                    enteredPassword = '';
+                    updateDots();
+                    updateSubmitButton();
+                    errorElement.textContent = '';
+                }, 1000);
+            }
+        }
+
+        // Анимация тряски при ошибке
+        function shakeDots() {
+            dots.forEach(dot => {
+                dot.classList.add('error');
+                dot.style.animation = 'shake 0.5s ease-in-out';
+            });
+
+            setTimeout(() => {
+                dots.forEach(dot => {
+                    dot.classList.remove('error');
+                    dot.style.animation = '';
+                });
+            }, 500);
+        }
+
+        // Предоставление доступа к сайту
+        function grantSiteAccess() {
+            const passwordScreen = document.getElementById('password-screen');
+            const siteContent = document.getElementById('site-content');
+
+            // Анимация исчезновения экрана пароля
+            passwordScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                passwordScreen.style.display = 'none';
+                siteContent.style.display = 'block';
+
+                // Инициализируем сайт после показа
+                initSite();
+            }, 300);
+        }
+
         // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
-        // НЕ блокируем клавиши копирования и вставки для полей ввода
         document.addEventListener('touchstart', function (event) {
             if (event.touches.length > 1) {
                 event.preventDefault();
@@ -1653,28 +1343,6 @@
         });
 
         /* ================================================================
-           ФУНКЦИЯ ГЕНЕРАЦИИ ПАРОЛЕЙ
-        ================================================================ */
-
-        function generatePassword(length = 8) {
-            const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            let password = "";
-
-            // Добавляем хотя бы по одному символу каждого типа для надежности
-            password += charset[Math.floor(Math.random() * 26)]; // заглавная буква
-            password += charset[26 + Math.floor(Math.random() * 26)]; // строчная буква
-            password += charset[52 + Math.floor(Math.random() * 10)]; // цифра
-
-            // Заполняем оставшиеся символы
-            for (let i = 3; i < length; i++) {
-                password += charset[Math.floor(Math.random() * charset.length)];
-            }
-
-            // Перемешиваем символы
-            return password.split('').sort(() => Math.random() - 0.5).join('');
-        }
-
-        /* ================================================================
            ЗОНА РЕДАКТИРОВАНИЯ
         ================================================================ */
 
@@ -1691,14 +1359,12 @@
                 title: "Благодарность за помощь",
                 text: "Спасибо большое за помощь Андрею и Вике!"
             },
-
             {
                 id: 1,
                 date: "15.01.2026",
                 title: "Первая новость!",
                 text: "Сайт создан :) Новости уже скоро будут."
-            },
-
+            }
         ];
 
         // 3. ЗВОНКИ
@@ -1780,443 +1446,7 @@
             ]
         };
 
-        // 6. БАЗА ДАННЫХ УЧЕНИКОВ 6В КЛАССА С ПАРОЛЯМИ
-        const studentsDatabase = [
-            { "id": 1, "firstName": "София", "lastName": "Ахматская", "password": "Fz8XbT3q", "role": "student" },
-            { "id": 2, "firstName": "Валерия", "lastName": "Великонская", "password": "Yv7kPn9s", "role": "student" },
-            { "id": 3, "firstName": "Полина", "lastName": "Беспалова", "password": "Dw4mQh6f", "role": "student" },
-            { "id": 4, "firstName": "Вероника", "lastName": "Бородина", "password": "Hj9pVd5l", "role": "student" },
-            { "id": 5, "firstName": "Иван", "lastName": "Гранков", "password": "Bz6kWc8y", "role": "student" },
-            { "id": 6, "firstName": "Яна", "lastName": "Долгополова", "password": "Rf7tGs9x", "role": "student" },
-            { "id": 7, "firstName": "Устина", "lastName": "Журавлёва", "password": "Nh4pVk6a", "role": "student" },
-            { "id": 8, "firstName": "Александр", "lastName": "Желтоноженко", "password": "Ew5mJd7s", "role": "student" },
-            { "id": 9, "firstName": "Ульяна", "lastName": "Зуева", "password": "Tk8pYv6b", "role": "student" },
-            { "id": 10, "firstName": "Василий", "lastName": "Иванов", "password": "Sg9nHp7d", "role": "student" },
-            { "id": 11, "firstName": "Елизавета", "lastName": "Измайлова", "password": "Zq3wEc8v", "role": "student" },
-            { "id": 12, "firstName": "Милянья", "lastName": "Исхнопуло", "password": "Px5nGm9f", "role": "student" },
-            { "id": 13, "firstName": "Егор", "lastName": "Колосов", "password": "Vy7kPd6t", "role": "student" },
-            { "id": 14, "firstName": "Марат", "lastName": "Короев", "password": "Bh9pWs7n", "role": "student" },
-            { "id": 15, "firstName": "Эвелина", "lastName": "Кошева", "password": "Dm8kVp6f", "role": "student" },
-            { "id": 16, "firstName": "Андрей", "lastName": "Кудинов", "password": "Tg5nJd9s", "role": "student" },
-            { "id": 17, "firstName": "Тая", "lastName": "Лискина", "password": "Fq7pYv6b", "role": "student" },
-            { "id": 18, "firstName": "Виктория", "lastName": "Лукина", "password": "Sh8nVm9d", "role": "student" },
-            { "id": 19, "firstName": "Даниил", "lastName": "Мазницын", "password": "Lk5mJd7s", "role": "student" },
-            { "id": 20, "firstName": "Варвара", "lastName": "Мичкина", "password": "Xv9pNs6b", "role": "student" },
-            { "id": 21, "firstName": "Ксения", "lastName": "Попова", "password": "Cm8kWd7f", "role": "student" },
-            { "id": 22, "firstName": "Роман", "lastName": "Северов", "password": "Gn5pYv9s", "role": "student" },
-            { "id": 23, "firstName": "Юлия", "lastName": "Семенихина", "password": "Jh7kTm6b", "role": "student" },
-            { "id": 24, "firstName": "Анна", "lastName": "Синяева", "password": "Kp8nMd9s", "role": "student" },
-            { "id": 25, "firstName": "Кирилл", "lastName": "Слабых", "password": "Rf5mJd7v", "role": "student" },
-            { "id": 26, "firstName": "Полина", "lastName": "Суконкина", "password": "Bw9pHs6d", "role": "student" },
-            { "id": 27, "firstName": "Алиса", "lastName": "Фомакина", "password": "Nk7mTd9f", "role": "student" },
-            { "id": 28, "firstName": "София", "lastName": "Франкевич", "password": "Pg5nYv6b", "role": "student" },
-            { "id": 29, "firstName": "Николай", "lastName": "Харчевников", "password": "Th8kPm9s", "role": "student" },
-            { "id": 30, "firstName": "Артём", "lastName": "Цитрин", "password": "Sj5mNd7v", "role": "student" },
-            { "id": 31, "firstName": "Тимур", "lastName": "Шаркевич", "password": "Ck9pYv6b", "role": "student" },
-            { "id": 32, "firstName": "Алиса", "lastName": "Шумская", "password": "Gh7mHd9s", "role": "student" },
-            { "id": 33, "firstName": "Артём", "lastName": "Яземов", "password": "Lj5nWv6d", "role": "student" },
-            { "id": 34, "firstName": "Людмила", "lastName": "Леоненко", "password": "kJP812Hb", "role": "teacher" }
-        ];
-
-        // Функция для отображения пароля в профиле
-        function displayPassword() {
-            if (currentUser && currentUser.password) {
-                document.getElementById('passwordDisplay').textContent = currentUser.password;
-                document.getElementById('copyHint').textContent = 'Нажмите на пароль, чтобы скопировать';
-            }
-        }
-
-        // Функция для копирования пароля в буфер обмена
-        function copyPassword() {
-            if (!currentUser || !currentUser.password) return;
-
-            const password = currentUser.password;
-            const passwordDisplay = document.getElementById('passwordDisplay');
-            const copyHint = document.getElementById('copyHint');
-
-            try {
-                navigator.clipboard.writeText(password).then(() => {
-                    // Показываем уведомление о копировании
-                    const notification = document.getElementById('copy-notification');
-                    notification.style.display = 'block';
-
-                    setTimeout(() => {
-                        notification.style.display = 'none';
-                    }, 2000);
-
-                    // Анимация в самом поле пароля
-                    passwordDisplay.classList.add('copied');
-                    copyHint.textContent = '✓ Пароль скопирован!';
-
-                    setTimeout(() => {
-                        passwordDisplay.classList.remove('copied');
-                        copyHint.textContent = 'Нажмите на пароль, чтобы скопировать';
-                    }, 2000);
-                }).catch(err => {
-                    // Fallback для старых браузеров
-                    const textArea = document.createElement('textarea');
-                    textArea.value = password;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-
-                    passwordDisplay.classList.add('copied');
-                    copyHint.textContent = '✓ Пароль скопирован!';
-
-                    setTimeout(() => {
-                        passwordDisplay.classList.remove('copied');
-                        copyHint.textContent = 'Нажмите на пароль, чтобы скопировать';
-                    }, 2000);
-                });
-            } catch (err) {
-                console.error('Ошибка при копировании пароля:', err);
-                copyHint.textContent = 'Не удалось скопировать пароль';
-            }
-        }
-
-        // Функция для показа/скрытия пароля при входе
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const toggleButton = document.querySelector('.toggle-password i');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleButton.classList.remove('fa-eye');
-                toggleButton.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleButton.classList.remove('fa-eye-slash');
-                toggleButton.classList.add('fa-eye');
-            }
-        }
-
-        // Функция для показа формы восстановления пароля
-        function showPasswordRecovery() {
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('password-recovery').style.display = 'block';
-        }
-
-        // Функция для скрытия формы восстановления пароля
-        function hidePasswordRecovery() {
-            document.getElementById('password-recovery').style.display = 'none';
-            document.getElementById('login-container').style.display = 'block';
-        }
-
-        /* ================================================================
-           СИСТЕМА ПРОФИЛЯ И АВТОРИЗАЦИИ
-        ================================================================ */
-
-        let currentUser = null;
-        const STORAGE_KEY = 'class6v_profile_data';
-
-        // Функция для проверки авторизации при загрузке страницы
-        function checkAuthOnLoad() {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) {
-                try {
-                    const userData = JSON.parse(savedData);
-                    // Проверяем срок действия сохраненных данных (30 дней)
-                    const savedTime = new Date(userData.loginTime);
-                    const currentTime = new Date();
-                    const diffDays = (currentTime - savedTime) / (1000 * 60 * 60 * 24);
-
-                    if (diffDays < 30) {
-                        // Проверяем, существует ли пользователь в базе
-                        const userExists = studentsDatabase.find(
-                            student =>
-                                student.firstName.toLowerCase() === userData.firstName.toLowerCase() &&
-                                student.lastName.toLowerCase() === userData.lastName.toLowerCase() &&
-                                student.password === userData.password
-                        );
-
-                        if (userExists) {
-                            currentUser = {
-                                ...userData,
-                                ...userExists
-                            };
-                            showProfile();
-                            displayPassword();
-                            updateRestrictedSections();
-                            setupTeacherFeatures();
-                            return true;
-                        }
-                    } else {
-                        // Данные устарели
-                        localStorage.removeItem(STORAGE_KEY);
-                    }
-                } catch (e) {
-                    console.error('Ошибка при чтении сохраненных данных:', e);
-                    localStorage.removeItem(STORAGE_KEY);
-                }
-            }
-            showLoginForm();
-            updateRestrictedSections();
-            return false;
-        }
-
-        // Функция входа
-        function login() {
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            // Сброс предыдущих ошибок
-            document.getElementById('firstNameError').classList.remove('show');
-            document.getElementById('lastNameError').classList.remove('show');
-            document.getElementById('passwordError').classList.remove('show');
-            document.getElementById('loginError').classList.remove('show');
-            document.getElementById('loginSuccess').classList.remove('show');
-
-            // Валидация
-            let hasError = false;
-
-            if (!firstName) {
-                document.getElementById('firstNameError').classList.add('show');
-                document.getElementById('firstName').classList.add('error');
-                hasError = true;
-            } else {
-                document.getElementById('firstName').classList.remove('error');
-            }
-
-            if (!lastName) {
-                document.getElementById('lastNameError').classList.add('show');
-                document.getElementById('lastName').classList.add('error');
-                hasError = true;
-            } else {
-                document.getElementById('lastName').classList.remove('error');
-            }
-
-            if (!password) {
-                document.getElementById('passwordError').classList.add('show');
-                document.getElementById('password').classList.add('error');
-                hasError = true;
-            } else {
-                document.getElementById('password').classList.remove('error');
-            }
-
-            if (hasError) return;
-
-            // Поиск пользователя в базе данных
-            const user = studentsDatabase.find(
-                student =>
-                    student.firstName.toLowerCase() === firstName.toLowerCase() &&
-                    student.lastName.toLowerCase() === lastName.toLowerCase() &&
-                    student.password === password
-            );
-
-            if (user) {
-                // Успешный вход
-                currentUser = {
-                    ...user,
-                    loginTime: new Date().toISOString(),
-                    deviceInfo: getDeviceInfo()
-                };
-
-                // Сохраняем данные
-                saveUserData();
-
-                // Показываем профиль
-                showProfile();
-                displayPassword();
-
-                // Обновляем видимость разделов с ограниченным доступом
-                updateRestrictedSections();
-
-                // Настраиваем фичи для учителя
-                setupTeacherFeatures();
-
-                // Показываем сообщение об успехе
-                document.getElementById('loginSuccess').textContent = 'Вход выполнен успешно!';
-                document.getElementById('loginSuccess').classList.add('show');
-
-                // Очищаем поля формы
-                document.getElementById('firstName').value = '';
-                document.getElementById('lastName').value = '';
-                document.getElementById('password').value = '';
-            } else {
-                // Ошибка входа
-                document.getElementById('loginError').textContent = 'Неверное имя, фамилия или пароль';
-                document.getElementById('loginError').classList.add('show');
-                document.getElementById('firstName').classList.add('error');
-                document.getElementById('lastName').classList.add('error');
-                document.getElementById('password').classList.add('error');
-            }
-        }
-
-        // Функция выхода
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem(STORAGE_KEY);
-            showLoginForm();
-
-            // Обновляем видимость разделов с ограниченным доступом
-            updateRestrictedSections();
-
-            // Скрываем панель учителя
-            document.getElementById('teacher-panel').style.display = 'none';
-            document.getElementById('news-management').style.display = 'none';
-
-            // Очищаем поля формы
-            document.getElementById('firstName').value = '';
-            document.getElementById('lastName').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('loginError').classList.remove('show');
-            document.getElementById('loginSuccess').classList.remove('show');
-
-            // Скрываем форму восстановления пароля, если она была открыта
-            hidePasswordRecovery();
-        }
-
-        // Функция сохранения данных пользователя
-        function saveUserData() {
-            if (currentUser) {
-                const dataToSave = {
-                    id: currentUser.id,
-                    firstName: currentUser.firstName,
-                    lastName: currentUser.lastName,
-                    password: currentUser.password,
-                    loginTime: currentUser.loginTime,
-                    deviceInfo: currentUser.deviceInfo,
-                    role: currentUser.role
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-            }
-        }
-
-        // Функция получения информации об устройстве
-        function getDeviceInfo() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                return 'Мобильное устройство';
-            } else {
-                return 'Компьютер';
-            }
-        }
-
-        // Функция показа формы входа
-        function showLoginForm() {
-            document.getElementById('login-container').style.display = 'block';
-            document.getElementById('password-recovery').style.display = 'none';
-            document.getElementById('profile-content').style.display = 'none';
-        }
-
-        // Функция показа профиля
-        function showProfile() {
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('password-recovery').style.display = 'none';
-            document.getElementById('profile-content').style.display = 'block';
-
-            if (currentUser) {
-                // Обновляем информацию в профиле
-                document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName}`;
-                document.getElementById('profileId').textContent = `#${currentUser.id.toString().padStart(3, '0')}`;
-                document.getElementById('loginTime').textContent = new Date(currentUser.loginTime).toLocaleString('ru-RU');
-                document.getElementById('deviceInfo').textContent = currentUser.deviceInfo || getDeviceInfo();
-
-                // Обновляем аватар
-                const avatar = document.getElementById('profileAvatar');
-                const initials = `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase();
-                avatar.innerHTML = `<span style="font-weight: bold; font-size: 32px;">${initials}</span>`;
-            }
-        }
-
-        // Функция для настройки фич учителя
-        function setupTeacherFeatures() {
-            if (currentUser && currentUser.id === 34) {
-                // Показываем специальный интерфейс для учителя
-                document.getElementById('profileClass').innerHTML = 'Классный руководитель 6В класса <span class="teacher-badge">УЧИТЕЛЬ</span>';
-
-                // Добавляем класс teacher к аватару
-                document.getElementById('profileAvatar').classList.add('teacher');
-
-                // Изменяем стили блока с паролем
-                const passwordContainer = document.getElementById('passwordContainer');
-                const passwordLabel = document.getElementById('passwordLabel');
-                const passwordDisplay = document.getElementById('passwordDisplay');
-
-                passwordContainer.classList.add('teacher-password-container');
-                passwordLabel.classList.add('teacher-password-label');
-                passwordLabel.textContent = 'Пароль учителя:';
-                passwordDisplay.classList.add('teacher-password-value');
-
-                // Показываем панель учителя
-                document.getElementById('teacher-panel').style.display = 'block';
-
-                // Обновляем статистику
-                updateClassStats();
-
-                // Показываем панель управления новостями
-                document.getElementById('news-management').style.display = 'block';
-
-                // Устанавливаем текущую дату по умолчанию
-                const today = new Date();
-                const formattedDate = today.toLocaleDateString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-                document.getElementById('newsDate').value = formattedDate;
-
-                // Разрешаем доступ ко всем разделам для учителя
-                document.getElementById('rating-content').style.display = 'block';
-                document.getElementById('rating-restricted').style.display = 'none';
-                document.getElementById('gallery-content').style.display = 'block';
-                document.getElementById('gallery-restricted').style.display = 'none';
-            } else {
-                // Обычный ученик
-                document.getElementById('profileClass').textContent = 'Ученик 6В класса';
-                document.getElementById('profileAvatar').classList.remove('teacher');
-
-                // Убираем класс teacher с блока пароля
-                const passwordContainer = document.getElementById('passwordContainer');
-                const passwordLabel = document.getElementById('passwordLabel');
-                const passwordDisplay = document.getElementById('passwordDisplay');
-
-                passwordContainer.classList.remove('teacher-password-container');
-                passwordLabel.classList.remove('teacher-password-label');
-                passwordLabel.textContent = 'Ваш пароль для входа:';
-                passwordDisplay.classList.remove('teacher-password-value');
-
-                // Скрываем панель учителя
-                document.getElementById('teacher-panel').style.display = 'none';
-                document.getElementById('news-management').style.display = 'none';
-            }
-        }
-
-        // Функция для обновления видимости разделов с ограниченным доступом
-        function updateRestrictedSections() {
-            const isLoggedIn = currentUser !== null;
-
-            // Для обычных пользователей проверяем авторизацию
-            if (currentUser && currentUser.id === 34) {
-                // Учитель имеет доступ ко всему
-                document.getElementById('gallery-content').style.display = 'block';
-                document.getElementById('gallery-restricted').style.display = 'none';
-                document.getElementById('rating-content').style.display = 'block';
-                document.getElementById('rating-restricted').style.display = 'none';
-            } else if (isLoggedIn) {
-                // Обычный ученик
-                document.getElementById('gallery-content').style.display = 'block';
-                document.getElementById('gallery-restricted').style.display = 'none';
-                document.getElementById('rating-content').style.display = 'block';
-                document.getElementById('rating-restricted').style.display = 'none';
-            } else {
-                // Неавторизованный пользователь
-                document.getElementById('gallery-content').style.display = 'none';
-                document.getElementById('gallery-restricted').style.display = 'block';
-                document.getElementById('rating-content').style.display = 'none';
-                document.getElementById('rating-restricted').style.display = 'block';
-            }
-        }
-
-        
-
-        
-
-        /* ================================================================
-           СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ
-        ================================================================ */
+        // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
 
         let currentNewsId = null;
         const siteUrl = window.location.origin + window.location.pathname;
@@ -2326,7 +1556,7 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
 
-            const menuIndex = ['schedule', 'rating', 'news', 'gallery', 'profile'].indexOf(tabId);
+            const menuIndex = ['schedule', 'rating', 'news', 'gallery'].indexOf(tabId);
             if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
         }
 
@@ -2532,14 +1762,15 @@
             });
         }
 
-        // Инициализация
-        preloadIcons();
-        initBasicInfo();
-        renderAlbums();
-        selectDay(viewingDay);
-        updateLiveStatus();
-        setInterval(updateLiveStatus, 60000);
-        checkAuthOnLoad();
+        // Инициализация сайта после ввода пароля
+        function initSite() {
+            preloadIcons();
+            initBasicInfo();
+            renderAlbums();
+            selectDay(viewingDay);
+            updateLiveStatus();
+            setInterval(updateLiveStatus, 60000);
+        }
 
     </script>
 
