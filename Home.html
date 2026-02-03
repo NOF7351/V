@@ -363,7 +363,7 @@
         }
 
         .nav-item[onclick*="schedule"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/shedule.png');
         }
 
         .nav-item[onclick*="rating"] .nav-icon {
@@ -376,6 +376,10 @@
 
         .nav-item[onclick*="gallery"] .nav-icon {
             background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+        }
+
+        .nav-item[onclick*="settings"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/settings.png');
         }
 
         /* --- Layout --- */
@@ -896,6 +900,58 @@
             user-select: none;
         }
 
+        /* Настройки */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .settings-item:hover {
+            background: #f9fafb;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item.danger {
+            color: var(--danger);
+        }
+
+        .settings-item.danger:hover {
+            background: #fee2e2;
+        }
+
+        .settings-item i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .settings-item .settings-text {
+            flex-grow: 1;
+        }
+
+        .settings-item .settings-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .settings-item .settings-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
         .no-context {
             context-menu: none;
         }
@@ -981,7 +1037,6 @@
                 <div class="nav-icon"></div>
                 Расписание
             </button>
-            <!-- Удалена вкладка рейтинга, так как она была в разработке -->
             <button class="nav-item" onclick="switchTab('news')">
                 <div class="nav-icon"></div>
                 Новости
@@ -989,6 +1044,10 @@
             <button class="nav-item" onclick="switchTab('gallery')">
                 <div class="nav-icon"></div>
                 Альбом
+            </button>
+            <button class="nav-item" onclick="switchTab('settings')">
+                <div class="nav-icon"></div>
+                Настройки
             </button>
         </nav>
 
@@ -1037,6 +1096,22 @@
                         </div>
                         <div id="class5-albums"></div>
                         <div id="class6-albums" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="section">
+                <div class="card">
+                    <h2>Настройки</h2>
+                    <div class="settings-list">
+                        <div class="settings-item danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Выход</div>
+                                <div class="settings-description">Выйти из аккаунта и сбросить пароль</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1184,7 +1259,7 @@
 
             if (enteredPassword === SITE_PASSWORD) {
                 // Правильный пароль
-                successElement.textContent = 'Правильно! Перенаправление...';
+                successElement.textContent = 'Правильно, телепортирую на главную страницу';
 
                 // Анимация успеха
                 dots.forEach(dot => {
@@ -1242,6 +1317,20 @@
                 // Инициализируем сайт после показа
                 initSite();
             }, 300);
+        }
+
+        // Функция выхода
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Очищаем localStorage
+                localStorage.removeItem(PASSWORD_KEY);
+
+
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
         }
 
         // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
@@ -1380,70 +1469,69 @@
         };
 
         // 5. МЕДИА (ФОТО И ВИДЕО) - исправлены URL (убраны лишние символы)
-        // 5. МЕДИА (ФОТО И ВИДЕО) - исправлены URL (убраны лишние символы)
-const albums = {
-    class5: [
-        {
-            name: "Форд Боярд",
-            items: [
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/1.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/2.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/3.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/4.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/5.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/6.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/7.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/8.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/9.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
-            ]
-        }
-    ],
-    class6: [
-        {
-            name: "Первое сентября",
-            items: [
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/FirstOfSeptember/1.jpg" },
-            ]
-        },
-        {
-            name: "Поездка на башню \"Хардерсхоф\"",
-            items: [
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/1.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/2.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/3.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/4.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/5.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/6.jpg" },
-            ]
-        },
-        {
-            name: "Рой Джой",
-            items: [
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/1.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/2.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/3.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/4.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/5.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/6.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/7.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/8.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/9.jpg" },
+        const albums = {
+            class5: [
                 {
-                    type: 'video',
-                    url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/10.mp4",
-                    preview: "https://placehold.co/600x400"
+                    name: "Форд Боярд",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/9.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
+                    ]
+                }
+            ],
+            class6: [
+                {
+                    name: "Первое сентября",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/FirstOfSeptember/1.jpg" },
+                    ]
                 },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/11.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/12.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/13.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/14.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/15.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/16.jpg" },
+                {
+                    name: "Поездка на башню \"Хардерсхоф\"",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/6.jpg" },
+                    ]
+                },
+                {
+                    name: "Рой Джой",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/9.jpg" },
+                        {
+                            type: 'video',
+                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/10.mp4",
+                            preview: "https://placehold.co/600x400"
+                        },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/11.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/12.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/13.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/14.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/15.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/16.jpg" },
+                    ]
+                }
             ]
-        }
-    ]
-};
+        };
 
         // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
 
@@ -1492,13 +1580,13 @@ const albums = {
             currentNewsId = newsId;
             const shareUrl = createNewsShareUrl(newsId);
             document.getElementById('share-url-input').value = shareUrl;
-            
+
             const news = newsData.find(n => n.id == newsId);
             if (news) {
-                document.getElementById('share-text-display').textContent = 
+                document.getElementById('share-text-display').textContent =
                     `Новость от ${news.date}: ${news.title}\n\n${news.text}\n\n${shareUrl}`;
             }
-            
+
             document.getElementById('share-modal').style.display = 'flex';
         }
 
@@ -1567,14 +1655,14 @@ const albums = {
                 el.style.display = 'none';
             });
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
+
             const targetTab = document.getElementById(tabId);
             if (targetTab) {
                 targetTab.classList.add('active');
                 targetTab.style.display = 'block';
             }
 
-            const menuIndex = ['schedule', 'news', 'gallery'].indexOf(tabId);
+            const menuIndex = ['schedule', 'news', 'gallery', 'settings'].indexOf(tabId);
             if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
         }
 
@@ -1588,7 +1676,7 @@ const albums = {
                 const shareUrl = createNewsShareUrl(news.id);
                 newsHtml += `
                 <div class="news-item" data-news-id="${news.id}">
-                    <div class="news-date">📅 ${news.date}</div>
+                    <div class="news-date">${news.date}</div>
                     <div class="news-title">${news.title}</div>
                     <div class="news-text">${news.text}</div>
                     <div class="share-panel">
@@ -1615,7 +1703,7 @@ const albums = {
                 const container = document.getElementById(id);
                 let html = '';
                 data.forEach(album => {
-                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">📁 ${album.name}</div><div class="gallery-grid">`;
+                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">${album.name}</div><div class="gallery-grid">`;
                     album.items.forEach(item => {
                         if (item.type === 'photo') {
                             html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
@@ -1704,16 +1792,16 @@ const albums = {
                     const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
 
                     if (curMin >= start && curMin <= end) {
-                        text = `🔴 Идет урок: <b>${lsn}</b> (до ${time.end})`;
+                        text = `Идет урок: <b>${lsn}</b> (до ${time.end})`;
                     } else if (idx > 0 && curMin > prevEnd && curMin < start) {
-                        text = `🟢 Перемена! Далее: ${lsn}`;
+                        text = `Перемена! Далее: ${lsn}`;
                     } else if (idx === 0 && curMin < start && curMin > start - 30) {
                         text = `Скоро первый урок: ${lsn}`;
                     }
                 });
 
                 const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
-                if (curMin > lastEnd) text = "Уроки на сегодня закончились 🎉";
+                if (curMin > lastEnd) text = "Уроки на сегодня закончились";
             }
             document.getElementById('now-lesson-display').innerHTML = text;
 
@@ -1770,7 +1858,9 @@ const albums = {
         function preloadIcons() {
             const icons = [
                 'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
-                'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png'
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/settings.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
             ];
 
             icons.forEach(icon => {
