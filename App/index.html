@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>6В</title>
+    <style>
+        /* Стили для экрана ввода пароля */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .password-title {
+            font-size: 1.6rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .password-subtitle {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .password-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .password-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .password-dot.filled {
+            background: #4f46e5;
+            transform: scale(1.1);
+        }
+
+        .password-dot.error {
+            background: #ef4444;
+            animation: shake 0.5s;
+        }
+
+        .virtual-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keyboard-btn {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .keyboard-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .keyboard-btn:active {
+            background: #d1d5db;
+            transform: translateY(0);
+        }
+
+        .keyboard-btn.backspace {
+            font-size: 20px;
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .keyboard-btn.backspace:hover {
+            background: #fecaca;
+        }
+
+        .keyboard-btn.submit {
+            grid-column: span 3;
+            background: #4f46e5;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            height: 50px;
+        }
+
+        .keyboard-btn.submit:hover {
+            background: #4338ca;
+        }
+
+        .keyboard-btn.submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            transition: all 0.3s;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        /* Основные стили сайта */
+        html,
+        body {
+            touch-action: pan-x pan-y;
+            -ms-touch-action: pan-x pan-y;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input,
+        textarea {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --share-color: #3b82f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 80px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        input,
+        textarea,
+        button,
+        select,
+        div,
+        a {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* --- Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                position: static;
+                width: auto;
+                justify-content: center;
+                gap: 20px;
+                padding: 20px;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            body {
+                overflow-y: visible;
+            }
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            padding: 5px;
+            width: 70px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 0.9;
+        }
+
+        .nav-item[onclick*="schedule"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/shedule.png');
+        }
+
+        .nav-item[onclick*="rating"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png');
+        }
+
+        .nav-item[onclick*="news"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png');
+        }
+
+        .nav-item[onclick*="gallery"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+        }
+
+        .nav-item[onclick*="settings"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/settings.png');
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* --- Schedule Specific --- */
+        .days-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 5px;
+            border-radius: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .day-btn {
+            background: none;
+            border: none;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .lesson-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lesson-time {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 90px;
+            font-size: 0.9rem;
+        }
+
+        .current-lesson {
+            background-color: #d1fae5;
+            border-left: 5px solid var(--accent);
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        /* --- Gallery & Video --- */
+        .album-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .album-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .album-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .media-item {
+            background: #ddd;
+            padding-bottom: 100%;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            touch-action: manipulation;
+        }
+
+        .media-item:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .media-item img,
+        .media-item video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        .video-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- Lightbox --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lightbox-content {
+            max-width: 95%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 2001;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Rating & News styles */
+        .rating-table {
+            width: 100%;
+            border-collapse: collapse;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .rating-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dev-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        /* --- Новости с возможностью поделиться --- */
+        .news-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .news-item.highlighted {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--share-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            animation: pulse-highlight 2s ease-in-out;
+        }
+
+        @keyframes pulse-highlight {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .news-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 5px 0;
+            color: var(--text);
+        }
+
+        .news-text {
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+
+        /* Панель "Поделиться" */
+        .share-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .share-btn {
+            background: var(--share-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-btn:hover {
+            background: #2563eb;
+        }
+
+        .share-btn i {
+            font-size: 1.1rem;
+        }
+
+        .share-link-container {
+            flex-grow: 1;
+            margin-right: 15px;
+            position: relative;
+        }
+
+        .share-link {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            background: #f9fafb;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .share-link:hover {
+            background: #f3f4f6;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 3000;
+            animation: fadeInOut 2s ease-in-out;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        /* Модальное окно поделиться */
+        .share-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .share-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-modal-title {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .share-text-notice {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--share-color);
+        }
+
+        .share-text-notice code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            display: block;
+            margin: 5px 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: pre-wrap;
+        }
+
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .share-option-btn {
+            background: none;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-option-btn:hover {
+            border-color: var(--share-color);
+            background: #eff6ff;
+            transform: scale(1.1);
+        }
+
+        .share-option-btn.telegram {
+            color: #0088cc;
+        }
+
+        .share-option-btn.whatsapp {
+            color: #25D366;
+        }
+
+        .share-option-btn.vk {
+            color: #4C75A3;
+        }
+
+        .share-option-btn.copy {
+            color: var(--primary);
+        }
+
+        #now-lesson-display {
+            font-size: 1.1rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Настройки */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .settings-item:hover {
+            background: #f9fafb;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item.danger {
+            color: var(--danger);
+        }
+
+        .settings-item.danger:hover {
+            background: #fee2e2;
+        }
+
+        .settings-item i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .settings-item .settings-text {
+            flex-grow: 1;
+        }
+
+        .settings-item .settings-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .settings-item .settings-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .no-context {
+            context-menu: none;
+        }
+
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        span,
+        div,
+        td,
+        th,
+        li {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="no-context">
+
+    <!-- Экран ввода пароля -->
+    <div id="password-screen">
+        <div class="password-container">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="password-title">Доступ к сайту 6В класса</h2>
+            <p class="password-subtitle">Введите 4-значный пароль для входа</p>
+
+            <!-- Индикатор введенных цифр -->
+            <div class="password-display">
+                <div class="password-dot" id="dot1"></div>
+                <div class="password-dot" id="dot2"></div>
+                <div class="password-dot" id="dot3"></div>
+                <div class="password-dot" id="dot4"></div>
+            </div>
+
+            <!-- Сообщения об ошибке/успехе -->
+            <div class="error-message" id="password-error"></div>
+            <div class="success-message" id="password-success"></div>
+
+            <!-- Виртуальная клавиатура -->
+            <div class="virtual-keyboard">
+                <button class="keyboard-btn" onclick="addDigit(1)">1</button>
+                <button class="keyboard-btn" onclick="addDigit(2)">2</button>
+                <button class="keyboard-btn" onclick="addDigit(3)">3</button>
+                <button class="keyboard-btn" onclick="addDigit(4)">4</button>
+                <button class="keyboard-btn" onclick="addDigit(5)">5</button>
+                <button class="keyboard-btn" onclick="addDigit(6)">6</button>
+                <button class="keyboard-btn" onclick="addDigit(7)">7</button>
+                <button class="keyboard-btn" onclick="addDigit(8)">8</button>
+                <button class="keyboard-btn" onclick="addDigit(9)">9</button>
+                <button class="keyboard-btn backspace" onclick="removeDigit()">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="keyboard-btn" onclick="addDigit(0)">0</button>
+                <button class="keyboard-btn submit" id="submit-btn" onclick="checkPassword()" disabled>
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </div>
+
+            <p class="password-hint">
+                <i class="fas fa-info-circle"></i> Если вы забыли пароль, то напишите @kolianchic2
+            </p>
+        </div>
+    </div>
+
+    <!-- Основной контент сайта (скрыт до ввода пароля) -->
+    <div id="site-content" style="display: none;">
+
+        <header>
+            <h1>6В</h1>
+            <p>Классный сайт 6В класса</p>
+        </header>
+
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('schedule')">
+                <div class="nav-icon"></div>
+                Расписание
+            </button>
+            <button class="nav-item" onclick="switchTab('news')">
+                <div class="nav-icon"></div>
+                Новости
+            </button>
+            <button class="nav-item" onclick="switchTab('gallery')">
+                <div class="nav-icon"></div>
+                Альбом
+            </button>
+            <button class="nav-item" onclick="switchTab('settings')">
+                <div class="nav-icon"></div>
+                Настройки
+            </button>
+        </nav>
+
+        <div class="container">
+
+            <div id="schedule" class="section active">
+                <div class="card">
+                    <h2>Статус урока</h2>
+                    <div id="now-lesson-display">Загрузка...</div>
+                </div>
+
+                <div class="card">
+                    <h2>Расписание недели</h2>
+                    <div class="days-selector">
+                        <button class="day-btn" onclick="selectDay(1)">ПН</button>
+                        <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                        <button class="day-btn" onclick="selectDay(3)">СР</button>
+                        <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                        <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                    </div>
+
+                    <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник
+                    </h3>
+                    <div id="daily-schedule-list"></div>
+                </div>
+            </div>
+
+            <div id="rating" class="section" style="display: none;">
+                <!-- Убрана, так как функция не используется -->
+            </div>
+
+            <div id="news" class="section">
+                <div class="card">
+                    <h2>Последние новости</h2>
+                    <div id="news-container"></div>
+                </div>
+            </div>
+
+            <div id="gallery" class="section">
+                <div class="card">
+                    <h2>Альбом</h2>
+                    <div id="gallery-content">
+                        <div class="album-tabs">
+                            <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                        </div>
+                        <div id="class5-albums"></div>
+                        <div id="class6-albums" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="section">
+                <div class="card">
+                    <h2>Настройки</h2>
+                    <div class="settings-list">
+                        <!-- Новая кнопка "Проверить сайт" -->
+                        <div class="settings-item" onclick="checkSiteUpdate()">
+                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Проверить обновления</div>
+                                <div class="settings-description">Рекомендуется регулярно проверять наличие обновлений в том случае, если у вас приложение версии 1.0</div>
+                            </div>
+                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
+                        </div>
+                        
+                        <div class="settings-item danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Выход</div>
+                                <div class="settings-description">Удаление сохраненных данных на сайте</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Модальное окно поделиться -->
+        <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
+            <div class="share-modal-content" onclick="event.stopPropagation()">
+                <h3 class="share-modal-title">Поделиться новостью</h3>
+                <div class="share-text-notice" id="share-text-notice">
+                    <strong>Текст для отправки:</strong><br>
+                    <code id="share-text-display">С тобой хотят поделиться новостью:</code>
+                </div>
+                <div class="share-options">
+                    <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </button>
+                    <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
+                        <i class="fab fa-vk"></i>
+                    </button>
+                    <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="share-link-container">
+                    <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомление о копировании -->
+        <div id="copy-notification" class="copy-notification">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Ссылка скопирована!
+        </div>
+
+        <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
+            <span class="close-btn">&times;</span>
+            <img class="lightbox-content" id="lightbox-img" style="display:none;">
+            <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
+        </div>
+
+    </div>
+
+    <script>
+        // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
+        const SITE_PASSWORD = "6730"; // 4-значный пароль для доступа к сайту
+        const PASSWORD_KEY = 'class6v_site_access';
+
+        let enteredPassword = '';
+        let dots = [];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            // Создаем массив точек
+            dots = [
+                document.getElementById('dot1'),
+                document.getElementById('dot2'),
+                document.getElementById('dot3'),
+                document.getElementById('dot4')
+            ];
+
+            // Проверяем сохраненный доступ
+            checkSavedAccess();
+        });
+
+        // Проверяем, был ли уже введен пароль
+        function checkSavedAccess() {
+            const savedAccess = localStorage.getItem(PASSWORD_KEY);
+            if (savedAccess === 'granted') {
+                grantSiteAccess();
+            }
+        }
+
+        // Добавление цифры
+        function addDigit(digit) {
+            if (enteredPassword.length >= 4) return;
+
+            enteredPassword += digit.toString();
+            updateDots();
+            updateSubmitButton();
+
+            // Автопроверка при вводе 4 цифр
+            if (enteredPassword.length === 4) {
+                setTimeout(checkPassword, 300);
+            }
+        }
+
+        // Удаление последней цифры
+        function removeDigit() {
+            if (enteredPassword.length === 0) return;
+
+            enteredPassword = enteredPassword.slice(0, -1);
+            updateDots();
+            updateSubmitButton();
+
+            // Очищаем сообщения об ошибке
+            document.getElementById('password-error').textContent = '';
+        }
+
+        // Обновление индикатора точек
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < enteredPassword.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                    dot.classList.remove('error');
+                }
+            });
+        }
+
+        // Обновление состояния кнопки отправки
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (enteredPassword.length === 4) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Проверка пароля
+        function checkPassword() {
+            const errorElement = document.getElementById('password-error');
+            const successElement = document.getElementById('password-success');
+
+            // Очищаем предыдущие сообщения
+            errorElement.textContent = '';
+            successElement.textContent = '';
+
+            if (enteredPassword.length !== 4) {
+                errorElement.textContent = 'Введите все 4 цифры';
+                shakeDots();
+                return;
+            }
+
+            if (enteredPassword === SITE_PASSWORD) {
+                // Правильный пароль
+                successElement.textContent = 'Правильно, телепортирую на главную страницу';
+
+                // Анимация успеха
+                dots.forEach(dot => {
+                    dot.style.background = '#10b981';
+                    dot.style.animation = 'pulse 0.5s ease-in-out';
+                });
+
+                // Сохраняем доступ в localStorage
+                localStorage.setItem(PASSWORD_KEY, 'granted');
+
+                // Показываем сайт с задержкой для анимации
+                setTimeout(grantSiteAccess, 800);
+            } else {
+                // Неправильный пароль
+                errorElement.textContent = 'Неверный пароль';
+                shakeDots();
+
+                // Сбрасываем пароль через время
+                setTimeout(() => {
+                    enteredPassword = '';
+                    updateDots();
+                    updateSubmitButton();
+                    errorElement.textContent = '';
+                }, 1000);
+            }
+        }
+
+        // Анимация тряски при ошибке
+        function shakeDots() {
+            dots.forEach(dot => {
+                dot.classList.add('error');
+                dot.style.animation = 'shake 0.5s ease-in-out';
+            });
+
+            setTimeout(() => {
+                dots.forEach(dot => {
+                    dot.classList.remove('error');
+                    dot.style.animation = '';
+                });
+            }, 500);
+        }
+
+        // Предоставление доступа к сайту
+        function grantSiteAccess() {
+            const passwordScreen = document.getElementById('password-screen');
+            const siteContent = document.getElementById('site-content');
+
+            // Анимация исчезновения экрана пароля
+            passwordScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                passwordScreen.style.display = 'none';
+                siteContent.style.display = 'block';
+
+                // Инициализируем сайт после показа
+                initSite();
+            }, 300);
+        }
+
+        // Функция выхода
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Очищаем localStorage
+                localStorage.removeItem(PASSWORD_KEY);
+
+
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
+        }
+
+        // Новая функция для проверки сайта
+        function checkSiteUpdate() {
+            // Открываем сайт обновлений в новой вкладке
+            window.open('https://nof7351.github.io/V/Update', '_blank');
+        }
+
+        // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
+        document.addEventListener('touchstart', function (event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function (event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function (event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function (event) {
+            event.preventDefault();
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        document.addEventListener('wheel', function (event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('contextmenu', function (event) {
+            // Разрешаем контекстное меню для полей ввода
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            event.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('keydown', function (event) {
+            // Разрешаем копирование и вставку для полей ввода
+            if ((event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
+                if (event.ctrlKey && (event.key === 'c' || event.key === 'C' ||
+                    event.key === 'x' || event.key === 'X' ||
+                    event.key === 'v' || event.key === 'V' ||
+                    event.key === 'a' || event.key === 'A')) {
+                    return; // Разрешаем стандартное поведение
+                }
+            }
+
+            // Блокируем F12
+            if (event.key === 'F12') {
+                event.preventDefault();
+                return false;
+            }
+
+            // Блокируем масштабирование
+            if (event.ctrlKey && (event.key === '+' || event.key === '=' ||
+                event.key === '-' || event.key === '_' ||
+                event.key === '0')) {
+                event.preventDefault();
+                return false;
+            }
+
+            // Для остальных элементов блокируем Ctrl
+            if (event.ctrlKey && !(event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Разрешаем выделение для полей ввода
+        document.addEventListener('selectstart', function (event) {
+            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            event.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('dragstart', function (event) {
+            if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        /* ================================================================
+           ЗОНА РЕДАКТИРОВАНИЯ
+        ================================================================ */
+
+        // 1. УЧЕНИКИ (оставлено для возможного будущего использования)
+        const students = [
+            "🥇 1", "🥈 2", "🥉 3"
+        ];
+
+        // 2. НОВОСТИ (добавлено поле id для каждой новости)
+        let newsData = [
+            {
+                id: 2,
+                date: "17.01.2026",
+                title: "Благодарность за помощь",
+                text: "Спасибо большое за помощь Андрею и Вике!"
+            },
+            {
+                id: 1,
+                date: "15.01.2026",
+                title: "Первая новость!",
+                text: "Сайт создан :) Новости уже скоро будут."
+            }
+        ];
+
+        // 3. ЗВОНКИ (исправлено: часы начинаются с 13:30)
+        const bellSchedule = [
+            { start: "13:30", end: "14:10" },
+            { start: "14:20", end: "15:00" },
+            { start: "15:20", end: "16:00" },
+            { start: "16:20", end: "17:00" },
+            { start: "17:10", end: "17:50" },
+            { start: "18:00", end: "18:40" }
+        ];
+
+        // 4. РАСПИСАНИЕ НА НЕДЕЛЮ (1-ПН, 2-ВТ, 3-СР, 4-ЧТ, 5-ПТ)
+        const weekSchedule = {
+            1: ["Русский язык", "Литература", "Биология", "Математика", "Физическая культура", "Физическая культура"],
+            2: ["Русский язык", "Литература", "История", "Английский язык", "Музыка", "Изобразительное искусство"],
+            3: ["Математика", "География", "Русский язык", "Русский язык", "Труд (Технология)", "Труд (Технология)"],
+            4: ["История", "Английский язык", "Английский язык", "Русский язык", "Литература", "Математика"],
+            5: ["Математика", "История", "Русский язык", "Читательская грамотность КВ", "Математика", "Математика КВ"]
+        };
+
+        // 5. МЕДИА (ФОТО И ВИДЕО) - исправлены URL (убраны лишние символы)
+        const albums = {
+            class5: [
+                {
+                    name: "Форд Боярд",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/9.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
+                    ]
+                },
+                {
+                    name: "Зарница",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/9.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/10.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/11.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/12.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/13.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/14.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/15.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/16.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/17.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/18.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/19.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/20.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/21.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/22.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/23.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/24.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/25.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/26.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/27.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/28.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/29.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/30.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/31.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/32.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/33.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/34.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/35.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/36.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/37.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/38.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/39.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/40.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/41.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/42.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/43.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/44.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/45.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/46.jpg" },
+                        
+                    ]
+                }
+            ],
+            class6: [
+                {
+                    name: "Первое сентября",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/FirstOfSeptember/1.jpg" },
+                    ]
+                },
+
+                {
+                    name: "Холмогорье",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/9.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/10.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/11.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/12.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/13.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/14.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/15.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/16.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/17.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/18.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/19.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/20.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/21.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/22.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/23.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/24.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/25.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/26.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/27.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/28.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/29.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/30.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/31.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/32.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/33.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/34.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/35.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/36.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/37.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/38.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/39.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/40.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/41.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/42.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/43.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/44.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/45.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/46.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/47.jpg" },
+                        {
+                            type: 'video',
+                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/49.mp4",
+                            preview: "https://placehold.co/600x400"
+                        },
+                        {
+                            type: 'video',
+                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/50.mp4",
+                            preview: "https://placehold.co/600x400"
+                        },
+                        {
+                            type: 'video',
+                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/52.mp4",
+                            preview: "https://placehold.co/600x400"
+                        },
+                        
+                    ]
+                },
+                
+                {
+                    name: "Поездка на башню \"Хардерсхоф\"",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/6.jpg" },
+                    ]
+                },
+                {
+                    name: "Рой Джой",
+                    items: [
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/1.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/2.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/3.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/4.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/5.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/6.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/7.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/8.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/9.jpg" },
+                        {
+                            type: 'video',
+                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/10.mp4",
+                            preview: "https://placehold.co/600x400"
+                        },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/11.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/12.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/13.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/14.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/15.jpg" },
+                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/16.jpg" },
+                    ]
+                }
+            ]
+        };
+
+        // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
+
+        let currentNewsId = null;
+        const siteUrl = window.location.origin + window.location.pathname;
+
+        function createNewsShareUrl(newsId) {
+            const cleanUrl = siteUrl.split('?')[0];
+            return `${cleanUrl}?news=${newsId}`;
+        }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('news');
+
+            if (newsId) {
+                switchTab('news');
+
+                setTimeout(() => {
+                    highlightNews(newsId);
+                }, 300);
+            }
+        }
+
+        function highlightNews(newsId) {
+            document.querySelectorAll('.news-item').forEach(item => {
+                item.classList.remove('highlighted');
+            });
+
+            const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
+            if (newsElement) {
+                newsElement.classList.add('highlighted');
+
+                newsElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                setTimeout(() => {
+                    newsElement.classList.remove('highlighted');
+                }, 3000);
+            }
+        }
+
+        function openShareModal(newsId) {
+            currentNewsId = newsId;
+            const shareUrl = createNewsShareUrl(newsId);
+            document.getElementById('share-url-input').value = shareUrl;
+
+            const news = newsData.find(n => n.id == newsId);
+            if (news) {
+                document.getElementById('share-text-display').textContent =
+                    `Новость от ${news.date}: ${news.title}\n\n${news.text}\n\n${shareUrl}`;
+            }
+
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        function closeShareModal(event) {
+            if (event && event.target.id === 'share-modal') {
+                document.getElementById('share-modal').style.display = 'none';
+            } else if (!event) {
+                document.getElementById('share-modal').style.display = 'none';
+            }
+        }
+
+        function copyShareLink() {
+            const shareUrl = document.getElementById('share-url-input');
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999);
+
+            try {
+                navigator.clipboard.writeText(shareUrl.value).then(() => {
+                    showCopyNotification();
+                }).catch(err => {
+                    document.execCommand('copy');
+                    showCopyNotification();
+                });
+            } catch (err) {
+                document.execCommand('copy');
+                showCopyNotification();
+            }
+        }
+
+        function showCopyNotification() {
+            const notification = document.getElementById('copy-notification');
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        function shareViaTelegram() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title}\n\n${shareUrl}`) : '';
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${text}`, '_blank');
+        }
+
+        function shareViaWhatsApp() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title} - ${shareUrl}`) : '';
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function shareViaVK() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        /* ================================================================
+           СИСТЕМНАЯ ЧАСТЬ
+        ================================================================ */
+
+        // --- Переключение вкладок ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                targetTab.style.display = 'block';
+            }
+
+            const menuIndex = ['schedule', 'news', 'gallery', 'settings'].indexOf(tabId);
+            if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
+        }
+
+        // --- Новости ---
+        function initBasicInfo() {
+            // Новости с кнопками поделиться
+            const newsContainer = document.getElementById('news-container');
+            let newsHtml = '';
+
+            newsData.forEach(news => {
+                const shareUrl = createNewsShareUrl(news.id);
+                newsHtml += `
+                <div class="news-item" data-news-id="${news.id}">
+                    <div class="news-date">${news.date}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-text">${news.text}</div>
+                    <div class="share-panel">
+                        <div class="share-link-container">
+                            <input type="text" class="share-link" value="${shareUrl}" readonly onclick="this.select()">
+                        </div>
+                        <button class="share-btn" onclick="openShareModal(${news.id})">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+                <hr style="opacity:0.3; margin: 5px 0;">`;
+            });
+
+            newsContainer.innerHTML = newsHtml;
+
+            // Проверяем параметры URL для подсветки новости
+            checkUrlParams();
+        }
+
+        // --- Альбомы и Видео ---
+        function renderAlbums() {
+            const renderGroup = (id, data) => {
+                const container = document.getElementById(id);
+                let html = '';
+                data.forEach(album => {
+                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">${album.name}</div><div class="gallery-grid">`;
+                    album.items.forEach(item => {
+                        if (item.type === 'photo') {
+                            html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
+                                    <img src="${item.url}" draggable="false" alt="${album.name}" loading="lazy">
+                                </div>`;
+                        } else if (item.type === 'video') {
+                            const poster = item.preview || "https://placehold.co/400x400/000/fff?text=Play";
+                            html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
+                                    <img src="${poster}" draggable="false" alt="Видео" loading="lazy">
+                                    <div class="video-indicator">▶</div>
+                                </div>`;
+                        }
+                    });
+                    html += `</div>`;
+                });
+                container.innerHTML = html;
+            };
+            renderGroup('class5-albums', albums.class5);
+            renderGroup('class6-albums', albums.class6);
+        }
+
+        function showAlbum(cls, event) {
+            document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
+            document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
+            document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // --- Лайтбокс ---
+        function openLightbox(type, url) {
+            const modal = document.getElementById("lightbox-modal");
+            const imgEl = document.getElementById("lightbox-img");
+            const videoEl = document.getElementById("lightbox-video");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+
+            if (type === 'photo') {
+                imgEl.src = url;
+                imgEl.style.display = "block";
+                videoEl.style.display = "none";
+                videoEl.pause();
+            } else {
+                videoEl.src = url;
+                videoEl.style.display = "block";
+                imgEl.style.display = "none";
+                videoEl.play();
+            }
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox-modal' || e.target.classList.contains('close-btn')) {
+                const modal = document.getElementById("lightbox-modal");
+                const videoEl = document.getElementById("lightbox-video");
+
+                modal.style.display = "none";
+                document.body.style.overflow = 'auto';
+                videoEl.pause();
+                videoEl.src = "";
+            }
+        }
+
+        // --- Расписание ---
+        let viewingDay = new Date().getDay();
+        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если воскресенье или суббота - показываем понедельник
+
+        function getMinutes(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function updateLiveStatus() {
+            const now = new Date();
+            const curDay = now.getDay();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            const lessons = weekSchedule[curDay];
+
+            let text = "Свободное время или выходной";
+
+            if (lessons) {
+                lessons.forEach((lsn, idx) => {
+                    if (idx >= bellSchedule.length) return;
+                    const time = bellSchedule[idx];
+                    const start = getMinutes(time.start);
+                    const end = getMinutes(time.end);
+                    const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
+
+                    if (curMin >= start && curMin <= end) {
+                        text = `Идет урок: <b>${lsn}</b> (до ${time.end})`;
+                    } else if (idx > 0 && curMin > prevEnd && curMin < start) {
+                        text = `Перемена! Далее: ${lsn}`;
+                    } else if (idx === 0 && curMin < start && curMin > start - 30) {
+                        text = `Скоро первый урок: ${lsn}`;
+                    }
+                });
+
+                const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
+                if (curMin > lastEnd) text = "Уроки на сегодня закончились";
+            }
+            document.getElementById('now-lesson-display').innerHTML = text;
+
+            if (viewingDay === curDay) renderScheduleList(viewingDay);
+        }
+
+        function renderScheduleList(dayIdx) {
+            const list = document.getElementById('daily-schedule-list');
+            const lessons = weekSchedule[dayIdx] || [];
+            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
+            document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
+
+            const now = new Date();
+            const isToday = (dayIdx === now.getDay());
+            const curMin = now.getHours() * 60 + now.getMinutes();
+
+            let html = '';
+            if (lessons.length === 0) {
+                html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
+            } else {
+                lessons.forEach((lsn, i) => {
+                    if (i >= bellSchedule.length) return;
+                    const time = bellSchedule[i];
+
+                    let activeClass = '';
+                    if (isToday) {
+                        const start = getMinutes(time.start);
+                        const end = getMinutes(time.end);
+                        if (curMin >= start && curMin <= end) activeClass = 'current-lesson';
+                    }
+
+                    html += `
+                <div class="lesson-row ${activeClass}">
+                    <div class="lesson-time">${time.start} - ${time.end}</div>
+                    <div class="lesson-name">${lsn}</div>
+                </div>`;
+                });
+            }
+            list.innerHTML = html;
+        }
+
+        function selectDay(dayIdx) {
+            viewingDay = dayIdx;
+
+            document.querySelectorAll('.day-btn').forEach((btn, idx) => {
+                if (idx + 1 === dayIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            renderScheduleList(dayIdx);
+        }
+
+        function preloadIcons() {
+            const icons = [
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/settings.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
+            ];
+
+            icons.forEach(icon => {
+                const img = new Image();
+                img.src = icon;
+            });
+        }
+
+        // Инициализация сайта после ввода пароля
+        function initSite() {
+            preloadIcons();
+            initBasicInfo();
+            renderAlbums();
+            selectDay(viewingDay);
+            updateLiveStatus();
+            setInterval(updateLiveStatus, 60000);
+        }
+
+    </script>
+
+</body>
+
+</html>
