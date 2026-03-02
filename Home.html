@@ -973,6 +973,11 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Подключаем отдельные файлы с данными -->
+    <script src="schedule-data.js"></script>
+    <script src="news-data.js"></script>
+    <script src="gallery-data.js"></script>
 </head>
 
 <body class="no-context">
@@ -1104,6 +1109,8 @@
                 <div class="card">
                     <h2>Настройки</h2>
                     <div class="settings-list">
+                        
+                        
                         <div class="settings-item danger" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
                             <div class="settings-text">
@@ -1325,12 +1332,16 @@
                 // Очищаем localStorage
                 localStorage.removeItem(PASSWORD_KEY);
 
-
                 // Перезагружаем страницу
                 setTimeout(() => {
                     window.location.reload();
                 }, 500);
             }
+        }
+
+        // Функция для проверки обновлений сайта
+        function checkSiteUpdate() {
+            window.open('https://nof7351.github.io/V/Update', '_blank');
         }
 
         // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
@@ -1425,241 +1436,13 @@
         });
 
         /* ================================================================
-           ЗОНА РЕДАКТИРОВАНИЯ
+           ОСНОВНАЯ ЛОГИКА САЙТА (использует данные из внешних файлов)
         ================================================================ */
 
         // 1. УЧЕНИКИ (оставлено для возможного будущего использования)
         const students = [
             "🥇 1", "🥈 2", "🥉 3"
         ];
-
-        // 2. НОВОСТИ (добавлено поле id для каждой новости)
-        let newsData = [
-            {
-                id: 3,
-                date: "01.03.2026",
-                title: "Скоро...",
-                text: "Осталось подождать совсем чуть-чуть, уже скоро выйдет приложение 6В класса! Теперь вы сможете удобно смотреть уроки без захода на сайт."
-            },
-            {
-                id: 2,
-                date: "17.01.2026",
-                title: "Благодарность за помощь",
-                text: "Спасибо большое за помощь Андрею и Вике!"
-            },
-            {
-                id: 1,
-                date: "15.01.2026",
-                title: "Первая новость!",
-                text: "Сайт создан :) Новости уже скоро будут."
-            }
-        ];
-
-        // 3. ЗВОНКИ (исправлено: часы начинаются с 13:30)
-        const bellSchedule = [
-            { start: "13:30", end: "14:10" },
-            { start: "14:20", end: "15:00" },
-            { start: "15:20", end: "16:00" },
-            { start: "16:20", end: "17:00" },
-            { start: "17:10", end: "17:50" },
-            { start: "18:00", end: "18:40" }
-        ];
-
-        // 4. РАСПИСАНИЕ НА НЕДЕЛЮ (1-ПН, 2-ВТ, 3-СР, 4-ЧТ, 5-ПТ)
-        const weekSchedule = {
-            1: ["Русский язык", "Литература", "Биология", "Математика", "Физическая культура", "Физическая культура"],
-            2: ["Русский язык", "Литература", "История", "Английский язык", "Музыка", "Изобразительное искусство"],
-            3: ["Математика", "География", "Русский язык", "Русский язык", "Труд (Технология)", "Труд (Технология)"],
-            4: ["История", "Английский язык", "Английский язык", "Русский язык", "Литература", "Математика"],
-            5: ["Математика", "История", "Русский язык", "Читательская грамотность КВ", "Математика", "Математика КВ"]
-        };
-
-        // 5. МЕДИА (ФОТО И ВИДЕО) - исправлены URL (убраны лишние символы)
-        const albums = {
-            class5: [
-                {
-                    name: "Форд Боярд",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/1.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/2.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/3.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/4.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/5.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/6.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/7.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/8.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/9.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
-                    ]
-                },
-                {
-                    name: "Зарница",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/1.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/2.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/3.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/4.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/5.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/6.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/7.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/8.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/9.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/10.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/11.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/12.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/13.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/14.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/15.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/16.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/17.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/18.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/19.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/20.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/21.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/22.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/23.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/24.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/25.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/26.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/27.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/28.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/29.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/30.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/31.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/32.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/33.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/34.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/35.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/36.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/37.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/38.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/39.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/40.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/41.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/42.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/43.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/44.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/45.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/46.jpg" },
-                        
-                    ]
-                }
-            ],
-            class6: [
-                {
-                    name: "Первое сентября",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/FirstOfSeptember/1.jpg" },
-                    ]
-                },
-
-                {
-                    name: "Холмогорье",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/1.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/2.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/3.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/4.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/5.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/6.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/7.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/8.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/9.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/10.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/11.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/12.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/13.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/14.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/15.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/16.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/17.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/18.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/19.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/20.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/21.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/22.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/23.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/24.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/25.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/26.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/27.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/28.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/29.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/30.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/31.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/32.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/33.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/34.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/35.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/36.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/37.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/38.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/39.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/40.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/41.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/42.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/43.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/44.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/45.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/46.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/47.jpg" },
-                        {
-                            type: 'video',
-                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/49.mp4",
-                            preview: "https://placehold.co/600x400"
-                        },
-                        {
-                            type: 'video',
-                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/50.mp4",
-                            preview: "https://placehold.co/600x400"
-                        },
-                        {
-                            type: 'video',
-                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/Holmogorye/52.mp4",
-                            preview: "https://placehold.co/600x400"
-                        },
-                        
-                    ]
-                },
-                
-                {
-                    name: "Поездка на башню \"Хардерсхоф\"",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/1.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/2.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/3.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/4.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/5.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/6/Hardershof/6.jpg" },
-                    ]
-                },
-                {
-                    name: "Рой Джой",
-                    items: [
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/1.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/2.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/3.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/4.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/5.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/6.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/7.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/8.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/9.jpg" },
-                        {
-                            type: 'video',
-                            url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/10.mp4",
-                            preview: "https://placehold.co/600x400"
-                        },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/11.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/12.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/13.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/14.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/15.jpg" },
-                        { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/16.jpg" },
-                    ]
-                }
-            ]
-        };
 
         // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
 
@@ -1794,13 +1577,16 @@
             if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
         }
 
-        // --- Новости ---
+        // --- Новости (использует данные из news-data.js) ---
         function initBasicInfo() {
             // Новости с кнопками поделиться
             const newsContainer = document.getElementById('news-container');
             let newsHtml = '';
 
-            newsData.forEach(news => {
+            // Используем функцию getAllNews() из news-data.js для сортировки
+            const sortedNews = typeof getAllNews === 'function' ? getAllNews() : [...newsData].sort((a, b) => b.id - a.id);
+            
+            sortedNews.forEach(news => {
                 const shareUrl = createNewsShareUrl(news.id);
                 newsHtml += `
                 <div class="news-item" data-news-id="${news.id}">
@@ -1825,7 +1611,7 @@
             checkUrlParams();
         }
 
-        // --- Альбомы и Видео ---
+        // --- Альбомы и Видео (использует данные из gallery-data.js) ---
         function renderAlbums() {
             const renderGroup = (id, data) => {
                 const container = document.getElementById(id);
@@ -1894,7 +1680,7 @@
             }
         }
 
-        // --- Расписание ---
+        // --- Расписание (использует данные из schedule-data.js) ---
         let viewingDay = new Date().getDay();
         if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если воскресенье или суббота - показываем понедельник
 
@@ -1907,11 +1693,13 @@
             const now = new Date();
             const curDay = now.getDay();
             const curMin = now.getHours() * 60 + now.getMinutes();
-            const lessons = weekSchedule[curDay];
+            
+            // Используем данные из внешнего файла
+            const lessons = weekSchedule[curDay] || [];
 
             let text = "Свободное время или выходной";
 
-            if (lessons) {
+            if (lessons.length > 0) {
                 lessons.forEach((lsn, idx) => {
                     if (idx >= bellSchedule.length) return;
                     const time = bellSchedule[idx];
@@ -1938,6 +1726,7 @@
 
         function renderScheduleList(dayIdx) {
             const list = document.getElementById('daily-schedule-list');
+            // Используем данные из внешнего файла
             const lessons = weekSchedule[dayIdx] || [];
             const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
