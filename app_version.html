@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>6В</title>
+    <style>
+        /* Все стили остаются без изменений */
+        /* ... ваш существующий CSS код ... */
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Подключаем отдельные файлы с данными -->
+    <script src="schedule-data.js"></script>
+    <script src="news-data.js"></script>
+    <script src="gallery-data.js"></script>
+</head>
+
+<body class="no-context">
+
+    <!-- Экран ввода пароля (без изменений) -->
+    <div id="password-screen">
+        <!-- ... ваш существующий код экрана пароля ... -->
+    </div>
+
+    <!-- Основной контент сайта (без изменений) -->
+    <div id="site-content" style="display: none;">
+        <!-- ... ваш существующий HTML код ... -->
+    </div>
+
+    <script>
+        // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
+        const SITE_PASSWORD = "6730"; // 4-значный пароль для доступа к сайту
+        const PASSWORD_KEY = 'class6v_site_access';
+
+        let enteredPassword = '';
+        let dots = [];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            // Создаем массив точек
+            dots = [
+                document.getElementById('dot1'),
+                document.getElementById('dot2'),
+                document.getElementById('dot3'),
+                document.getElementById('dot4')
+            ];
+
+            // Проверяем сохраненный доступ
+            checkSavedAccess();
+        });
+
+        // Проверяем, был ли уже введен пароль
+        function checkSavedAccess() {
+            const savedAccess = localStorage.getItem(PASSWORD_KEY);
+            if (savedAccess === 'granted') {
+                grantSiteAccess();
+            }
+        }
+
+        // Добавление цифры
+        function addDigit(digit) {
+            if (enteredPassword.length >= 4) return;
+
+            enteredPassword += digit.toString();
+            updateDots();
+            updateSubmitButton();
+
+            // Автопроверка при вводе 4 цифр
+            if (enteredPassword.length === 4) {
+                setTimeout(checkPassword, 300);
+            }
+        }
+
+        // Удаление последней цифры
+        function removeDigit() {
+            if (enteredPassword.length === 0) return;
+
+            enteredPassword = enteredPassword.slice(0, -1);
+            updateDots();
+            updateSubmitButton();
+
+            // Очищаем сообщения об ошибке
+            document.getElementById('password-error').textContent = '';
+        }
+
+        // Обновление индикатора точек
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < enteredPassword.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                    dot.classList.remove('error');
+                }
+            });
+        }
+
+        // Обновление состояния кнопки отправки
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submit-btn');
+            if (enteredPassword.length === 4) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Проверка пароля
+        function checkPassword() {
+            const errorElement = document.getElementById('password-error');
+            const successElement = document.getElementById('password-success');
+
+            // Очищаем предыдущие сообщения
+            errorElement.textContent = '';
+            successElement.textContent = '';
+
+            if (enteredPassword.length !== 4) {
+                errorElement.textContent = 'Введите все 4 цифры';
+                shakeDots();
+                return;
+            }
+
+            if (enteredPassword === SITE_PASSWORD) {
+                // Правильный пароль
+                successElement.textContent = 'Правильно, телепортирую на главную страницу';
+
+                // Анимация успеха
+                dots.forEach(dot => {
+                    dot.style.background = '#10b981';
+                    dot.style.animation = 'pulse 0.5s ease-in-out';
+                });
+
+                // Сохраняем доступ в localStorage
+                localStorage.setItem(PASSWORD_KEY, 'granted');
+
+                // Показываем сайт с задержкой для анимации
+                setTimeout(grantSiteAccess, 800);
+            } else {
+                // Неправильный пароль
+                errorElement.textContent = 'Неверный пароль';
+                shakeDots();
+
+                // Сбрасываем пароль через время
+                setTimeout(() => {
+                    enteredPassword = '';
+                    updateDots();
+                    updateSubmitButton();
+                    errorElement.textContent = '';
+                }, 1000);
+            }
+        }
+
+        // Анимация тряски при ошибке
+        function shakeDots() {
+            dots.forEach(dot => {
+                dot.classList.add('error');
+                dot.style.animation = 'shake 0.5s ease-in-out';
+            });
+
+            setTimeout(() => {
+                dots.forEach(dot => {
+                    dot.classList.remove('error');
+                    dot.style.animation = '';
+                });
+            }, 500);
+        }
+
+        // Предоставление доступа к сайту
+        function grantSiteAccess() {
+            const passwordScreen = document.getElementById('password-screen');
+            const siteContent = document.getElementById('site-content');
+
+            // Анимация исчезновения экрана пароля
+            passwordScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                passwordScreen.style.display = 'none';
+                siteContent.style.display = 'block';
+
+                // Инициализируем сайт после показа
+                initSite();
+            }, 300);
+        }
+
+        // Функция выхода
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                // Очищаем localStorage
+                localStorage.removeItem(PASSWORD_KEY);
+
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            }
+        }
+
+        // Функция для проверки обновлений сайта
+        function checkSiteUpdate() {
+            window.open('https://nof7351.github.io/V/Update', '_blank');
+        }
+
+        // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
+        // ... все ваши функции блокировки остаются без изменений ...
+
+        /* ================================================================
+           ОСНОВНАЯ ЛОГИКА САЙТА (использует данные из внешних файлов)
+        ================================================================ */
+
+        // 1. УЧЕНИКИ (оставлено для возможного будущего использования)
+        const students = [
+            "🥇 1", "🥈 2", "🥉 3"
+        ];
+
+        // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
+
+        let currentNewsId = null;
+        const siteUrl = window.location.origin + window.location.pathname;
+
+        function createNewsShareUrl(newsId) {
+            const cleanUrl = siteUrl.split('?')[0];
+            return `${cleanUrl}?news=${newsId}`;
+        }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('news');
+
+            if (newsId) {
+                switchTab('news');
+
+                setTimeout(() => {
+                    highlightNews(newsId);
+                }, 300);
+            }
+        }
+
+        function highlightNews(newsId) {
+            document.querySelectorAll('.news-item').forEach(item => {
+                item.classList.remove('highlighted');
+            });
+
+            const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
+            if (newsElement) {
+                newsElement.classList.add('highlighted');
+
+                newsElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                setTimeout(() => {
+                    newsElement.classList.remove('highlighted');
+                }, 3000);
+            }
+        }
+
+        function openShareModal(newsId) {
+            currentNewsId = newsId;
+            const shareUrl = createNewsShareUrl(newsId);
+            document.getElementById('share-url-input').value = shareUrl;
+
+            const news = newsData.find(n => n.id == newsId);
+            if (news) {
+                document.getElementById('share-text-display').textContent =
+                    `Новость от ${news.date}: ${news.title}\n\n${news.text}\n\n${shareUrl}`;
+            }
+
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        function closeShareModal(event) {
+            if (event && event.target.id === 'share-modal') {
+                document.getElementById('share-modal').style.display = 'none';
+            } else if (!event) {
+                document.getElementById('share-modal').style.display = 'none';
+            }
+        }
+
+        function copyShareLink() {
+            const shareUrl = document.getElementById('share-url-input');
+            shareUrl.select();
+            shareUrl.setSelectionRange(0, 99999);
+
+            try {
+                navigator.clipboard.writeText(shareUrl.value).then(() => {
+                    showCopyNotification();
+                }).catch(err => {
+                    document.execCommand('copy');
+                    showCopyNotification();
+                });
+            } catch (err) {
+                document.execCommand('copy');
+                showCopyNotification();
+            }
+        }
+
+        function showCopyNotification() {
+            const notification = document.getElementById('copy-notification');
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        function shareViaTelegram() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title}\n\n${shareUrl}`) : '';
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${text}`, '_blank');
+        }
+
+        function shareViaWhatsApp() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            const news = newsData.find(n => n.id == currentNewsId);
+            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title} - ${shareUrl}`) : '';
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function shareViaVK() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        /* ================================================================
+           СИСТЕМНАЯ ЧАСТЬ
+        ================================================================ */
+
+        // --- Переключение вкладок ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                targetTab.style.display = 'block';
+            }
+
+            const menuIndex = ['schedule', 'news', 'gallery', 'settings'].indexOf(tabId);
+            if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
+        }
+
+        // --- Новости (использует данные из news-data.js) ---
+        function initBasicInfo() {
+            // Новости с кнопками поделиться
+            const newsContainer = document.getElementById('news-container');
+            let newsHtml = '';
+
+            newsData.forEach(news => {
+                const shareUrl = createNewsShareUrl(news.id);
+                newsHtml += `
+                <div class="news-item" data-news-id="${news.id}">
+                    <div class="news-date">${news.date}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-text">${news.text}</div>
+                    <div class="share-panel">
+                        <div class="share-link-container">
+                            <input type="text" class="share-link" value="${shareUrl}" readonly onclick="this.select()">
+                        </div>
+                        <button class="share-btn" onclick="openShareModal(${news.id})">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+                <hr style="opacity:0.3; margin: 5px 0;">`;
+            });
+
+            newsContainer.innerHTML = newsHtml;
+
+            // Проверяем параметры URL для подсветки новости
+            checkUrlParams();
+        }
+
+        // --- Альбомы и Видео (использует данные из gallery-data.js) ---
+        function renderAlbums() {
+            const renderGroup = (id, data) => {
+                const container = document.getElementById(id);
+                let html = '';
+                data.forEach(album => {
+                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">${album.name}</div><div class="gallery-grid">`;
+                    album.items.forEach(item => {
+                        if (item.type === 'photo') {
+                            html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
+                                    <img src="${item.url}" draggable="false" alt="${album.name}" loading="lazy">
+                                </div>`;
+                        } else if (item.type === 'video') {
+                            const poster = item.preview || "https://placehold.co/400x400/000/fff?text=Play";
+                            html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
+                                    <img src="${poster}" draggable="false" alt="Видео" loading="lazy">
+                                    <div class="video-indicator">▶</div>
+                                </div>`;
+                        }
+                    });
+                    html += `</div>`;
+                });
+                container.innerHTML = html;
+            };
+            renderGroup('class5-albums', albums.class5);
+            renderGroup('class6-albums', albums.class6);
+        }
+
+        function showAlbum(cls, event) {
+            document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
+            document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
+            document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // --- Лайтбокс ---
+        function openLightbox(type, url) {
+            const modal = document.getElementById("lightbox-modal");
+            const imgEl = document.getElementById("lightbox-img");
+            const videoEl = document.getElementById("lightbox-video");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+
+            if (type === 'photo') {
+                imgEl.src = url;
+                imgEl.style.display = "block";
+                videoEl.style.display = "none";
+                videoEl.pause();
+            } else {
+                videoEl.src = url;
+                videoEl.style.display = "block";
+                imgEl.style.display = "none";
+                videoEl.play();
+            }
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox-modal' || e.target.classList.contains('close-btn')) {
+                const modal = document.getElementById("lightbox-modal");
+                const videoEl = document.getElementById("lightbox-video");
+
+                modal.style.display = "none";
+                document.body.style.overflow = 'auto';
+                videoEl.pause();
+                videoEl.src = "";
+            }
+        }
+
+        // --- Расписание (использует данные из schedule-data.js) ---
+        let viewingDay = new Date().getDay();
+        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если воскресенье или суббота - показываем понедельник
+
+        function getMinutes(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function updateLiveStatus() {
+            const now = new Date();
+            const curDay = now.getDay();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            const lessons = weekSchedule[curDay];
+
+            let text = "Свободное время или выходной";
+
+            if (lessons) {
+                lessons.forEach((lsn, idx) => {
+                    if (idx >= bellSchedule.length) return;
+                    const time = bellSchedule[idx];
+                    const start = getMinutes(time.start);
+                    const end = getMinutes(time.end);
+                    const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
+
+                    if (curMin >= start && curMin <= end) {
+                        text = `Идет урок: <b>${lsn}</b> (до ${time.end})`;
+                    } else if (idx > 0 && curMin > prevEnd && curMin < start) {
+                        text = `Перемена! Далее: ${lsn}`;
+                    } else if (idx === 0 && curMin < start && curMin > start - 30) {
+                        text = `Скоро первый урок: ${lsn}`;
+                    }
+                });
+
+                const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
+                if (curMin > lastEnd) text = "Уроки на сегодня закончились";
+            }
+            document.getElementById('now-lesson-display').innerHTML = text;
+
+            if (viewingDay === curDay) renderScheduleList(viewingDay);
+        }
+
+        function renderScheduleList(dayIdx) {
+            const list = document.getElementById('daily-schedule-list');
+            const lessons = weekSchedule[dayIdx] || [];
+            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
+            document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
+
+            const now = new Date();
+            const isToday = (dayIdx === now.getDay());
+            const curMin = now.getHours() * 60 + now.getMinutes();
+
+            let html = '';
+            if (lessons.length === 0) {
+                html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
+            } else {
+                lessons.forEach((lsn, i) => {
+                    if (i >= bellSchedule.length) return;
+                    const time = bellSchedule[i];
+
+                    let activeClass = '';
+                    if (isToday) {
+                        const start = getMinutes(time.start);
+                        const end = getMinutes(time.end);
+                        if (curMin >= start && curMin <= end) activeClass = 'current-lesson';
+                    }
+
+                    html += `
+                <div class="lesson-row ${activeClass}">
+                    <div class="lesson-time">${time.start} - ${time.end}</div>
+                    <div class="lesson-name">${lsn}</div>
+                </div>`;
+                });
+            }
+            list.innerHTML = html;
+        }
+
+        function selectDay(dayIdx) {
+            viewingDay = dayIdx;
+
+            document.querySelectorAll('.day-btn').forEach((btn, idx) => {
+                if (idx + 1 === dayIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            renderScheduleList(dayIdx);
+        }
+
+        function preloadIcons() {
+            const icons = [
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/settings.png',
+                'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
+            ];
+
+            icons.forEach(icon => {
+                const img = new Image();
+                img.src = icon;
+            });
+        }
+
+        // Инициализация сайта после ввода пароля
+        function initSite() {
+            preloadIcons();
+            initBasicInfo();
+            renderAlbums();
+            selectDay(viewingDay);
+            updateLiveStatus();
+            setInterval(updateLiveStatus, 60000);
+        }
+
+    </script>
+
+</body>
+
+</html>
