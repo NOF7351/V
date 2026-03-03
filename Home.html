@@ -930,6 +930,15 @@
             background: #fee2e2;
         }
 
+        /* Стиль для кнопки скачивания приложения */
+        .settings-item.download {
+            color: var(--primary);
+        }
+
+        .settings-item.download:hover {
+            background: #eef2ff;
+        }
+
         .settings-item i {
             font-size: 1.2rem;
             margin-right: 12px;
@@ -1109,8 +1118,17 @@
                 <div class="card">
                     <h2>Настройки</h2>
                     <div class="settings-list">
+                        <!-- Новая кнопка: Скачать приложение -->
+                        <div class="settings-item download" onclick="downloadApp()">
+                            <i class="fas fa-download"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Скачать приложение</div>
+                                <div class="settings-description">Для удобства рекомендуется скачать приложение вместо того, чтобы пользоваться браузерной версией</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                        </div>
                         
-                        
+                        <!-- Кнопка выхода -->
                         <div class="settings-item danger" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
                             <div class="settings-text">
@@ -1324,6 +1342,11 @@
                 // Инициализируем сайт после показа
                 initSite();
             }, 300);
+        }
+
+        // Функция для скачивания приложения
+        function downloadApp() {
+            window.open('https://nof7351.github.io/V/download_app', '_blank');
         }
 
         // Функция выхода
