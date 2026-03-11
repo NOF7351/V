@@ -17,6 +17,26 @@ const albums = {
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
             ]
         },
+
+        {
+            name: "Экскурсия",
+            items: [
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/1.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/2.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/3.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/4.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/5.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/6.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/7.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/8.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/9.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/10.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/11.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/12.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/13.jpg" }
+            ]
+        },
+        
         {
             name: "Зарница",
             items: [
