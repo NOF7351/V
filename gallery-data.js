@@ -17,26 +17,6 @@ const albums = {
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/10.jpg" }
             ]
         },
-
-        {
-            name: "Экскурсия",
-            items: [
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/1.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/2.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/3.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/4.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/5.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/6.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/7.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/8.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/9.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/10.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/11.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/12.jpg" },
-                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/13.jpg" }
-            ]
-        },
-        
         {
             name: "Зарница",
             items: [
@@ -86,6 +66,24 @@ const albums = {
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/44.jpg" },
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/45.jpg" },
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/5/Zarnica/46.jpg" }
+            ]
+        },
+        {
+            name: "Экскурсия",
+            items: [
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/1.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/2.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/3.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/4.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/5.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/6.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/7.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/8.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/9.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/10.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/11.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/12.jpg" },
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/Excursia/13.jpg" }
             ]
         }
     ],
@@ -202,17 +200,15 @@ const albums = {
     ]
 };
 
-// Функция для получения альбомов по классу
+// Функции для работы с альбомами
 function getAlbumsByClass(className) {
     return albums[className] || [];
 }
 
-// Функция для получения всех альбомов
 function getAllAlbums() {
     return albums;
 }
 
-// Функция для добавления нового альбома
 function addAlbum(className, albumName, items) {
     if (!albums[className]) {
         albums[className] = [];
@@ -225,7 +221,6 @@ function addAlbum(className, albumName, items) {
     return newAlbum;
 }
 
-// Функция для добавления медиа в существующий альбом
 function addMediaToAlbum(className, albumName, mediaItem) {
     const album = albums[className]?.find(a => a.name === albumName);
     if (album) {
@@ -235,7 +230,6 @@ function addMediaToAlbum(className, albumName, mediaItem) {
     return false;
 }
 
-// Функция для удаления альбома
 function deleteAlbum(className, albumName) {
     if (albums[className]) {
         const index = albums[className].findIndex(a => a.name === albumName);
@@ -247,13 +241,11 @@ function deleteAlbum(className, albumName) {
     return false;
 }
 
-// Функция для подсчета количества медиа в альбоме
 function getAlbumMediaCount(className, albumName) {
     const album = albums[className]?.find(a => a.name === albumName);
     return album ? album.items.length : 0;
 }
 
-// Функция для получения статистики по альбомам
 function getAlbumsStats() {
     const stats = {
         class5: {
@@ -270,7 +262,6 @@ function getAlbumsStats() {
         }
     };
 
-    // Подсчет для 5 класса
     albums.class5.forEach(album => {
         const photos = album.items.filter(item => item.type === 'photo').length;
         const videos = album.items.filter(item => item.type === 'video').length;
@@ -285,7 +276,6 @@ function getAlbumsStats() {
         });
     });
 
-    // Подсчет для 6 класса
     albums.class6.forEach(album => {
         const photos = album.items.filter(item => item.type === 'photo').length;
         const videos = album.items.filter(item => item.type === 'video').length;
@@ -303,7 +293,6 @@ function getAlbumsStats() {
     return stats;
 }
 
-// Функция для поиска медиа по названию или типу
 function searchMedia(searchTerm) {
     const results = [];
     const term = searchTerm.toLowerCase();
@@ -323,6 +312,5 @@ function searchMedia(searchTerm) {
     return results;
 }
 
-// Выводим статистику в консоль при загрузке (для отладки)
 console.log('📸 Галерея загружена!');
 console.log('Статистика:', getAlbumsStats());
