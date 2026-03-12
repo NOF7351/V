@@ -930,15 +930,6 @@
             background: #fee2e2;
         }
 
-        /* Стиль для кнопки скачивания приложения */
-        .settings-item.download {
-            color: var(--primary);
-        }
-
-        .settings-item.download:hover {
-            background: #eef2ff;
-        }
-
         .settings-item i {
             font-size: 1.2rem;
             margin-right: 12px;
@@ -979,6 +970,135 @@
         li {
             -webkit-user-select: none;
             user-select: none;
+        }
+
+        /* Стили для альбомов с возможностью раскрытия */
+        .album-container {
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .album-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+            user-select: none;
+        }
+
+        .album-header:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .album-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .album-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .album-header i {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .album-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .album-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .album-content.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+        }
+
+        /* Статистика альбома */
+        .album-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .album-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .album-stats i {
+            color: var(--primary);
+        }
+
+        /* Индикаторы типов медиа */
+        .photo-badge, .video-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        .photo-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .video-badge {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        /* Кнопка "Свернуть все / Развернуть все" */
+        .toggle-all-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+
+        .toggle-all-btn:hover {
+            background: #4338ca;
+        }
+
+        .toggle-all-btn i {
+            font-size: 1rem;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1118,17 +1238,16 @@
                 <div class="card">
                     <h2>Настройки</h2>
                     <div class="settings-list">
-                        <!-- Новая кнопка: Скачать приложение -->
-                        <div class="settings-item download" onclick="downloadApp()">
-                            <i class="fas fa-download"></i>
+                        <!-- Кнопка "Проверить сайт" -->
+                        <div class="settings-item" onclick="checkSiteUpdate()">
+                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
                             <div class="settings-text">
-                                <div class="settings-title">Скачать приложение</div>
-                                <div class="settings-description">Для удобства рекомендуется скачать приложение вместо того, чтобы пользоваться браузерной версией</div>
+                                <div class="settings-title">Проверить сайт</div>
+                                <div class="settings-description">Перейти на страницу обновлений</div>
                             </div>
-                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
                         </div>
                         
-                        <!-- Кнопка выхода -->
                         <div class="settings-item danger" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
                             <div class="settings-text">
@@ -1342,11 +1461,6 @@
                 // Инициализируем сайт после показа
                 initSite();
             }, 300);
-        }
-
-        // Функция для скачивания приложения
-        function downloadApp() {
-            window.open('https://nof7351.github.io/V/download_app', '_blank');
         }
 
         // Функция выхода
@@ -1601,14 +1715,26 @@
         }
 
         // --- Новости (использует данные из news-data.js) ---
-        function initBasicInfo() {
-            // Новости с кнопками поделиться
+        async function initBasicInfo() {
             const newsContainer = document.getElementById('news-container');
-            let newsHtml = '';
-
-            // Используем функцию getAllNews() из news-data.js для сортировки
-            const sortedNews = typeof getAllNews === 'function' ? getAllNews() : [...newsData].sort((a, b) => b.id - a.id);
             
+            // Показываем индикатор загрузки
+            newsContainer.innerHTML = '<div style="text-align:center; padding:20px;">Загрузка новостей...</div>';
+            
+            // Загружаем новости (функция из news-data.js)
+            if (typeof refreshNews === 'function') {
+                await refreshNews();
+            }
+            
+            // Получаем актуальные новости
+            const sortedNews = getAllNews ? getAllNews() : [...newsData].sort((a, b) => b.id - a.id);
+            
+            if (sortedNews.length === 0) {
+                newsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Новостей пока нет</div>';
+                return;
+            }
+            
+            let newsHtml = '';
             sortedNews.forEach(news => {
                 const shareUrl = createNewsShareUrl(news.id);
                 newsHtml += `
@@ -1629,18 +1755,52 @@
             });
 
             newsContainer.innerHTML = newsHtml;
-
-            // Проверяем параметры URL для подсветки новости
             checkUrlParams();
         }
 
-        // --- Альбомы и Видео (использует данные из gallery-data.js) ---
+        // --- Альбомы и Видео с возможностью раскрытия ---
         function renderAlbums() {
             const renderGroup = (id, data) => {
                 const container = document.getElementById(id);
                 let html = '';
-                data.forEach(album => {
-                    html += `<div class="sub-album-title" style="margin-top:20px; font-weight:bold; color:#555">${album.name}</div><div class="gallery-grid">`;
+                
+                // Кнопка "Свернуть все / Развернуть все"
+                html += `
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                        <button class="toggle-all-btn" onclick="toggleAllAlbums('${id}')">
+                            <i class="fas fa-expand-alt"></i> Свернуть все
+                        </button>
+                    </div>
+                `;
+                
+                data.forEach((album, index) => {
+                    const photos = album.items.filter(item => item.type === 'photo').length;
+                    const videos = album.items.filter(item => item.type === 'video').length;
+                    const albumId = `album-${id}-${index}`;
+                    
+                    html += `
+                        <div class="album-container" id="${albumId}-container">
+                            <div class="album-header" onclick="toggleAlbum('${albumId}')">
+                                <h3>
+                                    <i class="fas fa-folder"></i>
+                                    ${album.name}
+                                    <span class="album-count">${album.items.length}</span>
+                                </h3>
+                                <div>
+                                    <span class="photo-badge"><i class="fas fa-image"></i> ${photos}</span>
+                                    <span class="video-badge"><i class="fas fa-video"></i> ${videos}</span>
+                                    <i class="fas fa-chevron-down" style="margin-left: 15px;"></i>
+                                </div>
+                            </div>
+                            <div class="album-content" id="${albumId}">
+                                <div class="album-stats">
+                                    <span><i class="fas fa-calendar-alt"></i> Всего медиа: ${album.items.length}</span>
+                                    <span><i class="fas fa-image"></i> Фото: ${photos}</span>
+                                    <span><i class="fas fa-video"></i> Видео: ${videos}</span>
+                                </div>
+                                <div class="gallery-grid">
+                    `;
+                    
                     album.items.forEach(item => {
                         if (item.type === 'photo') {
                             html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
@@ -1654,12 +1814,98 @@
                                 </div>`;
                         }
                     });
-                    html += `</div>`;
+                    
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
+                
                 container.innerHTML = html;
+                
+                // По умолчанию все альбомы открыты
+                data.forEach((_, index) => {
+                    const albumId = `album-${id}-${index}`;
+                    const content = document.getElementById(albumId);
+                    const header = document.querySelector(`#${albumId}-container .album-header`);
+                    if (content && header) {
+                        content.classList.remove('collapsed');
+                        header.classList.remove('collapsed');
+                    }
+                });
             };
+            
             renderGroup('class5-albums', albums.class5);
             renderGroup('class6-albums', albums.class6);
+        }
+
+        // Функция для переключения отдельного альбома
+        function toggleAlbum(albumId) {
+            const content = document.getElementById(albumId);
+            const header = document.querySelector(`#${albumId}-container .album-header`);
+            
+            if (content && header) {
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
+                
+                // Меняем иконку
+                const icon = header.querySelector('i.fa-chevron-down, i.fa-chevron-up, i.fa-chevron-right');
+                if (icon) {
+                    if (content.classList.contains('collapsed')) {
+                        icon.className = 'fas fa-chevron-right';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                }
+            }
+        }
+
+        // Функция для сворачивания/разворачивания всех альбомов в группе
+        function toggleAllAlbums(groupId) {
+            const container = document.getElementById(groupId);
+            const albums = container.querySelectorAll('.album-container');
+            const button = container.parentElement.querySelector('.toggle-all-btn');
+            
+            // Проверяем, есть ли свернутые альбомы
+            let hasCollapsed = false;
+            albums.forEach(album => {
+                const content = album.querySelector('.album-content');
+                if (content && content.classList.contains('collapsed')) {
+                    hasCollapsed = true;
+                }
+            });
+            
+            // Если есть свернутые - разворачиваем все, иначе сворачиваем все
+            albums.forEach((album, index) => {
+                const albumId = `album-${groupId}-${index}`;
+                const content = document.getElementById(albumId);
+                const header = document.querySelector(`#${albumId}-container .album-header`);
+                
+                if (content && header) {
+                    if (hasCollapsed) {
+                        // Разворачиваем
+                        content.classList.remove('collapsed');
+                        header.classList.remove('collapsed');
+                        const icon = header.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+                        if (icon) icon.className = 'fas fa-chevron-down';
+                    } else {
+                        // Сворачиваем
+                        content.classList.add('collapsed');
+                        header.classList.add('collapsed');
+                        const icon = header.querySelector('i.fa-chevron-down');
+                        if (icon) icon.className = 'fas fa-chevron-right';
+                    }
+                }
+            });
+            
+            // Меняем текст кнопки
+            const btnIcon = button.querySelector('i');
+            if (hasCollapsed) {
+                button.innerHTML = '<i class="fas fa-compress-alt"></i> Свернуть все';
+            } else {
+                button.innerHTML = '<i class="fas fa-expand-alt"></i> Развернуть все';
+            }
         }
 
         function showAlbum(cls, event) {
@@ -1667,6 +1913,13 @@
             document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
             document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
+            
+            // Сбрасываем состояние кнопки "Свернуть все" при переключении классов
+            const activeContainer = document.getElementById(cls === 'class5' ? 'class5-albums' : 'class6-albums');
+            const button = activeContainer.parentElement.querySelector('.toggle-all-btn');
+            if (button) {
+                button.innerHTML = '<i class="fas fa-expand-alt"></i> Свернуть все';
+            }
         }
 
         // --- Лайтбокс ---
@@ -1718,11 +1971,11 @@
             const curMin = now.getHours() * 60 + now.getMinutes();
             
             // Используем данные из внешнего файла
-            const lessons = weekSchedule[curDay] || [];
+            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[curDay] : [];
 
             let text = "Свободное время или выходной";
 
-            if (lessons.length > 0) {
+            if (lessons && lessons.length > 0) {
                 lessons.forEach((lsn, idx) => {
                     if (idx >= bellSchedule.length) return;
                     const time = bellSchedule[idx];
@@ -1750,7 +2003,7 @@
         function renderScheduleList(dayIdx) {
             const list = document.getElementById('daily-schedule-list');
             // Используем данные из внешнего файла
-            const lessons = weekSchedule[dayIdx] || [];
+            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[dayIdx] : [];
             const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
             document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
@@ -1760,7 +2013,7 @@
             const curMin = now.getHours() * 60 + now.getMinutes();
 
             let html = '';
-            if (lessons.length === 0) {
+            if (!lessons || lessons.length === 0) {
                 html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
             } else {
                 lessons.forEach((lsn, i) => {
