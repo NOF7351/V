@@ -972,7 +972,7 @@
             user-select: none;
         }
 
-        /* Стили для альбомов с возможностью раскрытия */
+        /* Стили для альбомов с возможностью раскрытия - только стрелка поворачивается */
         .album-container {
             margin-bottom: 15px;
             border-radius: 10px;
@@ -982,19 +982,19 @@
         }
 
         .album-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
             padding: 15px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.3s;
+            transition: background-color 0.2s;
             user-select: none;
         }
 
         .album-header:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: #4338ca;
         }
 
         .album-header h3 {
@@ -1013,13 +1013,14 @@
             margin-left: 10px;
         }
 
-        .album-header i {
-            transition: transform 0.3s;
+        .album-header i.fa-chevron-down,
+        .album-header i.fa-chevron-right {
+            transition: transform 0.3s ease;
             font-size: 1.2rem;
         }
 
-        .album-header.collapsed i {
-            transform: rotate(-90deg);
+        .album-header i.fa-chevron-right {
+            transform: rotate(0deg);
         }
 
         .album-content {
@@ -1829,9 +1830,13 @@
                     const albumId = `album-${id}-${index}`;
                     const content = document.getElementById(albumId);
                     const header = document.querySelector(`#${albumId}-container .album-header`);
+                    const icon = header ? header.querySelector('i.fa-chevron-down, i.fa-chevron-right') : null;
+                    
                     if (content && header) {
                         content.classList.remove('collapsed');
-                        header.classList.remove('collapsed');
+                        if (icon) {
+                            icon.className = 'fas fa-chevron-down';
+                        }
                     }
                 });
             };
@@ -1847,10 +1852,9 @@
             
             if (content && header) {
                 content.classList.toggle('collapsed');
-                header.classList.toggle('collapsed');
                 
-                // Меняем иконку
-                const icon = header.querySelector('i.fa-chevron-down, i.fa-chevron-up, i.fa-chevron-right');
+                // Меняем только иконку, остальное не поворачивается
+                const icon = header.querySelector('i.fa-chevron-down, i.fa-chevron-right');
                 if (icon) {
                     if (content.classList.contains('collapsed')) {
                         icon.className = 'fas fa-chevron-right';
@@ -1886,13 +1890,11 @@
                     if (hasCollapsed) {
                         // Разворачиваем
                         content.classList.remove('collapsed');
-                        header.classList.remove('collapsed');
-                        const icon = header.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+                        const icon = header.querySelector('i.fa-chevron-right');
                         if (icon) icon.className = 'fas fa-chevron-down';
                     } else {
                         // Сворачиваем
                         content.classList.add('collapsed');
-                        header.classList.add('collapsed');
                         const icon = header.querySelector('i.fa-chevron-down');
                         if (icon) icon.className = 'fas fa-chevron-right';
                     }
