@@ -1250,6 +1250,15 @@
                             <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
                         </div>
                         
+                        <div class="settings-item" onclick="checkshedule()">
+                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Домашнее задание</div>
+                                <div class="settings-description">Перейти на страницу с расписанием + дз</div>
+                            </div>
+                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
+                        </div>
+                        
                         <div class="settings-item danger" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
                             <div class="settings-text">
@@ -1483,6 +1492,9 @@
             window.open('https://nof7351.github.io/V/Update', '_blank');
         }
 
+        function checkshedule() {
+            window.open('https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=6В&school_uid=klgd1548141601', '_blank');
+        }
         // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
         document.addEventListener('touchstart', function (event) {
             if (event.touches.length > 1) {
