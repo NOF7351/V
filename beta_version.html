@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>6В - Навигация по школе</title>
+    <style>
+        /* Стили для экрана ввода пароля */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .password-title {
+            font-size: 1.6rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .password-subtitle {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .password-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .password-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .password-dot.filled {
+            background: #4f46e5;
+            transform: scale(1.1);
+        }
+
+        .password-dot.error {
+            background: #ef4444;
+            animation: shake 0.5s;
+        }
+
+        .virtual-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keyboard-btn {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .keyboard-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .keyboard-btn:active {
+            background: #d1d5db;
+            transform: translateY(0);
+        }
+
+        .keyboard-btn.backspace {
+            font-size: 20px;
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .keyboard-btn.backspace:hover {
+            background: #fecaca;
+        }
+
+        .keyboard-btn.submit {
+            grid-column: span 3;
+            background: #4f46e5;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            height: 50px;
+        }
+
+        .keyboard-btn.submit:hover {
+            background: #4338ca;
+        }
+
+        .keyboard-btn.submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            transition: all 0.3s;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        /* Основные стили сайта */
+        html,
+        body {
+            touch-action: pan-x pan-y;
+            -ms-touch-action: pan-x pan-y;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input,
+        textarea {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --share-color: #3b82f6;
+            --nav-color: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 80px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        input,
+        textarea,
+        button,
+        select,
+        div,
+        a {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* --- Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                position: static;
+                width: auto;
+                justify-content: center;
+                gap: 20px;
+                padding: 20px;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            body {
+                overflow-y: visible;
+            }
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            font-size: 0.7rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            padding: 5px;
+            min-width: 60px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 4px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 0.9;
+        }
+
+        .nav-item[onclick*="schedule"] .nav-icon {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234f46e5"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zM7 11h5v5H7v-5z"/></svg>');
+        }
+
+        .nav-item[onclick*="navigation"] .nav-icon {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234f46e5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>');
+        }
+
+        .nav-item[onclick*="news"] .nav-icon {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234f46e5"><path d="M22 16v-2l-8.5-5V3.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5V9L2 14v2l8.5-2.5V19L8 20.5V22l4-1 4 1v-1.5L13.5 19v-5.5L22 16z"/></svg>');
+        }
+
+        .nav-item[onclick*="gallery"] .nav-icon {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234f46e5"><path d="M22 16V4c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>');
+        }
+
+        .nav-item[onclick*="settings"] .nav-icon {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234f46e5"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.33-.02-.64-.06-.94l2.02-1.58c.18-.14.23-.38.12-.56l-1.89-3.28c-.12-.19-.36-.26-.56-.18l-2.38.96c-.5-.38-1.06-.68-1.66-.88L14.45 3.5c-.04-.2-.2-.34-.4-.34h-3.78c-.2 0-.36.14-.4.34l-.3 2.52c-.6.2-1.16.5-1.66.88l-2.38-.96c-.2-.08-.44-.01-.56.18l-1.89 3.28c-.12.19-.07.42.12.56l2.02 1.58c-.04.3-.06.61-.06.94 0 .33.02.64.06.94l-2.02 1.58c-.18.14-.23.38-.12.56l1.89 3.28c.12.19.36.26.56.18l2.38-.96c.5.38 1.06.68 1.66.88l.3 2.52c.04.2.2.34.4.34h3.78c.2 0 .36-.14.4-.34l.3-2.52c.6-.2 1.16-.5 1.66-.88l2.38.96c.2.08.44.01.56-.18l1.89-3.28c.12-.19.07-.42-.12-.56l-2.02-1.58zM12 15c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>');
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* --- Navigation Map Styles --- */
+        .floor-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .floor-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 100px;
+        }
+
+        .floor-btn.active {
+            background: var(--nav-color);
+            color: white;
+        }
+
+        .map-container {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 400px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .school-map {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .corridor {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .room {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--nav-color);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .room:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .room.selected {
+            background: var(--nav-color);
+            color: white;
+            border-color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .room.entrance {
+            background: #10b981;
+            color: white;
+            border-color: white;
+        }
+
+        .stairs {
+            position: absolute;
+            background: rgba(255, 193, 7, 0.8);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-location {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            transition: all 0.5s;
+            z-index: 100;
+        }
+
+        .location-pulse {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.3);
+            animation: locationPulse 2s infinite;
+        }
+
+        @keyframes locationPulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        .route-line {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            transform-origin: left center;
+            z-index: 50;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .navigation-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: var(--nav-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:not(:disabled):hover {
+            background: #7c3aed;
+        }
+
+        .route-info {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .route-steps {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+        }
+
+        .route-steps li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .route-steps li:last-child {
+            border-bottom: none;
+        }
+
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--nav-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #9ca3af;
+        }
+
+        .status-indicator.active {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        .room-search {
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--nav-color);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            margin-top: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.3s;
+        }
+
+        .search-result-item:hover {
+            background: #f9fafb;
+        }
+
+        /* Schedule Specific */
+        .days-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 5px;
+            border-radius: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .day-btn {
+            background: none;
+            border: none;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .lesson-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lesson-time {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 90px;
+            font-size: 0.9rem;
+        }
+
+        .current-lesson {
+            background-color: #d1fae5;
+            border-left: 5px solid var(--accent);
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        /* Gallery & Video */
+        .album-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .album-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .album-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .media-item {
+            background: #ddd;
+            padding-bottom: 100%;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+            touch-action: manipulation;
+        }
+
+        .media-item:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .media-item img,
+        .media-item video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        .video-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lightbox-content {
+            max-width: 95%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 2001;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* News styles */
+        .news-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .news-item.highlighted {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--share-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            animation: pulse-highlight 2s ease-in-out;
+        }
+
+        @keyframes pulse-highlight {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .news-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 5px 0;
+            color: var(--text);
+        }
+
+        .news-text {
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+
+        /* Share panel */
+        .share-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .share-btn {
+            background: var(--share-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-btn:hover {
+            background: #2563eb;
+        }
+
+        .share-link-container {
+            flex-grow: 1;
+            margin-right: 15px;
+            position: relative;
+        }
+
+        .share-link {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            background: #f9fafb;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .share-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .share-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 3000;
+            animation: fadeInOut 2s ease-in-out;
+            display: none;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        /* Settings */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .settings-item:hover {
+            background: #f9fafb;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item.danger {
+            color: var(--danger);
+        }
+
+        .settings-item.danger:hover {
+            background: #fee2e2;
+        }
+
+        .settings-item i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .settings-item .settings-text {
+            flex-grow: 1;
+        }
+
+        .settings-item .settings-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .settings-item .settings-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        #now-lesson-display {
+            font-size: 1.1rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .album-container {
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .album-header {
+            background: #4f46e5;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+
+        .album-header:hover {
+            background: #4338ca;
+        }
+
+        .album-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .album-content.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+        }
+
+        .toggle-all-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.3s;
+        }
+
+        .toggle-all-btn:hover {
+            background: #4338ca;
+        }
+
+        .share-text-notice {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--share-color);
+        }
+
+        .share-text-notice code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            display: block;
+            margin: 5px 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: pre-wrap;
+        }
+
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .share-option-btn {
+            background: none;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-option-btn:hover {
+            border-color: var(--share-color);
+            background: #eff6ff;
+            transform: scale(1.1);
+        }
+
+        .share-option-btn.telegram {
+            color: #0088cc;
+        }
+
+        .share-option-btn.whatsapp {
+            color: #25D366;
+        }
+
+        .share-option-btn.vk {
+            color: #4C75A3;
+        }
+
+        .share-option-btn.copy {
+            color: var(--primary);
+        }
+
+        .share-modal-title {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .no-context {
+            context-menu: none;
+        }
+
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        span,
+        div,
+        td,
+        th,
+        li {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Подключаем внешние файлы с данными -->
+    <script src="navigation-data.js"></script>
+    <script src="schedule-data.js"></script>
+    <script src="news-data.js"></script>
+    <script src="gallery-data.js"></script>
+</head>
+
+<body class="no-context">
+
+    <!-- Экран ввода пароля -->
+    <div id="password-screen">
+        <div class="password-container">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="password-title">Доступ к сайту 6В класса</h2>
+            <p class="password-subtitle">Введите 4-значный пароль для входа</p>
+
+            <div class="password-display">
+                <div class="password-dot" id="dot1"></div>
+                <div class="password-dot" id="dot2"></div>
+                <div class="password-dot" id="dot3"></div>
+                <div class="password-dot" id="dot4"></div>
+            </div>
+
+            <div class="error-message" id="password-error"></div>
+            <div class="success-message" id="password-success"></div>
+
+            <div class="virtual-keyboard">
+                <button class="keyboard-btn" onclick="addDigit(1)">1</button>
+                <button class="keyboard-btn" onclick="addDigit(2)">2</button>
+                <button class="keyboard-btn" onclick="addDigit(3)">3</button>
+                <button class="keyboard-btn" onclick="addDigit(4)">4</button>
+                <button class="keyboard-btn" onclick="addDigit(5)">5</button>
+                <button class="keyboard-btn" onclick="addDigit(6)">6</button>
+                <button class="keyboard-btn" onclick="addDigit(7)">7</button>
+                <button class="keyboard-btn" onclick="addDigit(8)">8</button>
+                <button class="keyboard-btn" onclick="addDigit(9)">9</button>
+                <button class="keyboard-btn backspace" onclick="removeDigit()">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="keyboard-btn" onclick="addDigit(0)">0</button>
+                <button class="keyboard-btn submit" id="submit-btn" onclick="checkPassword()" disabled>
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </div>
+
+            <p class="password-hint">
+                <i class="fas fa-info-circle"></i> Если вы забыли пароль, то напишите @kolianchic2
+            </p>
+        </div>
+    </div>
+
+    <!-- Основной контент сайта -->
+    <div id="site-content" style="display: none;">
+
+        <header>
+            <h1>6В</h1>
+            <p>Классный сайт 6В класса</p>
+        </header>
+
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('schedule')">
+                <div class="nav-icon"></div>
+                Расписание
+            </button>
+            <button class="nav-item" onclick="switchTab('navigation')">
+                <div class="nav-icon"></div>
+                Навигация
+            </button>
+            <button class="nav-item" onclick="switchTab('news')">
+                <div class="nav-icon"></div>
+                Новости
+            </button>
+            <button class="nav-item" onclick="switchTab('gallery')">
+                <div class="nav-icon"></div>
+                Альбом
+            </button>
+            <button class="nav-item" onclick="switchTab('settings')">
+                <div class="nav-icon"></div>
+                Настройки
+            </button>
+        </nav>
+
+        <div class="container">
+
+            <!-- Расписание -->
+            <div id="schedule" class="section active">
+                <div class="card">
+                    <h2>Статус урока</h2>
+                    <div id="now-lesson-display">Загрузка...</div>
+                </div>
+
+                <div class="card">
+                    <h2>Расписание недели</h2>
+                    <div class="days-selector">
+                        <button class="day-btn" onclick="selectDay(1)">ПН</button>
+                        <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                        <button class="day-btn" onclick="selectDay(3)">СР</button>
+                        <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                        <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                    </div>
+
+                    <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник</h3>
+                    <div id="daily-schedule-list"></div>
+                </div>
+            </div>
+
+            <!-- Навигация по школе -->
+            <div id="navigation" class="section">
+                <div class="card">
+                    <h2><i class="fas fa-map-marked-alt"></i> Навигация по школе</h2>
+                    
+                    <!-- Статус геолокации -->
+                    <div class="location-status">
+                        <span class="status-indicator" id="geo-status"></span>
+                        <span id="geo-status-text">Определение местоположения...</span>
+                        <button class="nav-btn" onclick="requestGeolocation()" style="padding: 5px 10px; margin-left: auto;">
+                            <i class="fas fa-location-arrow"></i> Обновить
+                        </button>
+                    </div>
+
+                    <!-- Поиск кабинета -->
+                    <div class="room-search">
+                        <input type="text" class="search-input" id="room-search-input" 
+                               placeholder="🔍 Поиск кабинета (например: 1-74, история, МГН)" 
+                               oninput="searchRooms()">
+                        <div class="search-results" id="search-results" style="display: none;"></div>
+                    </div>
+
+                    <!-- Выбор этажа -->
+                    <div class="floor-selector">
+                        <button class="floor-btn active" onclick="selectFloor(1)">1 этаж</button>
+                        <button class="floor-btn" onclick="selectFloor(2)">2 этаж</button>
+                        <button class="floor-btn" onclick="selectFloor(3)">3 этаж</button>
+                    </div>
+
+                    <!-- Карта -->
+                    <div class="map-container">
+                        <div class="school-map" id="school-map"></div>
+                    </div>
+
+                    <!-- Управление навигацией -->
+                    <div class="navigation-controls">
+                        <button class="nav-btn" id="start-nav-btn" onclick="startNavigation()" disabled>
+                            <i class="fas fa-route"></i> Проложить маршрут
+                        </button>
+                        <button class="nav-btn" onclick="clearNavigation()">
+                            <i class="fas fa-times"></i> Сбросить
+                        </button>
+                    </div>
+
+                    <!-- Информация о маршруте -->
+                    <div class="route-info" id="route-info" style="display: none;">
+                        <strong><i class="fas fa-info-circle"></i> Маршрут до:</strong>
+                        <span id="route-destination"></span>
+                        <ul class="route-steps" id="route-steps"></ul>
+                    </div>
+
+                    <!-- Легенда -->
+                    <div style="margin-top: 15px; padding: 10px; background: #f9fafb; border-radius: 8px; font-size: 0.8rem;">
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #10b981; border-radius: 3px;"></span> Вход/выход</span>
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #ffc107; border-radius: 3px;"></span> Лестница</span>
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #8b5cf6; border-radius: 3px;"></span> Кабинет</span>
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></span> Ваше местоположение</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новости -->
+            <div id="news" class="section">
+                <div class="card">
+                    <h2>Последние новости</h2>
+                    <div id="news-container"></div>
+                </div>
+            </div>
+
+            <!-- Галерея -->
+            <div id="gallery" class="section">
+                <div class="card">
+                    <h2>Альбом</h2>
+                    <div id="gallery-content">
+                        <div class="album-tabs">
+                            <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                        </div>
+                        <div id="class5-albums"></div>
+                        <div id="class6-albums" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Настройки -->
+            <div id="settings" class="section">
+                <div class="card">
+                    <h2>Ещё</h2>
+                    <div class="settings-list">
+                        <div class="settings-item" onclick="checkSiteUpdate()">
+                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Проверить сайт</div>
+                                <div class="settings-description">Перейти на страницу обновлений</div>
+                            </div>
+                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
+                        </div>
+                        
+                        <div class="settings-item" onclick="checkshedule()">
+                            <i class="fas fa-calendar-alt" style="color: #10b981;"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Домашнее задание</div>
+                                <div class="settings-description">Перейти на страницу с расписанием + дз</div>
+                            </div>
+                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
+                        </div>
+                        
+                        <div class="settings-item danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Выход</div>
+                                <div class="settings-description">Удаление сохраненных данных на сайте</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Модальное окно поделиться -->
+        <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
+            <div class="share-modal-content" onclick="event.stopPropagation()">
+                <h3 class="share-modal-title">Поделиться новостью</h3>
+                <div class="share-text-notice" id="share-text-notice">
+                    <strong>Текст для отправки:</strong><br>
+                    <code id="share-text-display">С тобой хотят поделиться новостью:</code>
+                </div>
+                <div class="share-options">
+                    <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </button>
+                    <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
+                        <i class="fab fa-vk"></i>
+                    </button>
+                    <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="share-link-container">
+                    <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="copy-notification" class="copy-notification">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Ссылка скопирована!
+        </div>
+
+        <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
+            <span class="close-btn">&times;</span>
+            <img class="lightbox-content" id="lightbox-img" style="display:none;">
+            <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
+        </div>
+
+    </div>
+
+    <script>
+        // ============ СИСТЕМА ПАРОЛЯ ============
+        const SITE_PASSWORD = "6730";
+        const PASSWORD_KEY = 'class6v_site_access';
+
+        let enteredPassword = '';
+        let dots = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            dots = [
+                document.getElementById('dot1'),
+                document.getElementById('dot2'),
+                document.getElementById('dot3'),
+                document.getElementById('dot4')
+            ];
+            checkSavedAccess();
+        });
+
+        function checkSavedAccess() {
+            const savedAccess = localStorage.getItem(PASSWORD_KEY);
+            if (savedAccess === 'granted') {
+                grantSiteAccess();
+            }
+        }
+
+        function addDigit(digit) {
+            if (enteredPassword.length >= 4) return;
+            enteredPassword += digit.toString();
+            updateDots();
+            updateSubmitButton();
+            if (enteredPassword.length === 4) {
+                setTimeout(checkPassword, 300);
+            }
+        }
+
+        function removeDigit() {
+            if (enteredPassword.length === 0) return;
+            enteredPassword = enteredPassword.slice(0, -1);
+            updateDots();
+            updateSubmitButton();
+            document.getElementById('password-error').textContent = '';
+        }
+
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                if (index < enteredPassword.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled', 'error');
+                }
+            });
+        }
+
+        function updateSubmitButton() {
+            document.getElementById('submit-btn').disabled = enteredPassword.length !== 4;
+        }
+
+        function checkPassword() {
+            const errorElement = document.getElementById('password-error');
+            const successElement = document.getElementById('password-success');
+
+            errorElement.textContent = '';
+            successElement.textContent = '';
+
+            if (enteredPassword !== SITE_PASSWORD) {
+                errorElement.textContent = 'Неверный пароль';
+                shakeDots();
+                setTimeout(() => {
+                    enteredPassword = '';
+                    updateDots();
+                    updateSubmitButton();
+                    errorElement.textContent = '';
+                }, 1000);
+                return;
+            }
+
+            successElement.textContent = 'Правильно, телепортирую на главную страницу';
+            dots.forEach(dot => {
+                dot.style.background = '#10b981';
+                dot.style.animation = 'pulse 0.5s ease-in-out';
+            });
+            localStorage.setItem(PASSWORD_KEY, 'granted');
+            setTimeout(grantSiteAccess, 800);
+        }
+
+        function shakeDots() {
+            dots.forEach(dot => {
+                dot.classList.add('error');
+                dot.style.animation = 'shake 0.5s ease-in-out';
+            });
+            setTimeout(() => {
+                dots.forEach(dot => {
+                    dot.classList.remove('error');
+                    dot.style.animation = '';
+                });
+            }, 500);
+        }
+
+        function grantSiteAccess() {
+            document.getElementById('password-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('password-screen').style.display = 'none';
+                document.getElementById('site-content').style.display = 'block';
+                initSite();
+            }, 300);
+        }
+
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem(PASSWORD_KEY);
+                setTimeout(() => window.location.reload(), 500);
+            }
+        }
+
+        function checkSiteUpdate() {
+            window.open('https://nof7351.github.io/V/Update', '_blank');
+        }
+
+        function checkshedule() {
+            window.open('https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=6В&school_uid=klgd1548141601', '_blank');
+        }
+
+        // Блокировка зума и контекстного меню
+        document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('contextmenu', (e) => { if (!['INPUT', 'TEXTAREA'].includes(e.target.tagName)) e.preventDefault(); });
+
+        // ============ НАВИГАЦИЯ ПО ШКОЛЕ ============
+        let currentFloor = 1;
+        let selectedRoom = null;
+        let userLocation = null;
+        let navigationRoute = null;
+        let watchId = null;
+
+        // Точность определения местоположения (метров)
+        const REQUIRED_ACCURACY = 20;
+
+        function requestGeolocation() {
+            const statusIndicator = document.getElementById('geo-status');
+            const statusText = document.getElementById('geo-status-text');
+
+            if (!navigator.geolocation) {
+                statusText.textContent = '❌ Геолокация не поддерживается браузером';
+                statusIndicator.className = 'status-indicator';
+                return;
+            }
+
+            statusText.textContent = '📍 Запрос геолокации...';
+            statusIndicator.className = 'status-indicator';
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 5000
+            };
+
+            navigator.geolocation.getCurrentPosition(
+                handleGeolocationSuccess,
+                handleGeolocationError,
+                options
+            );
+
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+
+            watchId = navigator.geolocation.watchPosition(
+                handlePositionUpdate,
+                handleGeolocationError,
+                options
+            );
+        }
+
+        function handleGeolocationSuccess(position) {
+            const { latitude, longitude, accuracy, altitude } = position.coords;
+            updateUserLocationFromGPS(latitude, longitude, altitude, accuracy);
+        }
+
+        function handlePositionUpdate(position) {
+            const { latitude, longitude, accuracy, altitude } = position.coords;
+            updateUserLocationFromGPS(latitude, longitude, altitude, accuracy);
+        }
+
+        function updateUserLocationFromGPS(lat, lng, alt, accuracy) {
+            let floor = 1;
+            if (alt !== null && typeof calculateUserFloor === 'function') {
+                floor = calculateUserFloor(alt);
+            }
+
+            const inSchool = typeof isUserInSchool === 'function' ? isUserInSchool(lat, lng) : true;
+
+            if (!inSchool) {
+                const entrance = schoolMap.floors[0].rooms.find(r => r.id === 'entrance');
+                userLocation = {
+                    latitude: lat,
+                    longitude: lng,
+                    altitude: alt,
+                    accuracy: accuracy,
+                    floor: 1,
+                    x: entrance.position.x,
+                    y: entrance.position.y,
+                    room: null,
+                    inSchool: false
+                };
+
+                const distance = typeof getDistanceFromLatLonInMeters === 'function' ? 
+                    getDistanceFromLatLonInMeters(lat, lng, SCHOOL_COORDINATES.entrance.latitude, SCHOOL_COORDINATES.entrance.longitude) : 0;
+                document.getElementById('geo-status-text').textContent = `📍 До входа: ${Math.round(distance)}м`;
+                document.getElementById('geo-status').className = 'status-indicator';
+            } else {
+                const entrance = SCHOOL_COORDINATES.entrance;
+                const latDiff = lat - entrance.latitude;
+                const lngDiff = lng - entrance.longitude;
+                const angle = SCHOOL_COORDINATES.buildingAngle * Math.PI / 180;
+
+                const yMeters = latDiff / METER_TO_LAT;
+                const xMeters = lngDiff / METER_TO_LNG;
+
+                const rotatedX = xMeters * Math.cos(-angle) - yMeters * Math.sin(-angle);
+                const rotatedY = xMeters * Math.sin(-angle) + yMeters * Math.cos(-angle);
+
+                const mapX = 35 + rotatedX;
+                const mapY = 20 + rotatedY;
+
+                const nearest = typeof findNearestRoom === 'function' ? findNearestRoom(lat, lng, floor) : { room: null, distance: 0 };
+
+                userLocation = {
+                    latitude: lat,
+                    longitude: lng,
+                    altitude: alt,
+                    accuracy: accuracy,
+                    floor: floor,
+                    x: Math.max(5, Math.min(95, mapX)),
+                    y: Math.max(5, Math.min(95, mapY)),
+                    room: nearest.room,
+                    nearRoom: nearest.room ? nearest.room.name : null,
+                    inSchool: true,
+                    distanceToNearest: nearest.distance
+                };
+
+                if (currentFloor !== floor) {
+                    selectFloor(floor);
+                }
+
+                updateLocationStatus();
+            }
+
+            renderMap();
+            updateNavigationButton();
+        }
+
+        function updateLocationStatus() {
+            const statusText = document.getElementById('geo-status-text');
+            const statusIndicator = document.getElementById('geo-status');
+
+            if (!userLocation) return;
+
+            if (!userLocation.inSchool) {
+                statusIndicator.className = 'status-indicator';
+            } else if (userLocation.accuracy > REQUIRED_ACCURACY) {
+                statusText.textContent = `⚠️ Точность: ±${Math.round(userLocation.accuracy)}м`;
+                statusIndicator.className = 'status-indicator';
+            } else if (userLocation.room) {
+                statusText.textContent = `✅ Вы в кабинете ${userLocation.room.name} (${userLocation.floor} этаж)`;
+                statusIndicator.className = 'status-indicator active';
+            } else if (userLocation.nearRoom) {
+                statusText.textContent = `📍 Рядом с ${userLocation.nearRoom} (${userLocation.floor} этаж)`;
+                statusIndicator.className = 'status-indicator active';
+            } else {
+                statusText.textContent = `✅ Вы в школе (${userLocation.floor} этаж)`;
+                statusIndicator.className = 'status-indicator active';
+            }
+        }
+
+        function handleGeolocationError(error) {
+            const statusText = document.getElementById('geo-status-text');
+            const statusIndicator = document.getElementById('geo-status');
+
+            statusIndicator.className = 'status-indicator';
+
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    statusText.textContent = '❌ Доступ к геолокации запрещён';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    statusText.textContent = '❌ Информация о местоположении недоступна';
+                    break;
+                case error.TIMEOUT:
+                    statusText.textContent = '❌ Время запроса истекло';
+                    break;
+                default:
+                    statusText.textContent = '❌ Ошибка геолокации';
+            }
+        }
+
+        function selectFloor(floor) {
+            currentFloor = floor;
+            document.querySelectorAll('.floor-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i + 1 === floor);
+            });
+            renderMap();
+            clearNavigation();
+        }
+
+        function renderMap() {
+            const mapContainer = document.getElementById('school-map');
+            const floorData = schoolMap.floors[currentFloor - 1];
+            
+            let html = '';
+            
+            // Коридоры
+            floorData.corridors.forEach(corridor => {
+                html += `<div class="corridor" style="
+                    left: ${corridor.start.x}%;
+                    top: ${corridor.start.y}%;
+                    width: ${corridor.end.x - corridor.start.x}%;
+                    height: ${corridor.width}%;
+                "></div>`;
+            });
+            
+            // Лестницы
+            floorData.stairs.forEach(stair => {
+                html += `<div class="stairs" style="
+                    left: ${stair.position.x}%;
+                    top: ${stair.position.y}%;
+                    width: ${stair.width}%;
+                    height: ${stair.depth}%;
+                ">🪜 ${stair.name}</div>`;
+            });
+            
+            // Комнаты
+            floorData.rooms.forEach(room => {
+                const isSelected = selectedRoom && selectedRoom.id === room.id;
+                const isEntrance = room.type === 'entrance';
+                html += `<div class="room ${isSelected ? 'selected' : ''} ${isEntrance ? 'entrance' : ''}" 
+                    style="left: ${room.position.x}%; top: ${room.position.y}%; width: ${room.width}%; height: ${room.depth}%;"
+                    onclick="selectRoom('${room.id}')">
+                    ${room.name}
+                </div>`;
+            });
+            
+            // Маршрут
+            if (navigationRoute && navigationRoute.floor === currentFloor) {
+                navigationRoute.segments.forEach(segment => {
+                    const angle = Math.atan2(segment.y2 - segment.y1, segment.x2 - segment.x1) * 180 / Math.PI;
+                    const length = Math.sqrt(Math.pow(segment.x2 - segment.x1, 2) + Math.pow(segment.y2 - segment.y1, 2));
+                    html += `<div class="route-line" style="
+                        left: ${segment.x1}%;
+                        top: ${segment.y1}%;
+                        width: ${length}%;
+                        transform: rotate(${angle}deg);
+                    "></div>`;
+                });
+            }
+            
+            // Местоположение пользователя
+            if (userLocation && userLocation.floor === currentFloor) {
+                html += `
+                    <div class="location-pulse" style="left: ${userLocation.x}%; top: ${userLocation.y}%;"></div>
+                    <div class="user-location" style="left: ${userLocation.x}%; top: ${userLocation.y}%;"></div>
+                `;
+            }
+            
+            mapContainer.innerHTML = html;
+        }
+
+        function selectRoom(roomId) {
+            const floorData = schoolMap.floors[currentFloor - 1];
+            selectedRoom = floorData.rooms.find(r => r.id === roomId);
+            renderMap();
+            updateNavigationButton();
+            document.getElementById('room-search-input').value = selectedRoom.name;
+            document.getElementById('search-results').style.display = 'none';
+        }
+
+        function searchRooms() {
+            const query = document.getElementById('room-search-input').value.toLowerCase();
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (query.length < 1) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            const allRooms = [];
+            schoolMap.floors.forEach((floor, floorIndex) => {
+                floor.rooms.forEach(room => {
+                    if (room.name.toLowerCase().includes(query) || 
+                        (room.description && room.description.toLowerCase().includes(query))) {
+                        allRooms.push({ ...room, floor: floorIndex + 1 });
+                    }
+                });
+            });
+            
+            if (allRooms.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-result-item">Ничего не найдено</div>';
+            } else {
+                resultsContainer.innerHTML = allRooms.map(room => `
+                    <div class="search-result-item" onclick="goToRoom('${room.id}', ${room.floor})">
+                        <strong>${room.name}</strong> - ${room.floor} этаж
+                        ${room.description ? `<br><small>${room.description}</small>` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            resultsContainer.style.display = 'block';
+        }
+
+        function goToRoom(roomId, floor) {
+            selectFloor(floor);
+            setTimeout(() => {
+                const floorData = schoolMap.floors[floor - 1];
+                selectedRoom = floorData.rooms.find(r => r.id === roomId);
+                renderMap();
+                updateNavigationButton();
+                document.getElementById('room-search-input').value = selectedRoom.name;
+                document.getElementById('search-results').style.display = 'none';
+            }, 100);
+        }
+
+        function updateNavigationButton() {
+            document.getElementById('start-nav-btn').disabled = !selectedRoom;
+        }
+
+        function startNavigation() {
+            if (!selectedRoom) return;
+            
+            if (!userLocation) {
+                alert('Сначала определите ваше местоположение!');
+                requestGeolocation();
+                return;
+            }
+            
+            let startPoint;
+            if (userLocation.inSchool) {
+                startPoint = {
+                    floor: userLocation.floor,
+                    x: userLocation.x,
+                    y: userLocation.y
+                };
+            } else {
+                const entrance = schoolMap.floors[0].rooms.find(r => r.id === 'entrance');
+                startPoint = {
+                    floor: 1,
+                    x: entrance.position.x,
+                    y: entrance.position.y
+                };
+            }
+            
+            navigationRoute = calculateRoute(startPoint, selectedRoom);
+            
+            if (navigationRoute) {
+                displayRouteInfo();
+                selectFloor(navigationRoute.floor);
+                renderMap();
+            }
+        }
+
+        function calculateRoute(from, to) {
+            const route = {
+                floor: to.floor || currentFloor,
+                destination: to.name,
+                segments: [],
+                steps: [],
+                totalDistance: 0,
+                estimatedTime: 0
+            };
+            
+            let currentPos = { ...from };
+            let totalDistance = 0;
+            
+            if (from.floor !== to.floor) {
+                const stairs = findNearestStairsInternal(from.floor, from);
+                const stairPos = schoolMap.floors[from.floor - 1].stairs.find(s => s.id === stairs);
+                
+                if (stairPos) {
+                    const distanceToStairs = Math.sqrt(
+                        Math.pow(stairPos.position.x - from.x, 2) + 
+                        Math.pow(stairPos.position.y - from.y, 2)
+                    ) * (schoolMap.dimensions.width / 100);
+                    
+                    totalDistance += distanceToStairs;
+                    
+                    route.segments.push({
+                        x1: from.x, y1: from.y,
+                        x2: stairPos.position.x, y2: stairPos.position.y
+                    });
+                    
+                    route.steps.push({
+                        icon: '🚶',
+                        text: `Идите ${Math.round(distanceToStairs)}м до лестницы`,
+                        distance: Math.round(distanceToStairs)
+                    });
+                    
+                    const floorsDiff = Math.abs(to.floor - from.floor);
+                    route.steps.push({
+                        icon: '🪜',
+                        text: `Поднимитесь на ${to.floor} этаж (${floorsDiff} пролёт${floorsDiff > 1 ? 'а' : ''})`,
+                        distance: floorsDiff * 3
+                    });
+                    
+                    currentPos = {
+                        floor: to.floor,
+                        x: stairPos.position.x,
+                        y: stairPos.position.y
+                    };
+                }
+            }
+            
+            if (currentPos.floor === to.floor) {
+                const roomPos = schoolMap.floors[to.floor - 1].rooms.find(r => r.id === to.id);
+                
+                if (roomPos) {
+                    const distanceToRoom = Math.sqrt(
+                        Math.pow(roomPos.position.x - currentPos.x, 2) + 
+                        Math.pow(roomPos.position.y - currentPos.y, 2)
+                    ) * (schoolMap.dimensions.width / 100);
+                    
+                    totalDistance += distanceToRoom;
+                    
+                    route.segments.push({
+                        x1: currentPos.x, y1: currentPos.y,
+                        x2: roomPos.position.x, y2: roomPos.position.y
+                    });
+                    
+                    route.steps.push({
+                        icon: '🚶',
+                        text: `Идите прямо ${Math.round(distanceToRoom)}м до кабинета ${to.name}`,
+                        distance: Math.round(distanceToRoom)
+                    });
+                }
+            }
+            
+            route.steps.push({
+                icon: '🎯',
+                text: `Вы достигли кабинета ${to.name}`,
+                distance: 0
+            });
+            
+            route.totalDistance = Math.round(totalDistance);
+            route.estimatedTime = Math.round(totalDistance / 1.4 / 60);
+            
+            return route;
+        }
+
+        function findNearestStairsInternal(floor, position) {
+            const floorData = schoolMap.floors[floor - 1];
+            let nearestStairs = null;
+            let minDistance = Infinity;
+            
+            floorData.stairs.forEach(stair => {
+                const distance = Math.sqrt(
+                    Math.pow(stair.position.x - position.x, 2) + 
+                    Math.pow(stair.position.y - position.y, 2)
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestStairs = stair.id;
+                }
+            });
+            
+            return nearestStairs;
+        }
+
+        function displayRouteInfo() {
+            if (!navigationRoute) return;
+            
+            document.getElementById('route-destination').textContent = navigationRoute.destination;
+            
+            const stepsContainer = document.getElementById('route-steps');
+            stepsContainer.innerHTML = `
+                <div style="margin-bottom: 10px; padding: 10px; background: #e0f2fe; border-radius: 8px;">
+                    <strong>📏 Общее расстояние:</strong> ${navigationRoute.totalDistance}м<br>
+                    <strong>⏱ Примерное время:</strong> ${navigationRoute.estimatedTime} мин
+                </div>
+            `;
+            
+            stepsContainer.innerHTML += navigationRoute.steps.map(step => `
+                <li>
+                    <span class="step-icon">${step.icon}</span>
+                    <span>
+                        ${step.text}
+                        ${step.distance ? `<span style="color: #666; margin-left: 5px;">(${step.distance}м)</span>` : ''}
+                    </span>
+                </li>
+            `).join('');
+            
+            document.getElementById('route-info').style.display = 'block';
+        }
+
+        function clearNavigation() {
+            navigationRoute = null;
+            selectedRoom = null;
+            document.getElementById('route-info').style.display = 'none';
+            document.getElementById('start-nav-btn').disabled = true;
+            document.getElementById('room-search-input').value = '';
+            renderMap();
+        }
+
+        // ============ ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ============
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                targetTab.style.display = 'block';
+            }
+
+            const tabs = ['schedule', 'navigation', 'news', 'gallery', 'settings'];
+            const menuIndex = tabs.indexOf(tabId);
+            if (menuIndex >= 0) {
+                document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
+            }
+            
+            if (tabId === 'navigation') {
+                setTimeout(() => renderMap(), 50);
+            }
+        }
+
+        // ============ НОВОСТИ ============
+        let currentNewsId = null;
+        const siteUrl = window.location.origin + window.location.pathname;
+
+        function createNewsShareUrl(newsId) {
+            return `${siteUrl.split('?')[0]}?news=${newsId}`;
+        }
+
+        async function initBasicInfo() {
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '<div style="text-align:center; padding:20px;">Загрузка новостей...</div>';
+            
+            if (typeof refreshNews === 'function') {
+                await refreshNews();
+            }
+            
+            const sortedNews = typeof getAllNews === 'function' ? getAllNews() : 
+                (typeof newsData !== 'undefined' ? [...newsData].sort((a, b) => b.id - a.id) : []);
+            
+            if (sortedNews.length === 0) {
+                newsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Новостей пока нет</div>';
+                return;
+            }
+            
+            let newsHtml = '';
+            sortedNews.forEach(news => {
+                const shareUrl = createNewsShareUrl(news.id);
+                newsHtml += `
+                <div class="news-item" data-news-id="${news.id}">
+                    <div class="news-date">${news.date}</div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-text">${news.text}</div>
+                    <div class="share-panel">
+                        <div class="share-link-container">
+                            <input type="text" class="share-link" value="${shareUrl}" readonly onclick="this.select()">
+                        </div>
+                        <button class="share-btn" onclick="openShareModal(${news.id})">
+                            <i class="fas fa-share-alt"></i> Поделиться
+                        </button>
+                    </div>
+                </div>
+                <hr style="opacity:0.3; margin: 5px 0;">`;
+            });
+
+            newsContainer.innerHTML = newsHtml;
+            checkUrlParams();
+        }
+
+        function openShareModal(newsId) {
+            currentNewsId = newsId;
+            const shareUrl = createNewsShareUrl(newsId);
+            document.getElementById('share-url-input').value = shareUrl;
+
+            if (typeof newsData !== 'undefined') {
+                const news = newsData.find(n => n.id == newsId);
+                if (news) {
+                    document.getElementById('share-text-display').textContent =
+                        `Новость от ${news.date}: ${news.title}\n\n${news.text}\n\n${shareUrl}`;
+                }
+            }
+
+            document.getElementById('share-modal').style.display = 'flex';
+        }
+
+        function closeShareModal(event) {
+            if (event && event.target.id === 'share-modal') {
+                document.getElementById('share-modal').style.display = 'none';
+            } else if (!event) {
+                document.getElementById('share-modal').style.display = 'none';
+            }
+        }
+
+        function copyShareLink() {
+            const shareUrl = document.getElementById('share-url-input');
+            shareUrl.select();
+            try {
+                navigator.clipboard.writeText(shareUrl.value);
+            } catch (err) {
+                document.execCommand('copy');
+            }
+            showCopyNotification();
+        }
+
+        function showCopyNotification() {
+            const notification = document.getElementById('copy-notification');
+            notification.style.display = 'block';
+            setTimeout(() => notification.style.display = 'none', 2000);
+        }
+
+        function shareViaTelegram() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        function shareViaWhatsApp() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        function shareViaVK() {
+            const shareUrl = createNewsShareUrl(currentNewsId);
+            window.open(`https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`, '_blank');
+        }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('news');
+            if (newsId) {
+                switchTab('news');
+                setTimeout(() => highlightNews(newsId), 300);
+            }
+        }
+
+        function highlightNews(newsId) {
+            document.querySelectorAll('.news-item').forEach(item => item.classList.remove('highlighted'));
+            const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
+            if (newsElement) {
+                newsElement.classList.add('highlighted');
+                newsElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => newsElement.classList.remove('highlighted'), 3000);
+            }
+        }
+
+        // ============ ГАЛЕРЕЯ ============
+        function renderAlbums() {
+            if (typeof albums === 'undefined') return;
+            
+            const renderGroup = (id, data) => {
+                const container = document.getElementById(id);
+                if (!container) return;
+                
+                let html = `
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                        <button class="toggle-all-btn" onclick="toggleAllAlbums('${id}')">
+                            <i class="fas fa-expand-alt"></i> Свернуть все
+                        </button>
+                    </div>
+                `;
+                
+                data.forEach((album, index) => {
+                    const photos = album.items.filter(item => item.type === 'photo').length;
+                    const videos = album.items.filter(item => item.type === 'video').length;
+                    const albumId = `album-${id}-${index}`;
+                    
+                    html += `
+                        <div class="album-container" id="${albumId}-container">
+                            <div class="album-header" onclick="toggleAlbum('${albumId}')">
+                                <h3><i class="fas fa-folder"></i> ${album.name} <span class="album-count">${album.items.length}</span></h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="album-content" id="${albumId}">
+                                <div class="gallery-grid">
+                    `;
+                    
+                    album.items.forEach(item => {
+                        if (item.type === 'photo') {
+                            html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
+                                    <img src="${item.url}" draggable="false" alt="${album.name}" loading="lazy">
+                                </div>`;
+                        } else {
+                            html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
+                                    <img src="${item.preview || 'https://placehold.co/400x400/000/fff?text=Play'}" draggable="false" alt="Видео" loading="lazy">
+                                    <div class="video-indicator">▶</div>
+                                </div>`;
+                        }
+                    });
+                    
+                    html += `</div></div></div>`;
+                });
+                
+                container.innerHTML = html;
+            };
+            
+            renderGroup('class5-albums', albums.class5);
+            renderGroup('class6-albums', albums.class6);
+        }
+
+        function toggleAlbum(albumId) {
+            const content = document.getElementById(albumId);
+            const header = document.querySelector(`#${albumId}-container .album-header i`);
+            content.classList.toggle('collapsed');
+            header.className = content.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
+        }
+
+        function toggleAllAlbums(groupId) {
+            const container = document.getElementById(groupId);
+            const albums = container.querySelectorAll('.album-content');
+            const hasCollapsed = Array.from(albums).some(a => a.classList.contains('collapsed'));
+            
+            albums.forEach(content => {
+                const header = document.querySelector(`#${content.id}-container .album-header i`);
+                if (hasCollapsed) {
+                    content.classList.remove('collapsed');
+                    header.className = 'fas fa-chevron-down';
+                } else {
+                    content.classList.add('collapsed');
+                    header.className = 'fas fa-chevron-right';
+                }
+            });
+            
+            const btn = container.parentElement.querySelector('.toggle-all-btn');
+            btn.innerHTML = hasCollapsed ? 
+                '<i class="fas fa-expand-alt"></i> Свернуть все' : 
+                '<i class="fas fa-compress-alt"></i> Развернуть все';
+        }
+
+        function showAlbum(cls, event) {
+            document.getElementById('class5-albums').style.display = cls === 'class5' ? 'block' : 'none';
+            document.getElementById('class6-albums').style.display = cls === 'class6' ? 'block' : 'none';
+            document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function openLightbox(type, url) {
+            const modal = document.getElementById("lightbox-modal");
+            const imgEl = document.getElementById("lightbox-img");
+            const videoEl = document.getElementById("lightbox-video");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = 'hidden';
+
+            if (type === 'photo') {
+                imgEl.src = url;
+                imgEl.style.display = "block";
+                videoEl.style.display = "none";
+                videoEl.pause();
+            } else {
+                videoEl.src = url;
+                videoEl.style.display = "block";
+                imgEl.style.display = "none";
+                videoEl.play();
+            }
+        }
+
+        function closeLightbox(e) {
+            if (e.target.id === 'lightbox-modal' || e.target.classList.contains('close-btn')) {
+                const modal = document.getElementById("lightbox-modal");
+                const videoEl = document.getElementById("lightbox-video");
+                modal.style.display = "none";
+                document.body.style.overflow = 'auto';
+                videoEl.pause();
+                videoEl.src = "";
+            }
+        }
+
+        // ============ РАСПИСАНИЕ ============
+        let viewingDay = new Date().getDay();
+        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1;
+
+        function getMinutes(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function updateLiveStatus() {
+            const now = new Date();
+            const curDay = now.getDay();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            
+            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[curDay] : [];
+            let text = "Свободное время или выходной";
+
+            if (lessons && lessons.length > 0 && typeof bellSchedule !== 'undefined') {
+                lessons.forEach((lsn, idx) => {
+                    if (idx >= bellSchedule.length) return;
+                    const time = bellSchedule[idx];
+                    const start = getMinutes(time.start);
+                    const end = getMinutes(time.end);
+                    const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
+
+                    if (curMin >= start && curMin <= end) {
+                        text = `Идет урок: <b>${lsn}</b> (до ${time.end})`;
+                    } else if (idx > 0 && curMin > prevEnd && curMin < start) {
+                        text = `Перемена! Далее: ${lsn}`;
+                    } else if (idx === 0 && curMin < start && curMin > start - 30) {
+                        text = `Скоро первый урок: ${lsn}`;
+                    }
+                });
+
+                const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
+                if (curMin > lastEnd) text = "Уроки на сегодня закончились";
+            }
+            
+            document.getElementById('now-lesson-display').innerHTML = text;
+            if (viewingDay === curDay) renderScheduleList(viewingDay);
+        }
+
+        function renderScheduleList(dayIdx) {
+            const list = document.getElementById('daily-schedule-list');
+            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[dayIdx] : [];
+            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
+            document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
+
+            const now = new Date();
+            const isToday = (dayIdx === now.getDay());
+            const curMin = now.getHours() * 60 + now.getMinutes();
+
+            let html = '';
+            if (!lessons || lessons.length === 0) {
+                html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
+            } else {
+                lessons.forEach((lsn, i) => {
+                    if (typeof bellSchedule === 'undefined' || i >= bellSchedule.length) return;
+                    const time = bellSchedule[i];
+                    let activeClass = '';
+                    
+                    if (isToday) {
+                        const start = getMinutes(time.start);
+                        const end = getMinutes(time.end);
+                        if (curMin >= start && curMin <= end) activeClass = 'current-lesson';
+                    }
+
+                    html += `
+                <div class="lesson-row ${activeClass}">
+                    <div class="lesson-time">${time.start} - ${time.end}</div>
+                    <div class="lesson-name">${lsn}</div>
+                </div>`;
+                });
+            }
+            list.innerHTML = html;
+        }
+
+        function selectDay(dayIdx) {
+            viewingDay = dayIdx;
+            document.querySelectorAll('.day-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx + 1 === dayIdx);
+            });
+            renderScheduleList(dayIdx);
+        }
+
+        // ============ ИНИЦИАЛИЗАЦИЯ ============
+        function initSite() {
+            initBasicInfo();
+            renderAlbums();
+            selectDay(viewingDay);
+            updateLiveStatus();
+            setInterval(updateLiveStatus, 60000);
+            
+            setTimeout(() => {
+                requestGeolocation();
+                renderMap();
+            }, 500);
+        }
+
+    </script>
+
+</body>
+
+</html>
