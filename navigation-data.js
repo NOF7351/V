@@ -3,39 +3,21 @@
 // ============ КООРДИНАТЫ ШКОЛЫ ============
 // ЗАМЕНИТЕ эти значения на реальные координаты вашей школы!
 const SCHOOL_COORDINATES = {
-    // Центральный вход в школу (главная точка отсчёта)
     entrance: {
         latitude: 54.710000,  // ЗАМЕНИТЕ: широта входа в школу
         longitude: 20.500000  // ЗАМЕНИТЕ: долгота входа в школу
     },
-    // Границы здания школы (для определения, находится ли пользователь внутри)
     bounds: {
         nw: { lat: 54.710050, lng: 20.499950 },
         se: { lat: 54.709950, lng: 20.500050 }
     },
-    // Ориентация здания (угол в градусах относительно севера)
     buildingAngle: 15,
-    // Высота первого этажа над уровнем моря (метров)
     groundFloorAltitude: 25
 };
 
-// ============ ПРИВЯЗКА КАБИНЕТОВ К РЕАЛЬНЫМ КООРДИНАТАМ ============
-// 1 метр ≈ 0.000009 градусов по широте
+// 1 метр в градусах
 const METER_TO_LAT = 0.000009;
-// 1 метр ≈ 0.000012 градусов по долготе (зависит от широты)
 const METER_TO_LNG = 0.000012;
-
-function calculateRoomCoordinates(offsetX, offsetY, floor) {
-    const angle = SCHOOL_COORDINATES.buildingAngle * Math.PI / 180;
-    const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
-    const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
-    
-    return {
-        lat: SCHOOL_COORDINATES.entrance.latitude + (rotatedY * METER_TO_LAT),
-        lng: SCHOOL_COORDINATES.entrance.longitude + (rotatedX * METER_TO_LNG),
-        floor: floor
-    };
-}
 
 // ============ ПЛАН ШКОЛЫ ============
 const schoolMap = {
@@ -49,68 +31,86 @@ const schoolMap = {
         // 1 этаж
         {
             level: 1,
-            height: 0,
             corridors: [
-                { start: { x: 5, y: 18 }, end: { x: 75, y: 18 }, width: 4, name: 'Главный коридор' },
-                { start: { x: 35, y: 5 }, end: { x: 35, y: 35 }, width: 3, name: 'Поперечный коридор' }
+                { start: { x: 8, y: 48 }, end: { x: 92, y: 48 }, width: 8 },
+                { start: { x: 45, y: 8 }, end: { x: 45, y: 88 }, width: 6 }
             ],
             stairs: [
-                { id: 'stairs_east', name: 'Восточная лестница', position: { x: 70, y: 18 }, width: 4, depth: 6, connectsTo: [2, 3] },
-                { id: 'stairs_west', name: 'Западная лестница', position: { x: 10, y: 18 }, width: 4, depth: 6, connectsTo: [2, 3] }
+                { id: 'stairs_east', name: 'Вост.', position: { x: 82, y: 44 }, width: 6, depth: 8, connectsTo: [2, 3] },
+                { id: 'stairs_west', name: 'Зап.', position: { x: 12, y: 44 }, width: 6, depth: 8, connectsTo: [2, 3] }
             ],
             rooms: [
-                { id: 'entrance', name: 'Вход', type: 'entrance', position: { x: 35, y: 20 }, width: 8, depth: 6, description: 'Главный вход в школу', coordinates: calculateRoomCoordinates(0, 0, 1) },
-                { id: 'wardrobe', name: 'Гардероб', type: 'service', position: { x: 10, y: 25 }, width: 8, depth: 6, description: 'Школьный гардероб', coordinates: calculateRoomCoordinates(-25, 5, 1) },
-                { id: 'canteen', name: 'Столовая', type: 'service', position: { x: 55, y: 30 }, width: 15, depth: 10, description: 'Школьная столовая', coordinates: calculateRoomCoordinates(20, 10, 1) },
-                { id: 'gym', name: 'Спортзал', type: 'special', position: { x: 15, y: 5 }, width: 20, depth: 12, description: 'Спортивный зал', coordinates: calculateRoomCoordinates(-20, -15, 1) },
-                { id: 'medical', name: 'Медпункт', type: 'service', position: { x: 65, y: 8 }, width: 6, depth: 5, description: 'Медицинский кабинет', coordinates: calculateRoomCoordinates(30, -12, 1) }
+                { id: 'entrance', name: 'Вход', type: 'entrance', position: { x: 40, y: 52 }, width: 10, depth: 7, description: 'Главный вход' },
+                { id: 'wardrobe', name: 'Гардероб', type: 'service', position: { x: 12, y: 58 }, width: 9, depth: 7 },
+                { id: 'canteen', name: 'Столовая', type: 'service', position: { x: 70, y: 62 }, width: 14, depth: 10 },
+                { id: 'gym', name: 'Спортзал', type: 'special', position: { x: 15, y: 15 }, width: 18, depth: 14 },
+                { id: 'medical', name: 'Медпункт', type: 'service', position: { x: 75, y: 20 }, width: 8, depth: 7 },
+                { id: 'director', name: 'Директор', type: 'staff', position: { x: 25, y: 20 }, width: 8, depth: 7 },
+                { id: 'security', name: 'Охрана', type: 'service', position: { x: 50, y: 60 }, width: 6, depth: 5 },
+                { id: 'toilet1_m', name: 'Туалет М', type: 'toilet', position: { x: 8, y: 75 }, width: 7, depth: 6 },
+                { id: 'toilet1_w', name: 'Туалет Ж', type: 'toilet', position: { x: 85, y: 75 }, width: 7, depth: 6 }
             ]
         },
         // 2 этаж
         {
             level: 2,
-            height: 3.5,
             corridors: [
-                { start: { x: 5, y: 18 }, end: { x: 75, y: 18 }, width: 4, name: 'Главный коридор' },
-                { start: { x: 35, y: 5 }, end: { x: 35, y: 35 }, width: 3, name: 'Поперечный коридор' }
+                { start: { x: 8, y: 48 }, end: { x: 92, y: 48 }, width: 8 },
+                { start: { x: 45, y: 8 }, end: { x: 45, y: 88 }, width: 6 }
             ],
             stairs: [
-                { id: 'stairs_east', name: 'Восточная лестница', position: { x: 70, y: 18 }, width: 4, depth: 6, connectsTo: [1, 3] },
-                { id: 'stairs_west', name: 'Западная лестница', position: { x: 10, y: 18 }, width: 4, depth: 6, connectsTo: [1, 3] }
+                { id: 'stairs_east', name: 'Вост.', position: { x: 82, y: 44 }, width: 6, depth: 8, connectsTo: [1, 3] },
+                { id: 'stairs_west', name: 'Зап.', position: { x: 12, y: 44 }, width: 6, depth: 8, connectsTo: [1, 3] }
             ],
             rooms: [
-                { id: 'history', name: '2-106', type: 'classroom', position: { x: 20, y: 8 }, width: 8, depth: 6, description: 'Кабинет истории', teacher: 'Петров А.В.', subjects: ['История', 'Обществознание'], coordinates: calculateRoomCoordinates(-15, -12, 2) },
-                { id: 'math1', name: '2-102', type: 'classroom', position: { x: 45, y: 8 }, width: 8, depth: 6, description: 'Кабинет математики', teacher: 'Сидорова Е.Н.', subjects: ['Математика', 'Алгебра', 'Геометрия'], coordinates: calculateRoomCoordinates(10, -12, 2) },
-                { id: 'physics', name: '2-110', type: 'classroom', position: { x: 60, y: 12 }, width: 10, depth: 7, description: 'Кабинет физики', teacher: 'Козлов Д.М.', subjects: ['Физика', 'Астрономия'], coordinates: calculateRoomCoordinates(25, -8, 2) },
-                { id: 'library', name: 'Библиотека', type: 'special', position: { x: 15, y: 28 }, width: 12, depth: 8, description: 'Школьная библиотека', coordinates: calculateRoomCoordinates(-20, 8, 2) },
-                { id: 'teachers', name: 'Учительская', type: 'staff', position: { x: 55, y: 28 }, width: 8, depth: 6, description: 'Учительская', coordinates: calculateRoomCoordinates(20, 8, 2) }
+                { id: 'history', name: '2-106', type: 'classroom', position: { x: 20, y: 15 }, width: 9, depth: 8, description: 'Кабинет истории', teacher: 'Петров А.В.' },
+                { id: 'math1', name: '2-102', type: 'classroom', position: { x: 50, y: 15 }, width: 9, depth: 8, description: 'Кабинет математики' },
+                { id: 'physics', name: '2-110', type: 'classroom', position: { x: 75, y: 18 }, width: 10, depth: 8, description: 'Кабинет физики' },
+                { id: 'library', name: 'Библиотека', type: 'special', position: { x: 15, y: 70 }, width: 14, depth: 10, description: 'Библиотека' },
+                { id: 'teachers', name: 'Учительская', type: 'staff', position: { x: 65, y: 70 }, width: 10, depth: 8 },
+                { id: 'geography', name: '2-104', type: 'classroom', position: { x: 35, y: 15 }, width: 9, depth: 8, description: 'Кабинет географии' },
+                { id: 'toilet2_m', name: 'Туалет М', type: 'toilet', position: { x: 8, y: 75 }, width: 7, depth: 6 },
+                { id: 'toilet2_w', name: 'Туалет Ж', type: 'toilet', position: { x: 85, y: 75 }, width: 7, depth: 6 }
             ]
         },
         // 3 этаж
         {
             level: 3,
-            height: 7.0,
             corridors: [
-                { start: { x: 5, y: 18 }, end: { x: 75, y: 18 }, width: 4, name: 'Главный коридор' },
-                { start: { x: 35, y: 5 }, end: { x: 35, y: 35 }, width: 3, name: 'Поперечный коридор' }
+                { start: { x: 8, y: 48 }, end: { x: 92, y: 48 }, width: 8 },
+                { start: { x: 45, y: 8 }, end: { x: 45, y: 88 }, width: 6 }
             ],
             stairs: [
-                { id: 'stairs_east', name: 'Восточная лестница', position: { x: 70, y: 18 }, width: 4, depth: 6, connectsTo: [1, 2] },
-                { id: 'stairs_west', name: 'Западная лестница', position: { x: 10, y: 18 }, width: 4, depth: 6, connectsTo: [1, 2] }
+                { id: 'stairs_east', name: 'Вост.', position: { x: 82, y: 44 }, width: 6, depth: 8, connectsTo: [1, 2] },
+                { id: 'stairs_west', name: 'Зап.', position: { x: 12, y: 44 }, width: 6, depth: 8, connectsTo: [1, 2] }
             ],
             rooms: [
-                { id: 'russian', name: '1-74', type: 'classroom', position: { x: 15, y: 6 }, width: 8, depth: 6, description: 'Кабинет русского языка и литературы', teacher: 'Иванова М.С.', subjects: ['Русский язык', 'Литература'], coordinates: calculateRoomCoordinates(-20, -14, 3) },
-                { id: 'mgn', name: '3-93', type: 'classroom', position: { x: 45, y: 10 }, width: 6, depth: 5, description: 'Санитарный узел для МГН', accessible: true, coordinates: calculateRoomCoordinates(10, -10, 3) },
-                { id: 'english1', name: '3-88', type: 'classroom', position: { x: 65, y: 6 }, width: 8, depth: 6, description: 'Кабинет английского языка', teacher: 'Смирнова А.П.', subjects: ['Английский язык'], coordinates: calculateRoomCoordinates(30, -14, 3) },
-                { id: 'chemistry', name: '3-95', type: 'classroom', position: { x: 25, y: 30 }, width: 10, depth: 7, description: 'Кабинет химии', teacher: 'Васильев Н.К.', subjects: ['Химия'], coordinates: calculateRoomCoordinates(-10, 10, 3) },
-                { id: 'biology', name: '3-100', type: 'classroom', position: { x: 55, y: 30 }, width: 10, depth: 7, description: 'Кабинет биологии', teacher: 'Михайлова Л.В.', subjects: ['Биология', 'Экология'], coordinates: calculateRoomCoordinates(20, 10, 3) },
-                { id: 'informatics', name: '3-85', type: 'classroom', position: { x: 10, y: 22 }, width: 10, depth: 7, description: 'Кабинет информатики', teacher: 'Фёдоров И.С.', subjects: ['Информатика', 'Программирование'], coordinates: calculateRoomCoordinates(-25, 2, 3) }
+                { id: 'russian', name: '1-74', type: 'classroom', position: { x: 15, y: 12 }, width: 9, depth: 8, description: 'Кабинет русского языка и литературы', teacher: 'Иванова М.С.' },
+                { id: 'mgn', name: '3-93', type: 'classroom', position: { x: 45, y: 15 }, width: 7, depth: 6, description: 'C/y для МГН', accessible: true },
+                { id: 'english1', name: '3-88', type: 'classroom', position: { x: 70, y: 12 }, width: 9, depth: 8, description: 'Кабинет английского языка' },
+                { id: 'chemistry', name: '3-95', type: 'classroom', position: { x: 25, y: 72 }, width: 11, depth: 9, description: 'Кабинет химии' },
+                { id: 'biology', name: '3-100', type: 'classroom', position: { x: 60, y: 72 }, width: 11, depth: 9, description: 'Кабинет биологии' },
+                { id: 'informatics', name: '3-85', type: 'classroom', position: { x: 10, y: 58 }, width: 10, depth: 8, description: 'Кабинет информатики' },
+                { id: 'english2', name: '3-90', type: 'classroom', position: { x: 30, y: 12 }, width: 9, depth: 8, description: 'Кабинет английского языка' },
+                { id: 'toilet3_m', name: 'Туалет М', type: 'toilet', position: { x: 8, y: 75 }, width: 7, depth: 6 },
+                { id: 'toilet3_w', name: 'Туалет Ж', type: 'toilet', position: { x: 85, y: 75 }, width: 7, depth: 6 }
             ]
         }
     ]
 };
 
-// ============ ФУНКЦИИ ДЛЯ РАБОТЫ С КООРДИНАТАМИ ============
+// Функции для геолокации
+function calculateRoomCoordinates(offsetX, offsetY, floor) {
+    const angle = SCHOOL_COORDINATES.buildingAngle * Math.PI / 180;
+    const rotatedX = offsetX * Math.cos(angle) - offsetY * Math.sin(angle);
+    const rotatedY = offsetX * Math.sin(angle) + offsetY * Math.cos(angle);
+    return {
+        lat: SCHOOL_COORDINATES.entrance.latitude + (rotatedY * METER_TO_LAT),
+        lng: SCHOOL_COORDINATES.entrance.longitude + (rotatedX * METER_TO_LNG),
+        floor: floor
+    };
+}
+
 function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
     const R = 6371000;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -153,3 +153,13 @@ function calculateUserFloor(altitude) {
     const floor = Math.floor(relativeHeight / floorHeight) + 1;
     return Math.min(Math.max(floor, 1), 3);
 }
+
+// Добавляем координаты всем комнатам
+schoolMap.floors.forEach((floor, floorIndex) => {
+    const entrance = schoolMap.floors[0].rooms.find(r => r.id === 'entrance');
+    floor.rooms.forEach(room => {
+        const offsetX = room.position.x - entrance.position.x;
+        const offsetY = room.position.y - entrance.position.y;
+        room.coordinates = calculateRoomCoordinates(offsetX, offsetY, floorIndex + 1);
+    });
+});
