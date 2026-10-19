@@ -1321,779 +1321,1203 @@
 
     </div>
 
-    <script>
-        // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
-        const SITE_PASSWORD = "6730"; // 4-значный пароль для доступа к сайту
-        const PASSWORD_KEY = 'class6v_site_access';
+ <script>
+    // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
 
-        let enteredPassword = '';
-        let dots = [];
+    const SITE_PASSWORD = "6730";
+    const PASSWORD_KEY = "class6v_site_access";
 
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function () {
-            // Создаем массив точек
-            dots = [
-                document.getElementById('dot1'),
-                document.getElementById('dot2'),
-                document.getElementById('dot3'),
-                document.getElementById('dot4')
-            ];
+    let enteredPassword = '';
+    let dots = [];
+    let siteInitialized = false;
+    let liveStatusInterval = null;
 
-            // Проверяем сохраненный доступ
-            checkSavedAccess();
-        });
-
-        // Проверяем, был ли уже введен пароль
-        function checkSavedAccess() {
-            const savedAccess = localStorage.getItem(PASSWORD_KEY);
-            if (savedAccess === 'granted') {
-                grantSiteAccess();
-            }
-        }
-
-        // Добавление цифры
-        function addDigit(digit) {
-            if (enteredPassword.length >= 4) return;
-
-            enteredPassword += digit.toString();
-            updateDots();
-            updateSubmitButton();
-
-            // Автопроверка при вводе 4 цифр
-            if (enteredPassword.length === 4) {
-                setTimeout(checkPassword, 300);
-            }
-        }
-
-        // Удаление последней цифры
-        function removeDigit() {
-            if (enteredPassword.length === 0) return;
-
-            enteredPassword = enteredPassword.slice(0, -1);
-            updateDots();
-            updateSubmitButton();
-
-            // Очищаем сообщения об ошибке
-            document.getElementById('password-error').textContent = '';
-        }
-
-        // Обновление индикатора точек
-        function updateDots() {
-            dots.forEach((dot, index) => {
-                if (index < enteredPassword.length) {
-                    dot.classList.add('filled');
-                } else {
-                    dot.classList.remove('filled');
-                    dot.classList.remove('error');
-                }
-            });
-        }
-
-        // Обновление состояния кнопки отправки
-        function updateSubmitButton() {
-            const submitBtn = document.getElementById('submit-btn');
-            if (enteredPassword.length === 4) {
-                submitBtn.disabled = false;
-            } else {
-                submitBtn.disabled = true;
-            }
-        }
-
-        // Проверка пароля
-        function checkPassword() {
-            const errorElement = document.getElementById('password-error');
-            const successElement = document.getElementById('password-success');
-
-            // Очищаем предыдущие сообщения
-            errorElement.textContent = '';
-            successElement.textContent = '';
-
-            if (enteredPassword.length !== 4) {
-                errorElement.textContent = 'Введите все 4 цифры';
-                shakeDots();
-                return;
-            }
-
-            if (enteredPassword === SITE_PASSWORD) {
-                // Правильный пароль
-                successElement.textContent = 'Правильно, телепортирую на главную страницу';
-
-                // Анимация успеха
-                dots.forEach(dot => {
-                    dot.style.background = '#10b981';
-                    dot.style.animation = 'pulse 0.5s ease-in-out';
-                });
-
-                // Сохраняем доступ в localStorage
-                localStorage.setItem(PASSWORD_KEY, 'granted');
-
-                // Показываем сайт с задержкой для анимации
-                setTimeout(grantSiteAccess, 800);
-            } else {
-                // Неправильный пароль
-                errorElement.textContent = 'Неверный пароль';
-                shakeDots();
-
-                // Сбрасываем пароль через время
-                setTimeout(() => {
-                    enteredPassword = '';
-                    updateDots();
-                    updateSubmitButton();
-                    errorElement.textContent = '';
-                }, 1000);
-            }
-        }
-
-        // Анимация тряски при ошибке
-        function shakeDots() {
-            dots.forEach(dot => {
-                dot.classList.add('error');
-                dot.style.animation = 'shake 0.5s ease-in-out';
-            });
-
-            setTimeout(() => {
-                dots.forEach(dot => {
-                    dot.classList.remove('error');
-                    dot.style.animation = '';
-                });
-            }, 500);
-        }
-
-        // Предоставление доступа к сайту
-        function grantSiteAccess() {
-            const passwordScreen = document.getElementById('password-screen');
-            const siteContent = document.getElementById('site-content');
-
-            // Анимация исчезновения экрана пароля
-            passwordScreen.style.opacity = '0';
-
-            setTimeout(() => {
-                passwordScreen.style.display = 'none';
-                siteContent.style.display = 'block';
-
-                // Инициализируем сайт после показа
-                initSite();
-            }, 300);
-        }
-
-        // Функция выхода
-        function logout() {
-            if (confirm('Вы уверены, что хотите выйти?')) {
-                // Очищаем localStorage
-                localStorage.removeItem(PASSWORD_KEY);
-
-                // Перезагружаем страницу
-                setTimeout(() => {
-                    window.location.reload();
-                }, 500);
-            }
-        }
-
-        // Функция для проверки обновлений сайта
-        function checkSiteUpdate() {
-            window.open('https://nof7351.github.io/V/Update', '_blank');
-        }
-
-        function checkshedule() {
-            window.open('https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=6В&school_uid=klgd1548141601', '_blank');
-        }
-        // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
-        document.addEventListener('touchstart', function (event) {
-            if (event.touches.length > 1) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-
-        document.addEventListener('gesturestart', function (event) {
-            event.preventDefault();
-        });
-
-        document.addEventListener('gesturechange', function (event) {
-            event.preventDefault();
-        });
-
-        document.addEventListener('gestureend', function (event) {
-            event.preventDefault();
-        });
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-
-        document.addEventListener('wheel', function (event) {
-            if (event.ctrlKey) {
-                event.preventDefault();
-            }
-        }, { passive: false });
-
-        document.addEventListener('contextmenu', function (event) {
-            // Разрешаем контекстное меню для полей ввода
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                return;
-            }
-            event.preventDefault();
-            return false;
-        });
-
-        document.addEventListener('keydown', function (event) {
-            // Разрешаем копирование и вставку для полей ввода
-            if ((event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
-                if (event.ctrlKey && (event.key === 'c' || event.key === 'C' ||
-                    event.key === 'x' || event.key === 'X' ||
-                    event.key === 'v' || event.key === 'V' ||
-                    event.key === 'a' || event.key === 'A')) {
-                    return; // Разрешаем стандартное поведение
-                }
-            }
-
-            // Блокируем F12
-            if (event.key === 'F12') {
-                event.preventDefault();
-                return false;
-            }
-
-            // Блокируем масштабирование
-            if (event.ctrlKey && (event.key === '+' || event.key === '=' ||
-                event.key === '-' || event.key === '_' ||
-                event.key === '0')) {
-                event.preventDefault();
-                return false;
-            }
-
-            // Для остальных элементов блокируем Ctrl
-            if (event.ctrlKey && !(event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA')) {
-                event.preventDefault();
-                return false;
-            }
-        });
-
-        // Разрешаем выделение для полей ввода
-        document.addEventListener('selectstart', function (event) {
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                return;
-            }
-            event.preventDefault();
-            return false;
-        });
-
-        document.addEventListener('dragstart', function (event) {
-            if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
-                event.preventDefault();
-                return false;
-            }
-        });
-
-        /* ================================================================
-           ОСНОВНАЯ ЛОГИКА САЙТА (использует данные из внешних файлов)
-        ================================================================ */
-
-        // 1. УЧЕНИКИ (оставлено для возможного будущего использования)
-        const students = [
-            "🥇 1", "🥈 2", "🥉 3"
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', function () {
+        dots = [
+            document.getElementById('dot1'),
+            document.getElementById('dot2'),
+            document.getElementById('dot3'),
+            document.getElementById('dot4')
         ];
 
-        // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
+        checkSavedAccess();
+    });
 
-        let currentNewsId = null;
-        const siteUrl = window.location.origin + window.location.pathname;
-
-        function createNewsShareUrl(newsId) {
-            const cleanUrl = siteUrl.split('?')[0];
-            return `${cleanUrl}?news=${newsId}`;
-        }
-
-        function checkUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const newsId = urlParams.get('news');
-
-            if (newsId) {
-                switchTab('news');
-
-                setTimeout(() => {
-                    highlightNews(newsId);
-                }, 300);
+    // Проверяем сохраненный доступ
+    function checkSavedAccess() {
+        try {
+            if (localStorage.getItem(PASSWORD_KEY) === 'granted') {
+                grantSiteAccess();
             }
+        } catch (error) {
+            console.error('Ошибка проверки сохраненного доступа:', error);
+        }
+    }
+
+    // Добавление цифры
+    function addDigit(digit) {
+        if (enteredPassword.length >= 4) return;
+
+        enteredPassword += String(digit);
+        updateDots();
+        updateSubmitButton();
+
+        if (enteredPassword.length === 4) {
+            setTimeout(checkPassword, 300);
+        }
+    }
+
+    // Удаление последней цифры
+    function removeDigit() {
+        if (enteredPassword.length === 0) return;
+
+        enteredPassword = enteredPassword.slice(0, -1);
+
+        updateDots();
+        updateSubmitButton();
+
+        const errorElement = document.getElementById('password-error');
+
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+    }
+
+    // Обновление индикатора точек
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            if (!dot) return;
+
+            if (index < enteredPassword.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+                dot.classList.remove('error');
+            }
+        });
+    }
+
+    // Обновление кнопки отправки
+    function updateSubmitButton() {
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (!submitBtn) return;
+
+        submitBtn.disabled = enteredPassword.length !== 4;
+    }
+
+    // Проверка пароля
+    function checkPassword() {
+        const errorElement = document.getElementById('password-error');
+        const successElement = document.getElementById('password-success');
+
+        if (errorElement) errorElement.textContent = '';
+        if (successElement) successElement.textContent = '';
+
+        if (enteredPassword.length !== 4) {
+            if (errorElement) {
+                errorElement.textContent = 'Введите все 4 цифры';
+            }
+
+            shakeDots();
+            return;
         }
 
-        function highlightNews(newsId) {
-            document.querySelectorAll('.news-item').forEach(item => {
-                item.classList.remove('highlighted');
+        if (enteredPassword === SITE_PASSWORD) {
+            if (successElement) {
+                successElement.textContent =
+                    'Правильно, телепортирую на главную страницу';
+            }
+
+            dots.forEach(dot => {
+                if (!dot) return;
+
+                dot.style.background = '#10b981';
+                dot.style.animation = 'pulse 0.5s ease-in-out';
             });
-
-            const newsElement = document.querySelector(`.news-item[data-news-id="${newsId}"]`);
-            if (newsElement) {
-                newsElement.classList.add('highlighted');
-
-                newsElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-
-                setTimeout(() => {
-                    newsElement.classList.remove('highlighted');
-                }, 3000);
-            }
-        }
-
-        function openShareModal(newsId) {
-            currentNewsId = newsId;
-            const shareUrl = createNewsShareUrl(newsId);
-            document.getElementById('share-url-input').value = shareUrl;
-
-            const news = newsData.find(n => n.id == newsId);
-            if (news) {
-                document.getElementById('share-text-display').textContent =
-                    `Новость от ${news.date}: ${news.title}\n\n${news.text}\n\n${shareUrl}`;
-            }
-
-            document.getElementById('share-modal').style.display = 'flex';
-        }
-
-        function closeShareModal(event) {
-            if (event && event.target.id === 'share-modal') {
-                document.getElementById('share-modal').style.display = 'none';
-            } else if (!event) {
-                document.getElementById('share-modal').style.display = 'none';
-            }
-        }
-
-        function copyShareLink() {
-            const shareUrl = document.getElementById('share-url-input');
-            shareUrl.select();
-            shareUrl.setSelectionRange(0, 99999);
 
             try {
-                navigator.clipboard.writeText(shareUrl.value).then(() => {
-                    showCopyNotification();
-                }).catch(err => {
-                    document.execCommand('copy');
-                    showCopyNotification();
-                });
-            } catch (err) {
-                document.execCommand('copy');
-                showCopyNotification();
+                localStorage.setItem(PASSWORD_KEY, 'granted');
+            } catch (error) {
+                console.error('Не удалось сохранить доступ:', error);
             }
-        }
 
-        function showCopyNotification() {
-            const notification = document.getElementById('copy-notification');
-            notification.style.display = 'block';
+            setTimeout(grantSiteAccess, 800);
+        } else {
+            if (errorElement) {
+                errorElement.textContent = 'Неверный пароль';
+            }
+
+            shakeDots();
 
             setTimeout(() => {
-                notification.style.display = 'none';
-            }, 2000);
+                enteredPassword = '';
+
+                updateDots();
+                updateSubmitButton();
+
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+            }, 1000);
         }
+    }
 
-        function shareViaTelegram() {
-            const shareUrl = createNewsShareUrl(currentNewsId);
-            const news = newsData.find(n => n.id == currentNewsId);
-            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title}\n\n${shareUrl}`) : '';
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${text}`, '_blank');
-        }
+    // Анимация ошибки
+    function shakeDots() {
+        dots.forEach(dot => {
+            if (!dot) return;
 
-        function shareViaWhatsApp() {
-            const shareUrl = createNewsShareUrl(currentNewsId);
-            const news = newsData.find(n => n.id == currentNewsId);
-            const text = news ? encodeURIComponent(`Новость от ${news.date}: ${news.title} - ${shareUrl}`) : '';
-            window.open(`https://wa.me/?text=${text}`, '_blank');
-        }
+            dot.classList.add('error');
+            dot.style.animation = 'shake 0.5s ease-in-out';
+        });
 
-        function shareViaVK() {
-            const shareUrl = createNewsShareUrl(currentNewsId);
-            window.open(`https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`, '_blank');
-        }
+        setTimeout(() => {
+            dots.forEach(dot => {
+                if (!dot) return;
 
-        /* ================================================================
-           СИСТЕМНАЯ ЧАСТЬ
-        ================================================================ */
-
-        // --- Переключение вкладок ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.section').forEach(el => {
-                el.classList.remove('active');
-                el.style.display = 'none';
+                dot.classList.remove('error');
+                dot.style.animation = '';
             });
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        }, 500);
+    }
 
-            const targetTab = document.getElementById(tabId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-                targetTab.style.display = 'block';
+    // Предоставление доступа к сайту
+    function grantSiteAccess() {
+        const passwordScreen = document.getElementById('password-screen');
+        const siteContent = document.getElementById('site-content');
+
+        if (!passwordScreen || !siteContent) {
+            console.error(
+                'Не найдены элементы password-screen или site-content.'
+            );
+            return;
+        }
+
+        // Не запускаем инициализацию повторно
+        if (siteInitialized) return;
+
+        passwordScreen.style.opacity = '0';
+
+        setTimeout(() => {
+            passwordScreen.style.display = 'none';
+            siteContent.style.display = 'block';
+
+            initSite();
+        }, 300);
+    }
+
+    // Выход
+    function logout() {
+        if (confirm('Вы уверены, что хотите выйти?')) {
+            try {
+                localStorage.removeItem(PASSWORD_KEY);
+            } catch (error) {
+                console.error('Не удалось очистить сохраненный доступ:', error);
             }
 
-            const menuIndex = ['schedule', 'news', 'gallery', 'settings'].indexOf(tabId);
-            if (menuIndex >= 0) document.querySelectorAll('.nav-item')[menuIndex].classList.add('active');
+            window.location.reload();
+        }
+    }
+
+    // Проверка обновлений сайта
+    function checkSiteUpdate() {
+        window.open(
+            'https://nof7351.github.io/V/Update',
+            '_blank',
+            'noopener'
+        );
+    }
+
+    // Открытие расписания
+    function checkshedule() {
+        window.open(
+            'https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=6В&school_uid=klgd1548141601',
+            '_blank',
+            'noopener'
+        );
+    }
+
+
+    // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
+
+    document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gesturechange', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gestureend', function (event) {
+        event.preventDefault();
+    });
+
+    let lastTouchEnd = 0;
+
+    document.addEventListener('touchend', function (event) {
+        const now = Date.now();
+
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
         }
 
-        // --- Новости (использует данные из news-data.js) ---
-        async function initBasicInfo() {
-            const newsContainer = document.getElementById('news-container');
-            
-            // Показываем индикатор загрузки
-            newsContainer.innerHTML = '<div style="text-align:center; padding:20px;">Загрузка новостей...</div>';
-            
-            // Загружаем новости (функция из news-data.js)
+        lastTouchEnd = now;
+    }, false);
+
+    document.addEventListener('wheel', function (event) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    // Блокировка контекстного меню
+    document.addEventListener('contextmenu', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            return;
+        }
+
+        event.preventDefault();
+        return false;
+    });
+
+    // Блокировка отдельных клавиш и комбинаций
+    document.addEventListener('keydown', function (event) {
+        const tag = event.target.tagName;
+        const isInput = tag === 'INPUT' || tag === 'TEXTAREA';
+
+        // Разрешаем копирование, вырезание, вставку и выделение в полях ввода
+        if (isInput && event.ctrlKey &&
+            ['c', 'x', 'v', 'a'].includes(event.key.toLowerCase())) {
+            return;
+        }
+
+        // Блокируем F12
+        if (event.key === 'F12') {
+            event.preventDefault();
+            return false;
+        }
+
+        // Блокируем сочетания клавиш для масштабирования
+        if (event.ctrlKey &&
+            ['+', '=', '-', '_', '0'].includes(event.key)) {
+            event.preventDefault();
+            return false;
+        }
+
+        // Блокируем остальные сочетания с Ctrl вне полей ввода
+        if (event.ctrlKey && !isInput) {
+            event.preventDefault();
+            return false;
+        }
+    });
+
+    // Разрешаем выделение текста в полях ввода
+    document.addEventListener('selectstart', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            return;
+        }
+
+        event.preventDefault();
+        return false;
+    });
+
+    // Запрещаем перетаскивание изображений и видео
+    document.addEventListener('dragstart', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'IMG' || tag === 'VIDEO') {
+            event.preventDefault();
+            return false;
+        }
+    });
+
+
+    /* ================================================================
+       ОСНОВНАЯ ЛОГИКА САЙТА
+    ================================================================ */
+
+    // Ученики
+    const students = [
+        "🥇 1",
+        "🥈 2",
+        "🥉 3"
+    ];
+
+
+    // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
+
+    let currentNewsId = null;
+
+    const siteUrl =
+        window.location.origin + window.location.pathname;
+
+    // Создание ссылки на новость
+    function createNewsShareUrl(newsId) {
+        const cleanUrl = siteUrl.split('?')[0];
+
+        return `${cleanUrl}?news=${encodeURIComponent(newsId)}`;
+    }
+
+    // Проверка параметров URL
+    function checkUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const newsId = urlParams.get('news');
+
+        if (newsId) {
+            switchTab('news');
+
+            setTimeout(() => {
+                highlightNews(newsId);
+            }, 300);
+        }
+    }
+
+    // Подсветка новости
+    function highlightNews(newsId) {
+        document.querySelectorAll('.news-item').forEach(item => {
+            item.classList.remove('highlighted');
+        });
+
+        const newsElement = Array.from(
+            document.querySelectorAll('.news-item[data-news-id]')
+        ).find(item => item.dataset.newsId === String(newsId));
+
+        if (newsElement) {
+            newsElement.classList.add('highlighted');
+
+            newsElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            setTimeout(() => {
+                newsElement.classList.remove('highlighted');
+            }, 3000);
+        }
+    }
+
+    // Открытие окна публикации новости
+    function openShareModal(newsId) {
+        currentNewsId = newsId;
+
+        const shareUrl = createNewsShareUrl(newsId);
+        const input = document.getElementById('share-url-input');
+        const textDisplay = document.getElementById('share-text-display');
+        const modal = document.getElementById('share-modal');
+
+        if (input) {
+            input.value = shareUrl;
+        }
+
+        const news = Array.isArray(newsData)
+            ? newsData.find(n => n.id == newsId)
+            : null;
+
+        if (news && textDisplay) {
+            textDisplay.textContent =
+                `Новость от ${news.date}: ${news.title}\n\n` +
+                `${news.text}\n\n${shareUrl}`;
+        }
+
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    // Закрытие окна публикации
+    function closeShareModal(event) {
+        if (event && event.target.id !== 'share-modal') {
+            return;
+        }
+
+        const modal = document.getElementById('share-modal');
+
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Копирование ссылки
+    async function copyShareLink() {
+        const shareUrl = document.getElementById('share-url-input');
+
+        if (!shareUrl) return;
+
+        shareUrl.select();
+        shareUrl.setSelectionRange(0, shareUrl.value.length);
+
+        try {
+            await navigator.clipboard.writeText(shareUrl.value);
+            showCopyNotification();
+        } catch (error) {
+            // Запасной способ копирования
+            try {
+                const successful = document.execCommand('copy');
+
+                if (successful) {
+                    showCopyNotification();
+                } else {
+                    alert('Не удалось скопировать ссылку. Скопируйте её вручную.');
+                }
+            } catch (copyError) {
+                alert('Не удалось скопировать ссылку. Скопируйте её вручную.');
+            }
+        }
+    }
+
+    // Уведомление о копировании
+    function showCopyNotification() {
+        const notification = document.getElementById('copy-notification');
+
+        if (!notification) return;
+
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+
+    // Поделиться в Telegram
+    function shareViaTelegram() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        const news = Array.isArray(newsData)
+            ? newsData.find(n => n.id == currentNewsId)
+            : null;
+
+        const text = news
+            ? `Новость от ${news.date}: ${news.title}\n\n${shareUrl}`
+            : shareUrl;
+
+        const telegramUrl =
+            `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}` +
+            `&text=${encodeURIComponent(text)}`;
+
+        window.open(telegramUrl, '_blank', 'noopener');
+    }
+
+    // Поделиться в WhatsApp
+    function shareViaWhatsApp() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        const news = Array.isArray(newsData)
+            ? newsData.find(n => n.id == currentNewsId)
+            : null;
+
+        const text = news
+            ? `Новость от ${news.date}: ${news.title} - ${shareUrl}`
+            : shareUrl;
+
+        window.open(
+            `https://wa.me/?text=${encodeURIComponent(text)}`,
+            '_blank',
+            'noopener'
+        );
+    }
+
+    // Поделиться во ВКонтакте
+    function shareViaVK() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        window.open(
+            `https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`,
+            '_blank',
+            'noopener'
+        );
+    }
+
+
+    /* ================================================================
+       СИСТЕМНАЯ ЧАСТЬ
+    ================================================================ */
+
+    // Переключение вкладок
+    function switchTab(tabId) {
+        document.querySelectorAll('.section').forEach(element => {
+            element.classList.remove('active');
+            element.style.display = 'none';
+        });
+
+        document.querySelectorAll('.nav-item').forEach(element => {
+            element.classList.remove('active');
+        });
+
+        const targetTab = document.getElementById(tabId);
+
+        if (targetTab) {
+            targetTab.classList.add('active');
+            targetTab.style.display = 'block';
+        }
+
+        const menuIndex = [
+            'schedule',
+            'news',
+            'gallery',
+            'settings'
+        ].indexOf(tabId);
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        if (menuIndex >= 0 && navItems[menuIndex]) {
+            navItems[menuIndex].classList.add('active');
+        }
+    }
+
+
+    // ============ НОВОСТИ ============
+
+    async function initBasicInfo() {
+        const newsContainer = document.getElementById('news-container');
+
+        if (!newsContainer) {
+            console.error('Не найден элемент news-container.');
+            return;
+        }
+
+        newsContainer.innerHTML =
+            '<div style="text-align:center;padding:20px;">Загрузка новостей...</div>';
+
+        try {
+            // Обновляем новости, если функция существует
             if (typeof refreshNews === 'function') {
                 await refreshNews();
             }
-            
-            // Получаем актуальные новости
-            const sortedNews = getAllNews ? getAllNews() : [...newsData].sort((a, b) => b.id - a.id);
-            
+
+            // Получаем список новостей
+            let sortedNews = [];
+
+            if (typeof getAllNews === 'function') {
+                sortedNews = getAllNews() || [];
+            } else if (Array.isArray(newsData)) {
+                sortedNews = [...newsData].sort((a, b) => b.id - a.id);
+            }
+
             if (sortedNews.length === 0) {
-                newsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">Новостей пока нет</div>';
+                newsContainer.innerHTML =
+                    '<div style="text-align:center;padding:20px;color:#888;">Новостей пока нет</div>';
                 return;
             }
-            
+
             let newsHtml = '';
+
             sortedNews.forEach(news => {
                 const shareUrl = createNewsShareUrl(news.id);
+
                 newsHtml += `
-                <div class="news-item" data-news-id="${news.id}">
-                    <div class="news-date">${news.date}</div>
-                    <div class="news-title">${news.title}</div>
-                    <div class="news-text">${news.text}</div>
-                    <div class="share-panel">
-                        <div class="share-link-container">
-                            <input type="text" class="share-link" value="${shareUrl}" readonly onclick="this.select()">
+                    <div class="news-item" data-news-id="${news.id}">
+                        <div class="news-date">${news.date ?? ''}</div>
+                        <div class="news-title">${news.title ?? ''}</div>
+                        <div class="news-text">${news.text ?? ''}</div>
+
+                        <div class="share-panel">
+                            <div class="share-link-container">
+                                <input
+                                    type="text"
+                                    class="share-link"
+                                    value="${shareUrl}"
+                                    readonly
+                                    onclick="this.select()"
+                                >
+                            </div>
+
+                            <button
+                                class="share-btn"
+                                onclick="openShareModal('${String(news.id).replace(/'/g, "\\'")}')"
+                            >
+                                <i class="fas fa-share-alt"></i> Поделиться
+                            </button>
                         </div>
-                        <button class="share-btn" onclick="openShareModal(${news.id})">
-                            <i class="fas fa-share-alt"></i> Поделиться
-                        </button>
                     </div>
-                </div>
-                <hr style="opacity:0.3; margin: 5px 0;">`;
+
+                    <hr style="opacity:0.3;margin:5px 0;">
+                `;
             });
 
             newsContainer.innerHTML = newsHtml;
+
             checkUrlParams();
+
+        } catch (error) {
+            console.error('Ошибка загрузки новостей:', error);
+
+            newsContainer.innerHTML =
+                '<div style="text-align:center;padding:20px;color:#d33;">Не удалось загрузить новости.</div>';
+        }
+    }
+
+
+    // ============ АЛЬБОМЫ И ВИДЕО ============
+
+    function renderAlbums() {
+        if (typeof albums === 'undefined' || !albums) {
+            console.error('Данные albums не найдены.');
+            return;
         }
 
-        // --- Альбомы и Видео с возможностью раскрытия ---
-        function renderAlbums() {
-            const renderGroup = (id, data) => {
-                const container = document.getElementById(id);
-                let html = '';
-                
-                // Кнопка "Свернуть все / Развернуть все"
+        const renderGroup = (id, data) => {
+            const container = document.getElementById(id);
+
+            if (!container) {
+                console.warn(`Контейнер ${id} не найден.`);
+                return;
+            }
+
+            if (!Array.isArray(data)) {
+                console.warn(`Данные для ${id} отсутствуют.`);
+                container.innerHTML =
+                    '<div style="text-align:center;padding:20px;">Альбомов пока нет.</div>';
+                return;
+            }
+
+            let html = `
+                <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+                    <button class="toggle-all-btn" onclick="toggleAllAlbums('${id}')">
+                        <i class="fas fa-compress-alt"></i> Свернуть все
+                    </button>
+                </div>
+            `;
+
+            data.forEach((album, index) => {
+                const items = Array.isArray(album.items) ? album.items : [];
+
+                const photos = items.filter(item => item.type === 'photo').length;
+                const videos = items.filter(item => item.type === 'video').length;
+
+                const albumId = `album-${id}-${index}`;
+
                 html += `
-                    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-                        <button class="toggle-all-btn" onclick="toggleAllAlbums('${id}')">
-                            <i class="fas fa-expand-alt"></i> Свернуть все
-                        </button>
-                    </div>
-                `;
-                
-                data.forEach((album, index) => {
-                    const photos = album.items.filter(item => item.type === 'photo').length;
-                    const videos = album.items.filter(item => item.type === 'video').length;
-                    const albumId = `album-${id}-${index}`;
-                    
-                    html += `
-                        <div class="album-container" id="${albumId}-container">
-                            <div class="album-header" onclick="toggleAlbum('${albumId}')">
-                                <h3>
-                                    <i class="fas fa-folder"></i>
-                                    ${album.name}
-                                    <span class="album-count">${album.items.length}</span>
-                                </h3>
-                                <div>
-                                    <span class="photo-badge"><i class="fas fa-image"></i> ${photos}</span>
-                                    <span class="video-badge"><i class="fas fa-video"></i> ${videos}</span>
-                                    <i class="fas fa-chevron-down" style="margin-left: 15px;"></i>
-                                </div>
-                            </div>
-                            <div class="album-content" id="${albumId}">
-                                <div class="album-stats">
-                                    <span><i class="fas fa-calendar-alt"></i> Всего медиа: ${album.items.length}</span>
-                                    <span><i class="fas fa-image"></i> Фото: ${photos}</span>
-                                    <span><i class="fas fa-video"></i> Видео: ${videos}</span>
-                                </div>
-                                <div class="gallery-grid">
-                    `;
-                    
-                    album.items.forEach(item => {
-                        if (item.type === 'photo') {
-                            html += `<div class="media-item" onclick="openLightbox('photo', '${item.url}')">
-                                    <img src="${item.url}" draggable="false" alt="${album.name}" loading="lazy">
-                                </div>`;
-                        } else if (item.type === 'video') {
-                            const poster = item.preview || "https://placehold.co/400x400/000/fff?text=Play";
-                            html += `<div class="media-item" onclick="openLightbox('video', '${item.url}')">
-                                    <img src="${poster}" draggable="false" alt="Видео" loading="lazy">
-                                    <div class="video-indicator">▶</div>
-                                </div>`;
-                        }
-                    });
-                    
-                    html += `
-                                </div>
+                    <div class="album-container" id="${albumId}-container">
+                        <div class="album-header" onclick="toggleAlbum('${albumId}')">
+                            <h3>
+                                <i class="fas fa-folder"></i>
+                                ${album.name ?? 'Без названия'}
+                                <span class="album-count">${items.length}</span>
+                            </h3>
+
+                            <div>
+                                <span class="photo-badge">
+                                    <i class="fas fa-image"></i> ${photos}
+                                </span>
+
+                                <span class="video-badge">
+                                    <i class="fas fa-video"></i> ${videos}
+                                </span>
+
+                                <i class="fas fa-chevron-down" style="margin-left:15px;"></i>
                             </div>
                         </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-                
-                // По умолчанию все альбомы открыты
-                data.forEach((_, index) => {
-                    const albumId = `album-${id}-${index}`;
-                    const content = document.getElementById(albumId);
-                    const header = document.querySelector(`#${albumId}-container .album-header`);
-                    const icon = header ? header.querySelector('i.fa-chevron-down, i.fa-chevron-right') : null;
-                    
-                    if (content && header) {
-                        content.classList.remove('collapsed');
-                        if (icon) {
-                            icon.className = 'fas fa-chevron-down';
-                        }
+
+                        <div class="album-content" id="${albumId}">
+                            <div class="album-stats">
+                                <span>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Всего медиа: ${items.length}
+                                </span>
+
+                                <span>
+                                    <i class="fas fa-image"></i>
+                                    Фото: ${photos}
+                                </span>
+
+                                <span>
+                                    <i class="fas fa-video"></i>
+                                    Видео: ${videos}
+                                </span>
+                            </div>
+
+                            <div class="gallery-grid">
+                `;
+
+                items.forEach(item => {
+                    if (item.type === 'photo') {
+                        html += `
+                            <div class="media-item"
+                                 onclick="openLightbox('photo', ${JSON.stringify(item.url)})">
+                                <img
+                                    src="${item.url}"
+                                    draggable="false"
+                                    alt="${album.name ?? 'Фото'}"
+                                    loading="lazy"
+                                >
+                            </div>
+                        `;
+                    } else if (item.type === 'video') {
+                        const poster =
+                            item.preview ||
+                            'https://placehold.co/400x400/000/fff?text=Play';
+
+                        html += `
+                            <div class="media-item"
+                                 onclick="openLightbox('video', ${JSON.stringify(item.url)})">
+                                <img
+                                    src="${poster}"
+                                    draggable="false"
+                                    alt="Видео"
+                                    loading="lazy"
+                                >
+                                <div class="video-indicator">▶</div>
+                            </div>
+                        `;
                     }
                 });
-            };
-            
-            renderGroup('class5-albums', albums.class5);
-            renderGroup('class6-albums', albums.class6);
-                
-            renderGroup('class7-albums', albums.class7);
-        }
 
-        // Функция для переключения отдельного альбома
-        function toggleAlbum(albumId) {
-            const content = document.getElementById(albumId);
-            const header = document.querySelector(`#${albumId}-container .album-header`);
-            
-            if (content && header) {
-                content.classList.toggle('collapsed');
-                
-                // Меняем только иконку, остальное не поворачивается
-                const icon = header.querySelector('i.fa-chevron-down, i.fa-chevron-right');
-                if (icon) {
-                    if (content.classList.contains('collapsed')) {
-                        icon.className = 'fas fa-chevron-right';
-                    } else {
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // По умолчанию альбомы раскрыты
+            data.forEach((album, index) => {
+                const albumId = `album-${id}-${index}`;
+
+                const content = document.getElementById(albumId);
+                const header = document.querySelector(
+                    `#${albumId}-container .album-header`
+                );
+
+                const icon = header
+                    ? header.querySelector('.fa-chevron-down, .fa-chevron-right')
+                    : null;
+
+                if (content && header) {
+                    content.classList.remove('collapsed');
+
+                    if (icon) {
                         icon.className = 'fas fa-chevron-down';
                     }
                 }
-            }
-        }
+            });
+        };
 
-        // Функция для сворачивания/разворачивания всех альбомов в группе
-        function toggleAllAlbums(groupId) {
-            const container = document.getElementById(groupId);
-            const albums = container.querySelectorAll('.album-container');
-            const button = container.parentElement.querySelector('.toggle-all-btn');
-            
-            // Проверяем, есть ли свернутые альбомы
-            let hasCollapsed = false;
-            albums.forEach(album => {
-                const content = album.querySelector('.album-content');
-                if (content && content.classList.contains('collapsed')) {
-                    hasCollapsed = true;
-                }
-            });
-            
-            // Если есть свернутые - разворачиваем все, иначе сворачиваем все
-            albums.forEach((album, index) => {
-                const albumId = `album-${groupId}-${index}`;
-                const content = document.getElementById(albumId);
-                const header = document.querySelector(`#${albumId}-container .album-header`);
-                
-                if (content && header) {
-                    if (hasCollapsed) {
-                        // Разворачиваем
-                        content.classList.remove('collapsed');
-                        const icon = header.querySelector('i.fa-chevron-right');
-                        if (icon) icon.className = 'fas fa-chevron-down';
-                    } else {
-                        // Сворачиваем
-                        content.classList.add('collapsed');
-                        const icon = header.querySelector('i.fa-chevron-down');
-                        if (icon) icon.className = 'fas fa-chevron-right';
-                    }
-                }
-            });
-            
-            // Меняем текст кнопки
-            const btnIcon = button.querySelector('i');
+        renderGroup('class5-albums', albums.class5);
+        renderGroup('class6-albums', albums.class6);
+        renderGroup('class7-albums', albums.class7);
+    }
+
+
+    // Переключение отдельного альбома
+    function toggleAlbum(albumId) {
+        const content = document.getElementById(albumId);
+
+        const header = document.getElementById(`${albumId}-container`)
+            ?.querySelector('.album-header');
+
+        if (!content || !header) return;
+
+        content.classList.toggle('collapsed');
+
+        const icon = header.querySelector(
+            '.fa-chevron-down, .fa-chevron-right'
+        );
+
+        if (icon) {
+            icon.className = content.classList.contains('collapsed')
+                ? 'fas fa-chevron-right'
+                : 'fas fa-chevron-down';
+        }
+    }
+
+
+    // Свернуть или развернуть все альбомы группы
+    function toggleAllAlbums(groupId) {
+        const container = document.getElementById(groupId);
+
+        if (!container) return;
+
+        const albumsList = container.querySelectorAll('.album-container');
+        const button = container.querySelector('.toggle-all-btn');
+
+        if (albumsList.length === 0) return;
+
+        const hasCollapsed = Array.from(albumsList).some(album => {
+            const content = album.querySelector('.album-content');
+
+            return content && content.classList.contains('collapsed');
+        });
+
+        albumsList.forEach(album => {
+            const content = album.querySelector('.album-content');
+            const icon = album.querySelector(
+                '.album-header .fa-chevron-down, .album-header .fa-chevron-right'
+            );
+
+            if (!content) return;
+
             if (hasCollapsed) {
-                button.innerHTML = '<i class="fas fa-compress-alt"></i> Свернуть все';
+                content.classList.remove('collapsed');
+
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
             } else {
-                button.innerHTML = '<i class="fas fa-expand-alt"></i> Развернуть все';
+                content.classList.add('collapsed');
+
+                if (icon) {
+                    icon.className = 'fas fa-chevron-right';
+                }
             }
+        });
+
+        if (button) {
+            button.innerHTML = hasCollapsed
+                ? '<i class="fas fa-compress-alt"></i> Свернуть все'
+                : '<i class="fas fa-expand-alt"></i> Развернуть все';
+        }
+    }
+
+
+    // Переключение между классами
+    function showAlbum(cls, event) {
+        const groups = {
+            class5: 'class5-albums',
+            class6: 'class6-albums',
+            class7: 'class7-albums'
+        };
+
+        // Проверяем правильность переданного класса
+        if (!Object.prototype.hasOwnProperty.call(groups, cls)) {
+            console.warn('Неизвестная группа альбомов:', cls);
+            return;
         }
 
-        function showAlbum(cls, event) {
-            document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
-            document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
-            document.getElementById('class7-albums').style.display = (cls === 'class7') ? 'block' : 'none';
-            document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Сбрасываем состояние кнопки "Свернуть все" при переключении классов
-            const activeContainer = document.getElementById(cls === 'class5' ? 'class5-albums' : 'class6-albums' : 'class7-albums');
-            const button = activeContainer.parentElement.querySelector('.toggle-all-btn');
-            if (button) {
-                button.innerHTML = '<i class="fas fa-expand-alt"></i> Свернуть все';
+        Object.entries(groups).forEach(([key, elementId]) => {
+            const element = document.getElementById(elementId);
+
+            if (element) {
+                element.style.display = key === cls ? 'block' : 'none';
             }
+        });
+
+        document.querySelectorAll('.album-btn').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Подсвечиваем нажатую кнопку
+        const clickedButton = event?.currentTarget;
+
+        if (clickedButton) {
+            clickedButton.classList.add('active');
         }
 
-        // --- Лайтбокс ---
-        function openLightbox(type, url) {
-            const modal = document.getElementById("lightbox-modal");
-            const imgEl = document.getElementById("lightbox-img");
-            const videoEl = document.getElementById("lightbox-video");
+        // Обновляем текст кнопки управления альбомами
+        const activeContainer = document.getElementById(groups[cls]);
 
-            modal.style.display = "flex";
-            document.body.style.overflow = 'hidden';
+        const toggleButton = activeContainer
+            ? activeContainer.querySelector('.toggle-all-btn')
+            : null;
 
-            if (type === 'photo') {
-                imgEl.src = url;
-                imgEl.style.display = "block";
-                videoEl.style.display = "none";
+        if (toggleButton) {
+            toggleButton.innerHTML =
+                '<i class="fas fa-compress-alt"></i> Свернуть все';
+        }
+    }
+
+
+    // ============ ЛАЙТБОКС ============
+
+    function openLightbox(type, url) {
+        const modal = document.getElementById('lightbox-modal');
+        const imgEl = document.getElementById('lightbox-img');
+        const videoEl = document.getElementById('lightbox-video');
+
+        if (!modal || !imgEl || !videoEl) {
+            console.error('Не найдены элементы лайтбокса.');
+            return;
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (type === 'photo') {
+            imgEl.src = url;
+            imgEl.style.display = 'block';
+
+            videoEl.pause();
+            videoEl.removeAttribute('src');
+            videoEl.load();
+            videoEl.style.display = 'none';
+        } else if (type === 'video') {
+            videoEl.src = url;
+            videoEl.style.display = 'block';
+            imgEl.style.display = 'none';
+
+            videoEl.play().catch(error => {
+                console.warn('Автовоспроизведение видео не удалось:', error);
+            });
+        }
+    }
+
+
+    // Закрытие лайтбокса
+    function closeLightbox(event) {
+        if (!event) return;
+
+        const target = event.target;
+
+        if (
+            target.id === 'lightbox-modal' ||
+            target.classList.contains('close-btn')
+        ) {
+            const modal = document.getElementById('lightbox-modal');
+            const videoEl = document.getElementById('lightbox-video');
+
+            if (modal) {
+                modal.style.display = 'none';
+            }
+
+            document.body.style.overflow = '';
+
+            if (videoEl) {
                 videoEl.pause();
-            } else {
-                videoEl.src = url;
-                videoEl.style.display = "block";
-                imgEl.style.display = "none";
-                videoEl.play();
+                videoEl.removeAttribute('src');
+                videoEl.load();
+            }
+        }
+    }
+
+
+    // ============ РАСПИСАНИЕ ============
+
+    let viewingDay = new Date().getDay();
+
+    if (viewingDay === 0 || viewingDay === 6) {
+        viewingDay = 1;
+    }
+
+
+    // Преобразование времени в минуты
+    function getMinutes(t) {
+        if (typeof t !== 'string' || !t.includes(':')) {
+            return 0;
+        }
+
+        const [h, m] = t.split(':').map(Number);
+
+        return h * 60 + m;
+    }
+
+
+    // Обновление информации о текущем уроке
+    function updateLiveStatus() {
+        const display = document.getElementById('now-lesson-display');
+
+        if (!display) return;
+
+        const now = new Date();
+        const curDay = now.getDay();
+        const curMin = now.getHours() * 60 + now.getMinutes();
+
+        const lessons =
+            typeof weekSchedule !== 'undefined' &&
+            weekSchedule &&
+            Array.isArray(weekSchedule[curDay])
+                ? weekSchedule[curDay]
+                : [];
+
+        const bells =
+            typeof bellSchedule !== 'undefined' && Array.isArray(bellSchedule)
+                ? bellSchedule
+                : [];
+
+        let text = 'Свободное время или выходной';
+
+        if (lessons.length > 0 && bells.length > 0) {
+            const lessonCount = Math.min(lessons.length, bells.length);
+
+            for (let idx = 0; idx < lessonCount; idx++) {
+                const lesson = lessons[idx];
+                const time = bells[idx];
+
+                if (!time || !time.start || !time.end) continue;
+
+                const start = getMinutes(time.start);
+                const end = getMinutes(time.end);
+
+                const prevEnd = idx > 0
+                    ? getMinutes(bells[idx - 1].end)
+                    : 0;
+
+                if (curMin >= start && curMin <= end) {
+                    text = `Идет урок: <b>${lesson}</b> (до ${time.end})`;
+                    break;
+                }
+
+                if (idx > 0 && curMin > prevEnd && curMin < start) {
+                    text = `Перемена! Далее: ${lesson}`;
+                } else if (
+                    idx === 0 &&
+                    curMin < start &&
+                    curMin > start - 30
+                ) {
+                    text = `Скоро первый урок: ${lesson}`;
+                }
+            }
+
+            const lastBell = bells[lessonCount - 1];
+
+            if (lastBell && curMin > getMinutes(lastBell.end)) {
+                text = 'Уроки на сегодня закончились';
             }
         }
 
-        function closeLightbox(e) {
-            if (e.target.id === 'lightbox-modal' || e.target.classList.contains('close-btn')) {
-                const modal = document.getElementById("lightbox-modal");
-                const videoEl = document.getElementById("lightbox-video");
+        display.innerHTML = text;
 
-                modal.style.display = "none";
-                document.body.style.overflow = 'auto';
-                videoEl.pause();
-                videoEl.src = "";
-            }
+        if (viewingDay === curDay) {
+            renderScheduleList(viewingDay);
         }
+    }
 
-        // --- Расписание (использует данные из schedule-data.js) ---
-        let viewingDay = new Date().getDay();
-        if (viewingDay === 0 || viewingDay === 6) viewingDay = 1; // Если воскресенье или суббота - показываем понедельник
 
-        function getMinutes(t) {
-            const [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        }
+    // Отображение списка уроков на выбранный день
+    function renderScheduleList(dayIdx) {
+        const list = document.getElementById('daily-schedule-list');
+        const title = document.getElementById('selected-day-title');
 
-        function updateLiveStatus() {
-            const now = new Date();
-            const curDay = now.getDay();
-            const curMin = now.getHours() * 60 + now.getMinutes();
-            
-            // Используем данные из внешнего файла
-            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[curDay] : [];
+        if (!list || !title) return;
 
-            let text = "Свободное время или выходной";
+        const lessons =
+            typeof weekSchedule !== 'undefined' &&
+            weekSchedule &&
+            Array.isArray(weekSchedule[dayIdx])
+                ? weekSchedule[dayIdx]
+                : [];
 
-            if (lessons && lessons.length > 0) {
-                lessons.forEach((lsn, idx) => {
-                    if (idx >= bellSchedule.length) return;
-                    const time = bellSchedule[idx];
+        const dayNames = [
+            'Воскресенье',
+            'Понедельник',
+            'Вторник',
+            'Среда',
+            'Четверг',
+            'Пятница',
+            'Суббота'
+        ];
+
+        title.innerText = dayNames[dayIdx] || 'Расписание';
+
+        const now = new Date();
+        const isToday = dayIdx === now.getDay();
+
+        const curMin = now.getHours() * 60 + now.getMinutes();
+
+        const bells =
+            typeof bellSchedule !== 'undefined' && Array.isArray(bellSchedule)
+                ? bellSchedule
+                : [];
+
+        let html = '';
+
+        if (lessons.length === 0) {
+            html =
+                '<div style="text-align:center;padding:20px;color:#888;">В этот день уроков нет</div>';
+        } else {
+            lessons.forEach((lesson, index) => {
+                if (index >= bells.length) return;
+
+                const time = bells[index];
+
+                if (!time) return;
+
+                let activeClass = '';
+
+                if (isToday) {
                     const start = getMinutes(time.start);
                     const end = getMinutes(time.end);
-                    const prevEnd = idx > 0 ? getMinutes(bellSchedule[idx - 1].end) : 0;
 
                     if (curMin >= start && curMin <= end) {
-                        text = `Идет урок: <b>${lsn}</b> (до ${time.end})`;
-                    } else if (idx > 0 && curMin > prevEnd && curMin < start) {
-                        text = `Перемена! Далее: ${lsn}`;
-                    } else if (idx === 0 && curMin < start && curMin > start - 30) {
-                        text = `Скоро первый урок: ${lsn}`;
+                        activeClass = 'current-lesson';
                     }
-                });
+                }
 
-                const lastEnd = getMinutes(bellSchedule[lessons.length - 1].end);
-                if (curMin > lastEnd) text = "Уроки на сегодня закончились";
-            }
-            document.getElementById('now-lesson-display').innerHTML = text;
+                html += `
+                    <div class="lesson-row ${activeClass}">
+                        <div class="lesson-time">
+                            ${time.start} - ${time.end}
+                        </div>
 
-            if (viewingDay === curDay) renderScheduleList(viewingDay);
-        }
-
-        function renderScheduleList(dayIdx) {
-            const list = document.getElementById('daily-schedule-list');
-            // Используем данные из внешнего файла
-            const lessons = typeof weekSchedule !== 'undefined' ? weekSchedule[dayIdx] : [];
-            const dayNames = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-
-            document.getElementById('selected-day-title').innerText = dayNames[dayIdx];
-
-            const now = new Date();
-            const isToday = (dayIdx === now.getDay());
-            const curMin = now.getHours() * 60 + now.getMinutes();
-
-            let html = '';
-            if (!lessons || lessons.length === 0) {
-                html = '<div style="text-align:center; padding:20px; color:#888">В этот день уроков нет</div>';
-            } else {
-                lessons.forEach((lsn, i) => {
-                    if (i >= bellSchedule.length) return;
-                    const time = bellSchedule[i];
-
-                    let activeClass = '';
-                    if (isToday) {
-                        const start = getMinutes(time.start);
-                        const end = getMinutes(time.end);
-                        if (curMin >= start && curMin <= end) activeClass = 'current-lesson';
-                    }
-
-                    html += `
-                <div class="lesson-row ${activeClass}">
-                    <div class="lesson-time">${time.start} - ${time.end}</div>
-                    <div class="lesson-name">${lsn}</div>
-                </div>`;
-                });
-            }
-            list.innerHTML = html;
-        }
-
-        function selectDay(dayIdx) {
-            viewingDay = dayIdx;
-
-            document.querySelectorAll('.day-btn').forEach((btn, idx) => {
-                if (idx + 1 === dayIdx) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-
-            renderScheduleList(dayIdx);
-        }
-
-        function preloadIcons() {
-            const icons = [
-                'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
-                'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
-                'https://raw.githubusercontent.com/NOF7351/V/main/icons/more.png',
-                'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
-            ];
-
-            icons.forEach(icon => {
-                const img = new Image();
-                img.src = icon;
+                        <div class="lesson-name">${lesson}</div>
+                    </div>
+                `;
             });
         }
 
-        // Инициализация сайта после ввода пароля
-        function initSite() {
-            preloadIcons();
-            initBasicInfo();
-            renderAlbums();
-            selectDay(viewingDay);
-            updateLiveStatus();
-            setInterval(updateLiveStatus, 60000);
+        list.innerHTML = html;
+    }
+
+
+    // Выбор дня недели
+    function selectDay(dayIdx) {
+        if (!Number.isInteger(dayIdx) || dayIdx < 0 || dayIdx > 6) {
+            return;
         }
 
-    </script>
+        viewingDay = dayIdx;
 
-</body>
+        document.querySelectorAll('.day-btn').forEach((button, index) => {
+            // Если кнопки соответствуют понедельнику–субботе
+            const buttonDay = index + 1;
 
-</html>
+            button.classList.toggle('active', buttonDay === dayIdx);
+        });
+
+        renderScheduleList(dayIdx);
+    }
+
+
+    // Предварительная загрузка иконок
+    function preloadIcons() {
+        const icons = [
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/more.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
+        ];
+
+        icons.forEach(icon => {
+            const img = new Image();
+            img.src = icon;
+        });
+    }
+
+
+    // ============ ИНИЦИАЛИЗАЦИЯ САЙТА ============
+
+    function initSite() {
+        if (siteInitialized) return;
+
+        siteInitialized = true;
+
+        preloadIcons();
+
+        initBasicInfo();
+
+        renderAlbums();
+
+        selectDay(viewingDay);
+
+        updateLiveStatus();
+
+        // Не создаем несколько одинаковых таймеров
+        if (liveStatusInterval !== null) {
+            clearInterval(liveStatusInterval);
+        }
+
+        liveStatusInterval = setInterval(updateLiveStatus, 60000);
+    }
+</script>
