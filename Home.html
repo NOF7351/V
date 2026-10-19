@@ -1229,7 +1229,7 @@
                         <div class="album-tabs">
                             <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
                             <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
-                            <button class="album-btn" onclick="showAlbum('class6', event)">7 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class7', event)">7 Класс</button>
                         </div>
                         <div id="class5-albums"></div>
                         <div id="class6-albums" style="display: none;"></div>
@@ -1858,6 +1858,8 @@
             
             renderGroup('class5-albums', albums.class5);
             renderGroup('class6-albums', albums.class6);
+                
+            renderGroup('class7-albums', albums.class7);
         }
 
         // Функция для переключения отдельного альбома
@@ -1928,11 +1930,12 @@
         function showAlbum(cls, event) {
             document.getElementById('class5-albums').style.display = (cls === 'class5') ? 'block' : 'none';
             document.getElementById('class6-albums').style.display = (cls === 'class6') ? 'block' : 'none';
+            document.getElementById('class7-albums').style.display = (cls === 'class7') ? 'block' : 'none';
             document.querySelectorAll('.album-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
             
             // Сбрасываем состояние кнопки "Свернуть все" при переключении классов
-            const activeContainer = document.getElementById(cls === 'class5' ? 'class5-albums' : 'class6-albums');
+            const activeContainer = document.getElementById(cls === 'class5' ? 'class5-albums' : 'class6-albums' : 'class7-albums');
             const button = activeContainer.parentElement.querySelector('.toggle-all-btn');
             if (button) {
                 button.innerHTML = '<i class="fas fa-expand-alt"></i> Свернуть все';
