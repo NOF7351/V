@@ -1,0 +1,2703 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>7В</title>
+    <style>
+        /* Стили для экрана ввода пароля */
+        #password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: none;
+        }
+
+        .password-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .password-title {
+            font-size: 1.6rem;
+            color: #1f2937;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .password-subtitle {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .password-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .password-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .password-dot.filled {
+            background: #4f46e5;
+            transform: scale(1.1);
+        }
+
+        .password-dot.error {
+            background: #ef4444;
+            animation: shake 0.5s;
+        }
+
+        .virtual-keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keyboard-btn {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .keyboard-btn:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .keyboard-btn:active {
+            background: #d1d5db;
+            transform: translateY(0);
+        }
+
+        .keyboard-btn.backspace {
+            font-size: 20px;
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .keyboard-btn.backspace:hover {
+            background: #fecaca;
+        }
+
+        .keyboard-btn.submit {
+            grid-column: span 3;
+            background: #4f46e5;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            height: 50px;
+        }
+
+        .keyboard-btn.submit:hover {
+            background: #4338ca;
+        }
+
+        .keyboard-btn.submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            transition: all 0.3s;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        .password-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        /* Основные стили сайта */
+        html,
+        body {
+            touch-action: pan-x pan-y;
+            -ms-touch-action: pan-x pan-y;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input,
+        textarea {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --share-color: #3b82f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 80px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        input,
+        textarea,
+        button,
+        select,
+        div,
+        a {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* --- Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        @media (min-width: 768px) {
+            .nav-bar {
+                position: static;
+                width: auto;
+                justify-content: center;
+                gap: 20px;
+                padding: 20px;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            body {
+                overflow-y: visible;
+            }
+        }
+
+        .nav-item {
+            border: none;
+            background: none;
+            font-size: 0.8rem;
+            color: #6b7280;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            padding: 5px;
+            width: 70px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .nav-item:hover .nav-icon {
+            opacity: 0.9;
+        }
+
+        .nav-item[onclick*="schedule"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/shedule.png');
+        }
+
+        .nav-item[onclick*="rating"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png');
+        }
+
+        .nav-item[onclick*="news"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png');
+        }
+
+        .nav-item[onclick*="gallery"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+        }
+
+        .nav-item[onclick*="settings"] .nav-icon {
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/more.png');
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: pan-y;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* --- Schedule Specific --- */
+        .days-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 5px;
+            border-radius: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .day-btn {
+            background: none;
+            border: none;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        .lesson-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lesson-time {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 90px;
+            font-size: 0.9rem;
+        }
+
+        .current-lesson {
+            background-color: #d1fae5;
+            border-left: 5px solid var(--accent);
+            padding-left: 10px;
+            border-radius: 4px;
+        }
+
+        /* --- Gallery & Video --- */
+        .album-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .album-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .album-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .media-item {
+            background: #ddd;
+            padding-bottom: 100%;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+            touch-action: manipulation;
+        }
+
+        .media-item:hover {
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .media-item img,
+        .media-item video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        .video-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* --- Lightbox --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .lightbox-content {
+            max-width: 95%;
+            max-height: 80vh;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 2001;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Rating & News styles */
+        .rating-table {
+            width: 100%;
+            border-collapse: collapse;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .rating-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dev-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        /* --- Новости с возможностью поделиться --- */
+        .news-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .news-item.highlighted {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid var(--share-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            animation: pulse-highlight 2s ease-in-out;
+        }
+
+        @keyframes pulse-highlight {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .news-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 5px 0;
+            color: var(--text);
+        }
+
+        .news-text {
+            margin: 10px 0;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+
+        /* Панель "Поделиться" */
+        .share-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .share-btn {
+            background: var(--share-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-btn:hover {
+            background: #2563eb;
+        }
+
+        .share-btn i {
+            font-size: 1.1rem;
+        }
+
+        .share-link-container {
+            flex-grow: 1;
+            margin-right: 15px;
+            position: relative;
+        }
+
+        .share-link {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            background: #f9fafb;
+            cursor: pointer;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            touch-action: manipulation;
+        }
+
+        .share-link:hover {
+            background: #f3f4f6;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 3000;
+            animation: fadeInOut 2s ease-in-out;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        /* Модальное окно поделиться */
+        .share-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .share-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-modal-title {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: var(--text);
+            text-align: center;
+        }
+
+        .share-text-notice {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid var(--share-color);
+        }
+
+        .share-text-notice code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            display: block;
+            margin: 5px 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: pre-wrap;
+        }
+
+        .share-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .share-option-btn {
+            background: none;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .share-option-btn:hover {
+            border-color: var(--share-color);
+            background: #eff6ff;
+            transform: scale(1.1);
+        }
+
+        .share-option-btn.telegram {
+            color: #0088cc;
+        }
+
+        .share-option-btn.whatsapp {
+            color: #25D366;
+        }
+
+        .share-option-btn.vk {
+            color: #4C75A3;
+        }
+
+        .share-option-btn.copy {
+            color: var(--primary);
+        }
+
+        #now-lesson-display {
+            font-size: 1.1rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Настройки */
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .settings-item:hover {
+            background: #f9fafb;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item.danger {
+            color: var(--danger);
+        }
+
+        .settings-item.danger:hover {
+            background: #fee2e2;
+        }
+
+        .settings-item i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .settings-item .settings-text {
+            flex-grow: 1;
+        }
+
+        .settings-item .settings-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .settings-item .settings-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .no-context {
+            context-menu: none;
+        }
+
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        span,
+        div,
+        td,
+        th,
+        li {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Стили для альбомов с возможностью раскрытия - только стрелка поворачивается */
+        .album-container {
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .album-header {
+            background: #4f46e5;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+
+        .album-header:hover {
+            background: #4338ca;
+        }
+
+        .album-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .album-count {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .album-header i.fa-chevron-down,
+        .album-header i.fa-chevron-right {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .album-header i.fa-chevron-right {
+            transform: rotate(0deg);
+        }
+
+        .album-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .album-content.collapsed {
+            max-height: 0;
+            padding: 0 20px;
+        }
+
+        /* Статистика альбома */
+        .album-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .album-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .album-stats i {
+            color: var(--primary);
+        }
+
+        /* Индикаторы типов медиа - сделаны меньше */
+        .photo-badge, .video-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            margin-left: 3px;
+        }
+
+        .photo-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .video-badge {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        /* Кнопка "Свернуть все / Развернуть все" - сделана меньше */
+        .toggle-all-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.3s;
+        }
+
+        .toggle-all-btn i {
+            font-size: 0.7rem;
+        }
+
+        .toggle-all-btn:hover {
+            background: #4338ca;
+        }
+
+        /* Темы и доступность */
+        :root { color-scheme: light; }
+        body[data-theme="dark"] {
+            --bg: #111827; --card: #1f2937; --text: #f3f4f6;
+            color-scheme: dark;
+        }
+        body[data-theme="dark"] .nav-bar,
+        body[data-theme="dark"] .news-item,
+        body[data-theme="dark"] .album-container,
+        body[data-theme="dark"] .password-container,
+        body[data-theme="dark"] .share-modal-content {
+            background: #1f2937; color: #f3f4f6;
+        }
+        body[data-theme="dark"] .album-content,
+        body[data-theme="dark"] .days-selector,
+        body[data-theme="dark"] #now-lesson-display,
+        body[data-theme="dark"] .share-text-notice { background: #273449; color: #f3f4f6; }
+        body[data-theme="dark"] .news-title,
+        body[data-theme="dark"] .news-text,
+        body[data-theme="dark"] .password-title { color: #f3f4f6; }
+        body[data-theme="dark"] .settings-item { border-color: #374151; }
+        body[data-theme="dark"] .settings-description,
+        body[data-theme="dark"] .news-date { color: #cbd5e1; }
+        body[data-theme="dark"] .keyboard-btn { background: #374151; color: #f9fafb; }
+        body[data-theme="dark"] .keyboard-btn.backspace { background: #4b252b; color: #fecaca; }
+        .news-tabs { display:flex; gap:8px; margin: 0 0 16px; }
+        .news-tab { border:0; border-radius:999px; padding:9px 16px; background:var(--bg); color:var(--text); cursor:pointer; font-weight:600; touch-action:manipulation; }
+        .news-tab.active { background:var(--primary); color:white; }
+        .settings-controls { margin-top:12px; }
+        .settings-controls label { display:block; font-weight:600; }
+        .keyboard-btn { min-height:64px; transition:none; transform:none; }
+        .keyboard-btn:hover, .keyboard-btn:active { transform:none; }
+        body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+            transform: none !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+        }
+        .album-header { background: var(--primary); }
+        .album-header:hover { filter: brightness(.93); }
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Подключаем отдельные файлы с данными -->
+    <script src="schedule-data.js"></script>
+    <script src="news-data.js"></script>
+    <script src="gallery-data.js"></script>
+    <script src="changelog-data.js"></script>
+</head>
+
+<body class="no-context">
+
+    <!-- Экран ввода пароля -->
+    <div id="password-screen">
+        <div class="password-container">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 class="password-title">Доступ к сайту 7В класса</h2>
+            <p class="password-subtitle">Введите 4-значный пароль — вход произойдёт автоматически</p>
+
+            <!-- Индикатор введенных цифр -->
+            <div class="password-display">
+                <div class="password-dot" id="dot1"></div>
+                <div class="password-dot" id="dot2"></div>
+                <div class="password-dot" id="dot3"></div>
+                <div class="password-dot" id="dot4"></div>
+            </div>
+
+            <!-- Сообщения об ошибке/успехе -->
+            <div class="error-message" id="password-error"></div>
+            <div class="success-message" id="password-success"></div>
+
+            <!-- Виртуальная клавиатура -->
+            <div class="virtual-keyboard">
+                <button class="keyboard-btn" onclick="addDigit(1)">1</button>
+                <button class="keyboard-btn" onclick="addDigit(2)">2</button>
+                <button class="keyboard-btn" onclick="addDigit(3)">3</button>
+                <button class="keyboard-btn" onclick="addDigit(4)">4</button>
+                <button class="keyboard-btn" onclick="addDigit(5)">5</button>
+                <button class="keyboard-btn" onclick="addDigit(6)">6</button>
+                <button class="keyboard-btn" onclick="addDigit(7)">7</button>
+                <button class="keyboard-btn" onclick="addDigit(8)">8</button>
+                <button class="keyboard-btn" onclick="addDigit(9)">9</button>
+                <button class="keyboard-btn backspace" onclick="removeDigit()">
+                    <i class="fas fa-backspace"></i>
+                </button>
+                <button class="keyboard-btn" onclick="addDigit(0)">0</button>
+            </div>
+
+            <p class="password-hint">
+                <i class="fas fa-info-circle"></i> Если вы забыли пароль, то напишите @kolianchic2
+            </p>
+        </div>
+    </div>
+
+    <!-- Основной контент сайта (скрыт до ввода пароля) -->
+    <div id="site-content" style="display: none;">
+
+        <header>
+            <h1>7В</h1>
+            <p>Классный сайт 7В класса</p>
+        </header>
+
+        <nav class="nav-bar">
+            <button class="nav-item active" onclick="switchTab('schedule')">
+                <div class="nav-icon"></div>
+                Расписание
+            </button>
+            <button class="nav-item" onclick="switchTab('news')">
+                <div class="nav-icon"></div>
+                Новости
+            </button>
+            <button class="nav-item" onclick="switchTab('gallery')">
+                <div class="nav-icon"></div>
+                Альбом
+            </button>
+            <button class="nav-item" onclick="switchTab('settings')">
+                <div class="nav-icon"></div>
+                Ещё
+            </button>
+        </nav>
+
+        <div class="container">
+
+            <div id="schedule" class="section active">
+                <div class="card">
+                    <h2>Статус урока</h2>
+                    <div id="now-lesson-display">Загрузка...</div>
+                </div>
+
+                <div class="card">
+                    <h2>Расписание недели</h2>
+                    <div class="days-selector">
+                        <button class="day-btn" onclick="selectDay(1)">ПН</button>
+                        <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                        <button class="day-btn" onclick="selectDay(3)">СР</button>
+                        <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                        <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                    </div>
+
+                    <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник
+                    </h3>
+                    <div id="daily-schedule-list"></div>
+                </div>
+            </div>
+
+            <div id="rating" class="section" style="display: none;">
+                <!-- Убрана, так как функция не используется -->
+            </div>
+
+            <div id="news" class="section">
+                <div class="card">
+                    <h2>Новости</h2>
+                    <div class="news-tabs" role="tablist" aria-label="Раздел новостей">
+                        <button class="news-tab active" type="button" onclick="showNewsSection('news', event)">Новости</button>
+                        <button class="news-tab" type="button" onclick="showNewsSection('changelog', event)">Change-log</button>
+                    </div>
+                    <div id="news-container" class="news-subsection"></div>
+                    <div id="changelog-container" class="news-subsection" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div id="gallery" class="section">
+                <div class="card">
+                    <h2>Альбом</h2>
+                    <div id="gallery-content">
+                        <div class="album-tabs">
+                            <button class="album-btn" onclick="showAlbum('class5', event)">5 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
+                            <button class="album-btn active" onclick="showAlbum('class7', event)">7 Класс</button>
+                        </div>
+                        <div id="class5-albums" style="display: none;"></div>
+                        <div id="class6-albums" style="display: none;"></div>
+                        <div id="class7-albums"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="section">
+                <div class="card">
+                    <h2>Ещё</h2>
+                    <div class="settings-list">
+                        <div class="settings-item" style="cursor:default; align-items:flex-start;">
+                            <i class="fas fa-palette" style="color: var(--primary);"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Оформление сайта</div>
+                                <div class="settings-description">Выберите тему и любой основной цвет</div>
+                                <div class="settings-controls">
+                                    <label for="theme-select">Тема</label>
+                                    <select id="theme-select" onchange="applyThemeSettings()" style="width:100%;padding:10px;margin:6px 0 12px;border-radius:8px;">
+                                        <option value="light">Светлая</option>
+                                        <option value="dark">Тёмная</option>
+                                        <option value="blue">Синяя</option>
+                                        <option value="custom">Свой цвет</option>
+                                    </select>
+                                    <label for="theme-color">Основной цвет</label>
+                                    <input id="theme-color" type="color" value="#4f46e5" oninput="applyThemeSettings()" style="width:100%;height:42px;margin-top:6px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-item" style="cursor:default;align-items:flex-start;">
+                            <i class="fas fa-mobile-alt" style="color: var(--primary);"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Режим слабого устройства</div>
+                                <div class="settings-description">Отключает все анимации и плавные переходы</div>
+                                <label style="display:flex;gap:10px;align-items:center;margin-top:10px;">
+                                    <input id="reduced-motion-toggle" type="checkbox" onchange="setReducedMotion(this.checked)" style="width:22px;height:22px;">
+                                    Отключить все анимации
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-item" style="cursor:default;align-items:flex-start;">
+                            <i class="fas fa-key" style="color: var(--primary);"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Изменить пароль</div>
+                                <div class="settings-description">Новый пароль должен состоять из 4 цифр. Изменение сохраняется в этом браузере.</div>
+                                <input id="current-password" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Текущий пароль" style="box-sizing:border-box;width:100%;padding:10px;margin-top:10px;border:1px solid #d1d5db;border-radius:8px;">
+                                <input id="new-password" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Новый пароль (4 цифры)" style="box-sizing:border-box;width:100%;padding:10px;margin-top:8px;border:1px solid #d1d5db;border-radius:8px;">
+                                <button type="button" onclick="changeSitePassword()" style="padding:10px 14px;margin-top:8px;border:0;border-radius:8px;background:var(--primary);color:white;font-weight:bold;">Сохранить пароль</button>
+                                <div id="password-change-message" role="status" style="margin-top:8px;font-size:.9rem;"></div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="settings-item danger" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Выход</div>
+                                <div class="settings-description">Удаление сохраненных данных на сайте</div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Модальное окно поделиться -->
+        <div id="share-modal" class="share-modal" onclick="closeShareModal(event)">
+            <div class="share-modal-content" onclick="event.stopPropagation()">
+                <h3 class="share-modal-title">Поделиться новостью</h3>
+                <div class="share-text-notice" id="share-text-notice">
+                    <strong>Текст для отправки:</strong><br>
+                    <code id="share-text-display">С тобой хотят поделиться новостью:</code>
+                </div>
+                <div class="share-options">
+                    <button class="share-option-btn telegram" onclick="shareViaTelegram()" title="Telegram">
+                        <i class="fab fa-telegram"></i>
+                    </button>
+                    <button class="share-option-btn whatsapp" onclick="shareViaWhatsApp()" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="share-option-btn vk" onclick="shareViaVK()" title="ВКонтакте">
+                        <i class="fab fa-vk"></i>
+                    </button>
+                    <button class="share-option-btn copy" onclick="copyShareLink()" title="Скопировать ссылку">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="share-link-container">
+                    <input type="text" id="share-url-input" class="share-link" readonly onclick="this.select()">
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <button class="share-btn" onclick="closeShareModal()" style="background: #6b7280;">
+                        <i class="fas fa-times"></i> Закрыть
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Уведомление о копировании -->
+        <div id="copy-notification" class="copy-notification">
+            <i class="fas fa-check-circle" style="margin-right: 8px;"></i> Ссылка скопирована!
+        </div>
+
+        <div id="lightbox-modal" class="lightbox" onclick="closeLightbox(event)">
+            <span class="close-btn">&times;</span>
+            <img class="lightbox-content" id="lightbox-img" style="display:none;">
+            <video class="lightbox-content" id="lightbox-video" controls style="display:none;"></video>
+        </div>
+
+    </div>
+
+ <script>
+    // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
+
+    const SITE_PASSWORD = "6730";
+    const PASSWORD_KEY = "class7v_site_access";
+
+    let enteredPassword = '';
+    let dots = [];
+    let siteInitialized = false;
+    let liveStatusInterval = null;
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', function () {
+        dots = [
+            document.getElementById('dot1'),
+            document.getElementById('dot2'),
+            document.getElementById('dot3'),
+            document.getElementById('dot4')
+        ];
+
+        checkSavedAccess();
+    });
+
+    // Проверяем сохраненный доступ
+    function checkSavedAccess() {
+        try {
+            if (localStorage.getItem(PASSWORD_KEY) === 'granted') {
+                grantSiteAccess();
+            }
+        } catch (error) {
+            console.error('Ошибка проверки сохраненного доступа:', error);
+        }
+    }
+
+    // Добавление цифры
+    function addDigit(digit) {
+        if (enteredPassword.length >= 4) return;
+
+        enteredPassword += String(digit);
+        updateDots();
+        updateSubmitButton();
+
+        if (enteredPassword.length === 4) {
+            setTimeout(checkPassword, 300);
+        }
+    }
+
+    // Удаление последней цифры
+    function removeDigit() {
+        if (enteredPassword.length === 0) return;
+
+        enteredPassword = enteredPassword.slice(0, -1);
+
+        updateDots();
+        updateSubmitButton();
+
+        const errorElement = document.getElementById('password-error');
+
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
+    }
+
+    // Обновление индикатора точек
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            if (!dot) return;
+
+            if (index < enteredPassword.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+                dot.classList.remove('error');
+            }
+        });
+    }
+
+    // Обновление кнопки отправки
+    function updateSubmitButton() {
+        // Кнопки «Войти» нет: после 4-й цифры пароль проверяется автоматически.
+    }
+
+    // Анимация ошибки
+    function shakeDots() {
+        dots.forEach(dot => {
+            if (!dot) return;
+
+            dot.classList.add('error');
+            dot.style.animation = 'shake 0.5s ease-in-out';
+        });
+
+        setTimeout(() => {
+            dots.forEach(dot => {
+                if (!dot) return;
+
+                dot.classList.remove('error');
+                dot.style.animation = '';
+            });
+        }, 500);
+    }
+
+    // Предоставление доступа к сайту
+    function grantSiteAccess() {
+        const passwordScreen = document.getElementById('password-screen');
+        const siteContent = document.getElementById('site-content');
+
+        if (!passwordScreen || !siteContent) {
+            console.error(
+                'Не найдены элементы password-screen или site-content.'
+            );
+            return;
+        }
+
+        // Не запускаем инициализацию повторно
+        if (siteInitialized) return;
+
+        passwordScreen.style.opacity = '0';
+
+        setTimeout(() => {
+            passwordScreen.style.display = 'none';
+            siteContent.style.display = 'block';
+
+            initSite();
+        }, 300);
+    }
+
+    // Выход
+    function logout() {
+        if (confirm('Вы уверены, что хотите выйти?')) {
+            try {
+                localStorage.removeItem(PASSWORD_KEY);
+            } catch (error) {
+                console.error('Не удалось очистить сохраненный доступ:', error);
+            }
+
+            window.location.reload();
+        }
+    }
+
+    // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
+
+    document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gesturechange', function (event) {
+        event.preventDefault();
+    });
+
+    document.addEventListener('gestureend', function (event) {
+        event.preventDefault();
+    });
+
+    let lastTouchEnd = 0;
+
+    document.addEventListener('touchend', function (event) {
+        const now = Date.now();
+
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+
+        lastTouchEnd = now;
+    }, false);
+
+    document.addEventListener('wheel', function (event) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    // Блокировка контекстного меню
+    document.addEventListener('contextmenu', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            return;
+        }
+
+        event.preventDefault();
+        return false;
+    });
+
+    // Блокировка отдельных клавиш и комбинаций
+    document.addEventListener('keydown', function (event) {
+        const tag = event.target.tagName;
+        const isInput = tag === 'INPUT' || tag === 'TEXTAREA';
+
+        // Разрешаем копирование, вырезание, вставку и выделение в полях ввода
+        if (isInput && event.ctrlKey &&
+            ['c', 'x', 'v', 'a'].includes(event.key.toLowerCase())) {
+            return;
+        }
+
+        // Блокируем F12
+        if (event.key === 'F12') {
+            event.preventDefault();
+            return false;
+        }
+
+        // Блокируем сочетания клавиш для масштабирования
+        if (event.ctrlKey &&
+            ['+', '=', '-', '_', '0'].includes(event.key)) {
+            event.preventDefault();
+            return false;
+        }
+
+        // Блокируем остальные сочетания с Ctrl вне полей ввода
+        if (event.ctrlKey && !isInput) {
+            event.preventDefault();
+            return false;
+        }
+    });
+
+    // Разрешаем выделение текста в полях ввода
+    document.addEventListener('selectstart', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'INPUT' || tag === 'TEXTAREA') {
+            return;
+        }
+
+        event.preventDefault();
+        return false;
+    });
+
+    // Запрещаем перетаскивание изображений и видео
+    document.addEventListener('dragstart', function (event) {
+        const tag = event.target.tagName;
+
+        if (tag === 'IMG' || tag === 'VIDEO') {
+            event.preventDefault();
+            return false;
+        }
+    });
+
+
+    /* ================================================================
+       ОСНОВНАЯ ЛОГИКА САЙТА
+    ================================================================ */
+
+    // Ученики
+    const students = [
+        "🥇 1",
+        "🥈 2",
+        "🥉 3"
+    ];
+
+
+    // ============ СИСТЕМА ПОДЕЛИТЬСЯ НОВОСТЯМИ ============
+
+    let currentNewsId = null;
+
+    const siteUrl =
+        window.location.origin + window.location.pathname;
+
+    // Создание ссылки на новость
+    function createNewsShareUrl(newsId) {
+        const cleanUrl = siteUrl.split('?')[0];
+
+        return `${cleanUrl}?news=${encodeURIComponent(newsId)}`;
+    }
+
+    // Проверка параметров URL
+    function checkUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const newsId = urlParams.get('news');
+
+        if (newsId) {
+            switchTab('news');
+
+            setTimeout(() => {
+                highlightNews(newsId);
+            }, 300);
+        }
+    }
+
+    // Подсветка новости
+    function highlightNews(newsId) {
+        document.querySelectorAll('.news-item').forEach(item => {
+            item.classList.remove('highlighted');
+        });
+
+        const newsElement = Array.from(
+            document.querySelectorAll('.news-item[data-news-id]')
+        ).find(item => item.dataset.newsId === String(newsId));
+
+        if (newsElement) {
+            newsElement.classList.add('highlighted');
+
+            newsElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            setTimeout(() => {
+                newsElement.classList.remove('highlighted');
+            }, 3000);
+        }
+    }
+
+    // Открытие окна публикации новости
+    function openShareModal(newsId) {
+        currentNewsId = newsId;
+
+        const shareUrl = createNewsShareUrl(newsId);
+        const input = document.getElementById('share-url-input');
+        const textDisplay = document.getElementById('share-text-display');
+        const modal = document.getElementById('share-modal');
+
+        if (input) {
+            input.value = shareUrl;
+        }
+
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
+            ? newsData.find(n => n.id == newsId)
+            : null;
+
+        if (news && textDisplay) {
+            textDisplay.textContent =
+                `Новость от ${news.date}: ${news.title}\n\n` +
+                `${news.text}\n\n${shareUrl}`;
+        }
+
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    // Закрытие окна публикации
+    function closeShareModal(event) {
+        if (event && event.target.id !== 'share-modal') {
+            return;
+        }
+
+        const modal = document.getElementById('share-modal');
+
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Копирование ссылки
+    async function copyShareLink() {
+        const shareUrl = document.getElementById('share-url-input');
+
+        if (!shareUrl) return;
+
+        shareUrl.select();
+        shareUrl.setSelectionRange(0, shareUrl.value.length);
+
+        try {
+            await navigator.clipboard.writeText(shareUrl.value);
+            showCopyNotification();
+        } catch (error) {
+            // Запасной способ копирования
+            try {
+                const successful = document.execCommand('copy');
+
+                if (successful) {
+                    showCopyNotification();
+                } else {
+                    alert('Не удалось скопировать ссылку. Скопируйте её вручную.');
+                }
+            } catch (copyError) {
+                alert('Не удалось скопировать ссылку. Скопируйте её вручную.');
+            }
+        }
+    }
+
+    // Уведомление о копировании
+    function showCopyNotification() {
+        const notification = document.getElementById('copy-notification');
+
+        if (!notification) return;
+
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 2000);
+    }
+
+    // Поделиться в Telegram
+    function shareViaTelegram() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
+            ? newsData.find(n => n.id == currentNewsId)
+            : null;
+
+        const text = news
+            ? `Новость от ${news.date}: ${news.title}\n\n${shareUrl}`
+            : shareUrl;
+
+        const telegramUrl =
+            `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}` +
+            `&text=${encodeURIComponent(text)}`;
+
+        window.open(telegramUrl, '_blank', 'noopener');
+    }
+
+    // Поделиться в WhatsApp
+    function shareViaWhatsApp() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
+            ? newsData.find(n => n.id == currentNewsId)
+            : null;
+
+        const text = news
+            ? `Новость от ${news.date}: ${news.title} - ${shareUrl}`
+            : shareUrl;
+
+        window.open(
+            `https://wa.me/?text=${encodeURIComponent(text)}`,
+            '_blank',
+            'noopener'
+        );
+    }
+
+    // Поделиться во ВКонтакте
+    function shareViaVK() {
+        const shareUrl = createNewsShareUrl(currentNewsId);
+
+        window.open(
+            `https://vk.com/share.php?url=${encodeURIComponent(shareUrl)}`,
+            '_blank',
+            'noopener'
+        );
+    }
+
+
+    /* ================================================================
+       СИСТЕМНАЯ ЧАСТЬ
+    ================================================================ */
+
+    // Переключение вкладок
+    function switchTab(tabId) {
+        document.querySelectorAll('.section').forEach(element => {
+            element.classList.remove('active');
+            element.style.display = 'none';
+        });
+
+        document.querySelectorAll('.nav-item').forEach(element => {
+            element.classList.remove('active');
+        });
+
+        const targetTab = document.getElementById(tabId);
+
+        if (targetTab) {
+            targetTab.classList.add('active');
+            targetTab.style.display = 'block';
+        }
+
+        const menuIndex = [
+            'schedule',
+            'news',
+            'gallery',
+            'settings'
+        ].indexOf(tabId);
+
+        const navItems = document.querySelectorAll('.nav-item');
+
+        if (menuIndex >= 0 && navItems[menuIndex]) {
+            navItems[menuIndex].classList.add('active');
+        }
+    }
+
+
+    // ============ НОВОСТИ ============
+
+    async function initBasicInfo() {
+        const newsContainer = document.getElementById('news-container');
+
+        if (!newsContainer) {
+            console.error('Не найден элемент news-container.');
+            return;
+        }
+
+        newsContainer.innerHTML =
+            '<div style="text-align:center;padding:20px;">Загрузка новостей...</div>';
+
+        try {
+            // Обновляем новости, если функция существует
+            if (typeof refreshNews === 'function') {
+                await refreshNews();
+            }
+
+            // Получаем список новостей
+            let sortedNews = [];
+
+            if (typeof getAllNews === 'function') {
+                sortedNews = getAllNews() || [];
+            } else if (typeof newsData !== 'undefined' && Array.isArray(newsData)) {
+                sortedNews = [...newsData].sort((a, b) => b.id - a.id);
+            }
+
+            if (sortedNews.length === 0) {
+                newsContainer.innerHTML =
+                    '<div style="text-align:center;padding:20px;color:#888;">Новостей пока нет</div>';
+                return;
+            }
+
+            let newsHtml = '';
+
+            sortedNews.forEach(news => {
+                const shareUrl = createNewsShareUrl(news.id);
+
+                newsHtml += `
+                    <div class="news-item" data-news-id="${news.id}">
+                        <div class="news-date">${news.date ?? ''}</div>
+                        <div class="news-title">${news.title ?? ''}</div>
+                        <div class="news-text">${news.text ?? ''}</div>
+
+                        <div class="share-panel">
+                            <div class="share-link-container">
+                                <input
+                                    type="text"
+                                    class="share-link"
+                                    value="${shareUrl}"
+                                    readonly
+                                    onclick="this.select()"
+                                >
+                            </div>
+
+                            <button
+                                class="share-btn"
+                                onclick="openShareModal('${String(news.id).replace(/'/g, "\\'")}')"
+                            >
+                                <i class="fas fa-share-alt"></i> Поделиться
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr style="opacity:0.3;margin:5px 0;">
+                `;
+            });
+
+            newsContainer.innerHTML = newsHtml;
+
+            checkUrlParams();
+
+        } catch (error) {
+            console.error('Ошибка загрузки новостей:', error);
+
+            newsContainer.innerHTML =
+                '<div style="text-align:center;padding:20px;color:#d33;">Не удалось загрузить новости.</div>';
+        }
+    }
+
+
+    // ============ АЛЬБОМЫ И ВИДЕО ============
+
+    function renderAlbums() {
+        if (typeof albums === 'undefined' || !albums) {
+            console.error('Данные albums не найдены.');
+            return;
+        }
+
+        const renderGroup = (id, data) => {
+            const container = document.getElementById(id);
+
+            if (!container) {
+                console.warn(`Контейнер ${id} не найден.`);
+                return;
+            }
+
+            if (!Array.isArray(data)) {
+                console.warn(`Данные для ${id} отсутствуют.`);
+                container.innerHTML =
+                    '<div style="text-align:center;padding:20px;">Альбомов пока нет.</div>';
+                return;
+            }
+
+            let html = `
+                <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+                    <button class="toggle-all-btn" onclick="toggleAllAlbums('${id}')">
+                        <i class="fas fa-compress-alt"></i> Свернуть все
+                    </button>
+                </div>
+            `;
+
+            data.forEach((album, index) => {
+                const items = Array.isArray(album.items) ? album.items : [];
+
+                const photos = items.filter(item => item.type === 'photo').length;
+                const videos = items.filter(item => item.type === 'video').length;
+
+                const albumId = `album-${id}-${index}`;
+
+                html += `
+                    <div class="album-container" id="${albumId}-container">
+                        <div class="album-header" onclick="toggleAlbum('${albumId}')">
+                            <h3>
+                                <i class="fas fa-folder"></i>
+                                ${album.name ?? 'Без названия'}
+                                <span class="album-count">${items.length}</span>
+                            </h3>
+
+                            <div>
+                                <span class="photo-badge">
+                                    <i class="fas fa-image"></i> ${photos}
+                                </span>
+
+                                <span class="video-badge">
+                                    <i class="fas fa-video"></i> ${videos}
+                                </span>
+
+                                <i class="fas fa-chevron-down" style="margin-left:15px;"></i>
+                            </div>
+                        </div>
+
+                        <div class="album-content" id="${albumId}">
+                            <div class="album-stats">
+                                <span>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Всего медиа: ${items.length}
+                                </span>
+
+                                <span>
+                                    <i class="fas fa-image"></i>
+                                    Фото: ${photos}
+                                </span>
+
+                                <span>
+                                    <i class="fas fa-video"></i>
+                                    Видео: ${videos}
+                                </span>
+                            </div>
+
+                            <div class="gallery-grid">
+                `;
+
+                items.forEach(item => {
+                    if (item.type === 'photo') {
+                        html += `
+                            <div class="media-item" data-media-type="photo" data-media-url="${String(item.url).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">
+                                <img
+                                    src="${item.url}"
+                                    draggable="false"
+                                    alt="${album.name ?? 'Фото'}"
+                                    loading="lazy"
+                                >
+                            </div>
+                        `;
+                    } else if (item.type === 'video') {
+                        const poster =
+                            item.preview ||
+                            'https://placehold.co/400x400/000/fff?text=Play';
+
+                        html += `
+                            <div class="media-item" data-media-type="video" data-media-url="${String(item.url).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">
+                                <img
+                                    src="${poster}"
+                                    draggable="false"
+                                    alt="Видео"
+                                    loading="lazy"
+                                >
+                                <div class="video-indicator">▶</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Обработчики кликов назначаются отдельно, чтобы URL не ломал HTML-атрибут onclick.
+            container.querySelectorAll('.media-item[data-media-url]').forEach(media => {
+                media.addEventListener('click', () => {
+                    openLightbox(media.dataset.mediaType, media.dataset.mediaUrl);
+                });
+            });
+
+            // По умолчанию альбомы раскрыты
+            data.forEach((album, index) => {
+                const albumId = `album-${id}-${index}`;
+
+                const content = document.getElementById(albumId);
+                const header = document.querySelector(
+                    `#${albumId}-container .album-header`
+                );
+
+                const icon = header
+                    ? header.querySelector('.fa-chevron-down, .fa-chevron-right')
+                    : null;
+
+                if (content && header) {
+                    content.classList.remove('collapsed');
+
+                    if (icon) {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                }
+            });
+        };
+
+        renderGroup('class5-albums', albums.class5);
+        renderGroup('class6-albums', albums.class6);
+        renderGroup('class7-albums', albums.class7);
+    }
+
+
+    // Переключение отдельного альбома
+    function toggleAlbum(albumId) {
+        const content = document.getElementById(albumId);
+
+        const header = document.getElementById(`${albumId}-container`)
+            ?.querySelector('.album-header');
+
+        if (!content || !header) return;
+
+        content.classList.toggle('collapsed');
+
+        const icon = header.querySelector(
+            '.fa-chevron-down, .fa-chevron-right'
+        );
+
+        if (icon) {
+            icon.className = content.classList.contains('collapsed')
+                ? 'fas fa-chevron-right'
+                : 'fas fa-chevron-down';
+        }
+    }
+
+
+    // Свернуть или развернуть все альбомы группы
+    function toggleAllAlbums(groupId) {
+        const container = document.getElementById(groupId);
+
+        if (!container) return;
+
+        const albumsList = container.querySelectorAll('.album-container');
+        const button = container.querySelector('.toggle-all-btn');
+
+        if (albumsList.length === 0) return;
+
+        const hasCollapsed = Array.from(albumsList).some(album => {
+            const content = album.querySelector('.album-content');
+
+            return content && content.classList.contains('collapsed');
+        });
+
+        albumsList.forEach(album => {
+            const content = album.querySelector('.album-content');
+            const icon = album.querySelector(
+                '.album-header .fa-chevron-down, .album-header .fa-chevron-right'
+            );
+
+            if (!content) return;
+
+            if (hasCollapsed) {
+                content.classList.remove('collapsed');
+
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            } else {
+                content.classList.add('collapsed');
+
+                if (icon) {
+                    icon.className = 'fas fa-chevron-right';
+                }
+            }
+        });
+
+        if (button) {
+            button.innerHTML = hasCollapsed
+                ? '<i class="fas fa-compress-alt"></i> Свернуть все'
+                : '<i class="fas fa-expand-alt"></i> Развернуть все';
+        }
+    }
+
+
+    // Переключение между классами
+    function showAlbum(cls, event) {
+        const groups = {
+            class5: 'class5-albums',
+            class6: 'class6-albums',
+            class7: 'class7-albums'
+        };
+
+        // Проверяем правильность переданного класса
+        if (!Object.prototype.hasOwnProperty.call(groups, cls)) {
+            console.warn('Неизвестная группа альбомов:', cls);
+            return;
+        }
+
+        Object.entries(groups).forEach(([key, elementId]) => {
+            const element = document.getElementById(elementId);
+
+            if (element) {
+                element.style.display = key === cls ? 'block' : 'none';
+            }
+        });
+
+        document.querySelectorAll('.album-btn').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // Подсвечиваем нажатую кнопку
+        const clickedButton = event?.currentTarget;
+
+        if (clickedButton) {
+            clickedButton.classList.add('active');
+        }
+
+        // Обновляем текст кнопки управления альбомами
+        const activeContainer = document.getElementById(groups[cls]);
+
+        const toggleButton = activeContainer
+            ? activeContainer.querySelector('.toggle-all-btn')
+            : null;
+
+        if (toggleButton) {
+            toggleButton.innerHTML =
+                '<i class="fas fa-compress-alt"></i> Свернуть все';
+        }
+    }
+
+
+    // ============ ЛАЙТБОКС ============
+
+    function openLightbox(type, url) {
+        const modal = document.getElementById('lightbox-modal');
+        const imgEl = document.getElementById('lightbox-img');
+        const videoEl = document.getElementById('lightbox-video');
+
+        if (!modal || !imgEl || !videoEl) {
+            console.error('Не найдены элементы лайтбокса.');
+            return;
+        }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (type === 'photo') {
+            imgEl.src = url;
+            imgEl.style.display = 'block';
+
+            videoEl.pause();
+            videoEl.removeAttribute('src');
+            videoEl.load();
+            videoEl.style.display = 'none';
+        } else if (type === 'video') {
+            videoEl.src = url;
+            videoEl.style.display = 'block';
+            imgEl.style.display = 'none';
+
+            videoEl.play().catch(error => {
+                console.warn('Автовоспроизведение видео не удалось:', error);
+            });
+        }
+    }
+
+
+    // Закрытие лайтбокса
+    function closeLightbox(event) {
+        if (!event) return;
+
+        const target = event.target;
+
+        if (
+            target.id === 'lightbox-modal' ||
+            target.classList.contains('close-btn')
+        ) {
+            const modal = document.getElementById('lightbox-modal');
+            const videoEl = document.getElementById('lightbox-video');
+
+            if (modal) {
+                modal.style.display = 'none';
+            }
+
+            document.body.style.overflow = '';
+
+            if (videoEl) {
+                videoEl.pause();
+                videoEl.removeAttribute('src');
+                videoEl.load();
+            }
+        }
+    }
+
+
+    // ============ РАСПИСАНИЕ ============
+
+    let viewingDay = new Date().getDay();
+
+    if (viewingDay === 0 || viewingDay === 6) {
+        viewingDay = 1;
+    }
+
+
+    // Преобразование времени в минуты
+    function getMinutes(t) {
+        if (typeof t !== 'string' || !t.includes(':')) {
+            return 0;
+        }
+
+        const [h, m] = t.split(':').map(Number);
+
+        return h * 60 + m;
+    }
+
+
+    // Обновление информации о текущем уроке
+    function updateLiveStatus() {
+        const display = document.getElementById('now-lesson-display');
+
+        if (!display) return;
+
+        const now = new Date();
+        const curDay = now.getDay();
+        const curMin = now.getHours() * 60 + now.getMinutes();
+
+        const lessons =
+            typeof weekSchedule !== 'undefined' &&
+            weekSchedule &&
+            Array.isArray(weekSchedule[curDay])
+                ? weekSchedule[curDay]
+                : [];
+
+        const bells =
+            typeof bellSchedule !== 'undefined' && Array.isArray(bellSchedule)
+                ? bellSchedule
+                : [];
+
+        let text = 'Свободное время или выходной';
+
+        if (lessons.length > 0 && bells.length > 0) {
+            const lessonCount = Math.min(lessons.length, bells.length);
+
+            for (let idx = 0; idx < lessonCount; idx++) {
+                const lesson = lessons[idx];
+                const time = bells[idx];
+
+                if (!time || !time.start || !time.end) continue;
+
+                const start = getMinutes(time.start);
+                const end = getMinutes(time.end);
+
+                const prevEnd = idx > 0
+                    ? getMinutes(bells[idx - 1].end)
+                    : 0;
+
+                if (curMin >= start && curMin <= end) {
+                    text = `Идет урок: <b>${lesson}</b> (до ${time.end})`;
+                    break;
+                }
+
+                if (idx > 0 && curMin > prevEnd && curMin < start) {
+                    text = `Перемена! Далее: ${lesson}`;
+                } else if (
+                    idx === 0 &&
+                    curMin < start &&
+                    curMin > start - 30
+                ) {
+                    text = `Скоро первый урок: ${lesson}`;
+                }
+            }
+
+            const lastBell = bells[lessonCount - 1];
+
+            if (lastBell && curMin > getMinutes(lastBell.end)) {
+                text = 'Уроки на сегодня закончились';
+            }
+        }
+
+        display.innerHTML = text;
+
+        if (viewingDay === curDay) {
+            renderScheduleList(viewingDay);
+        }
+    }
+
+
+    // Отображение списка уроков на выбранный день
+    function renderScheduleList(dayIdx) {
+        const list = document.getElementById('daily-schedule-list');
+        const title = document.getElementById('selected-day-title');
+
+        if (!list || !title) return;
+
+        const lessons =
+            typeof weekSchedule !== 'undefined' &&
+            weekSchedule &&
+            Array.isArray(weekSchedule[dayIdx])
+                ? weekSchedule[dayIdx]
+                : [];
+
+        const dayNames = [
+            'Воскресенье',
+            'Понедельник',
+            'Вторник',
+            'Среда',
+            'Четверг',
+            'Пятница',
+            'Суббота'
+        ];
+
+        title.innerText = dayNames[dayIdx] || 'Расписание';
+
+        const now = new Date();
+        const isToday = dayIdx === now.getDay();
+
+        const curMin = now.getHours() * 60 + now.getMinutes();
+
+        const bells =
+            typeof bellSchedule !== 'undefined' && Array.isArray(bellSchedule)
+                ? bellSchedule
+                : [];
+
+        let html = '';
+
+        if (lessons.length === 0) {
+            html =
+                '<div style="text-align:center;padding:20px;color:#888;">В этот день уроков нет</div>';
+        } else {
+            lessons.forEach((lesson, index) => {
+                if (index >= bells.length) return;
+
+                const time = bells[index];
+
+                if (!time) return;
+
+                let activeClass = '';
+
+                if (isToday) {
+                    const start = getMinutes(time.start);
+                    const end = getMinutes(time.end);
+
+                    if (curMin >= start && curMin <= end) {
+                        activeClass = 'current-lesson';
+                    }
+                }
+
+                html += `
+                    <div class="lesson-row ${activeClass}">
+                        <div class="lesson-time">
+                            ${time.start} - ${time.end}
+                        </div>
+
+                        <div class="lesson-name">${lesson}</div>
+                    </div>
+                `;
+            });
+        }
+
+        list.innerHTML = html;
+    }
+
+
+    // Выбор дня недели
+    function selectDay(dayIdx) {
+        if (!Number.isInteger(dayIdx) || dayIdx < 0 || dayIdx > 6) {
+            return;
+        }
+
+        viewingDay = dayIdx;
+
+        document.querySelectorAll('.day-btn').forEach((button, index) => {
+            // Если кнопки соответствуют понедельнику–субботе
+            const buttonDay = index + 1;
+
+            button.classList.toggle('active', buttonDay === dayIdx);
+        });
+
+        renderScheduleList(dayIdx);
+    }
+
+
+    // Предварительная загрузка иконок
+    function preloadIcons() {
+        const icons = [
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/news.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/more.png',
+            'https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png'
+        ];
+
+        icons.forEach(icon => {
+            const img = new Image();
+            img.src = icon;
+        });
+    }
+
+
+
+    // ============ CHANGE-LOG ============
+    function showNewsSection(section, event) {
+        const isNews = section === 'news';
+        const newsContainer = document.getElementById('news-container');
+        const changelogContainer = document.getElementById('changelog-container');
+        if (newsContainer) newsContainer.style.display = isNews ? 'block' : 'none';
+        if (changelogContainer) changelogContainer.style.display = isNews ? 'none' : 'block';
+        document.querySelectorAll('.news-tab').forEach(button => button.classList.remove('active'));
+        if (event && event.currentTarget) event.currentTarget.classList.add('active');
+        if (!isNews) renderChangelog();
+    }
+
+    function renderChangelog() {
+        const container = document.getElementById('changelog-container');
+        if (!container) return;
+        const entries = (typeof changelogData !== 'undefined' && Array.isArray(changelogData))
+            ? [...changelogData].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+            : [];
+        if (!entries.length) {
+            container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text);opacity:.7;">Записей пока нет. Добавьте их в changelog-data.js.</p>';
+            return;
+        }
+        container.innerHTML = entries.map(entry => `
+            <article class="news-item">
+                <div class="news-date">${escapeHtml(entry.date || '')}</div>
+                <div class="news-title">${escapeHtml(entry.title || 'Обновление')}</div>
+                <div class="news-text">${escapeHtml(entry.text || '')}</div>
+                ${Array.isArray(entry.changes) && entry.changes.length
+                    ? `<ul>${entry.changes.map(change => `<li>${escapeHtml(change)}</li>`).join('')}</ul>` : ''}
+            </article>`).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[char]);
+    }
+
+    // ============ ТЕМЫ ============
+    function applyThemeSettings() {
+        const select = document.getElementById('theme-select');
+        const colorPicker = document.getElementById('theme-color');
+        if (!select || !colorPicker) return;
+        const theme = select.value;
+        const chosen = theme === 'blue' ? '#2563eb' : (theme === 'dark' ? '#6366f1' : colorPicker.value);
+        document.documentElement.style.setProperty('--primary', chosen);
+        document.documentElement.style.setProperty('--share-color', chosen);
+        document.body.dataset.theme = theme === 'dark' ? 'dark' : 'light';
+        if (theme === 'blue') {
+            document.documentElement.style.setProperty('--bg', '#eff6ff');
+            document.documentElement.style.setProperty('--card', '#ffffff');
+            document.documentElement.style.setProperty('--text', '#1e3a8a');
+        } else if (theme === 'dark') {
+            document.documentElement.style.setProperty('--bg', '#111827');
+            document.documentElement.style.setProperty('--card', '#1f2937');
+            document.documentElement.style.setProperty('--text', '#f3f4f6');
+        } else {
+            document.documentElement.style.setProperty('--bg', '#f3f4f6');
+            document.documentElement.style.setProperty('--card', '#ffffff');
+            document.documentElement.style.setProperty('--text', '#1f2937');
+        }
+        try {
+            localStorage.setItem('class7v_theme', JSON.stringify({theme, color: colorPicker.value}));
+        } catch (error) { console.warn('Настройки темы не сохранены:', error); }
+    }
+
+    function loadThemeSettings() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('class7v_theme') || 'null');
+            if (saved) {
+                const select = document.getElementById('theme-select');
+                const color = document.getElementById('theme-color');
+                if (select) select.value = saved.theme || 'light';
+                if (color && /^#[0-9a-f]{6}$/i.test(saved.color || '')) color.value = saved.color;
+                applyThemeSettings();
+            }
+        } catch (error) { console.warn('Не удалось загрузить тему:', error); }
+    }
+
+    // ============ РЕЖИМ СЛАБОГО УСТРОЙСТВА ============
+    function setReducedMotion(enabled) {
+        document.body.classList.toggle('reduce-motion', Boolean(enabled));
+        try { localStorage.setItem('class7v_reduce_motion', enabled ? '1' : '0'); }
+        catch (error) { console.warn('Не удалось сохранить режим анимаций:', error); }
+    }
+
+    function loadReducedMotion() {
+        let enabled = false;
+        try { enabled = localStorage.getItem('class7v_reduce_motion') === '1'; } catch (_) {}
+        const checkbox = document.getElementById('reduced-motion-toggle');
+        if (checkbox) checkbox.checked = enabled;
+        setReducedMotion(enabled);
+    }
+
+    // ============ ПАРОЛЬ: SHA-256 ============
+    const DEFAULT_PASSWORD_HASH = '0a3455a92d990abf8b62f5a82cdb22d31dce076df6c00c32eda8c5d5caaad389';
+
+    async function hashPassword(password) {
+        if (!window.crypto || !window.crypto.subtle) {
+            // Резервный вариант для браузеров без Web Crypto.
+            return 'plain:' + password;
+        }
+        const bytes = new TextEncoder().encode(password);
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function getStoredPasswordHash() {
+        try {
+            return localStorage.getItem('class7v_password_hash') || DEFAULT_PASSWORD_HASH;
+        } catch (_) { return DEFAULT_PASSWORD_HASH; }
+    }
+
+    async function checkPassword() {
+        const errorElement = document.getElementById('password-error');
+        const successElement = document.getElementById('password-success');
+        if (errorElement) errorElement.textContent = '';
+        if (successElement) successElement.textContent = '';
+        if (enteredPassword.length !== 4) return;
+        const enteredHash = await hashPassword(enteredPassword);
+        const storedHash = await getStoredPasswordHash();
+        if (enteredHash === storedHash) {
+            if (successElement) successElement.textContent = 'Пароль принят';
+            try { localStorage.setItem(PASSWORD_KEY, 'granted'); } catch (_) {}
+            setTimeout(grantSiteAccess, 100);
+        } else {
+            if (errorElement) errorElement.textContent = 'Неверный пароль';
+            shakeDots();
+            setTimeout(() => {
+                enteredPassword = '';
+                updateDots();
+                updateSubmitButton();
+                if (errorElement) errorElement.textContent = '';
+            }, 500);
+        }
+    }
+
+    async function changeSitePassword() {
+        const current = document.getElementById('current-password');
+        const next = document.getElementById('new-password');
+        const message = document.getElementById('password-change-message');
+        if (!current || !next || !message) return;
+        const currentValue = current.value.trim();
+        const nextValue = next.value.trim();
+        message.style.color = 'var(--danger)';
+        if (!/^\d{4}$/.test(currentValue) || !/^\d{4}$/.test(nextValue)) {
+            message.textContent = 'Введите текущий и новый пароль — ровно 4 цифры.';
+            return;
+        }
+        if (await hashPassword(currentValue) !== await getStoredPasswordHash()) {
+            message.textContent = 'Текущий пароль неверный.';
+            return;
+        }
+        try {
+            localStorage.setItem('class7v_password_hash', await hashPassword(nextValue));
+            localStorage.removeItem(PASSWORD_KEY);
+            message.style.color = 'var(--accent)';
+            message.textContent = 'Пароль изменён для этого браузера. Войдите заново после выхода.';
+            current.value = '';
+            next.value = '';
+        } catch (error) {
+            message.textContent = 'Не удалось сохранить пароль в этом браузере.';
+        }
+    }
+
+    // Поддержка ввода цифр физической клавиатурой.
+    document.addEventListener('keydown', event => {
+        if (document.getElementById('password-screen')?.style.display === 'none') return;
+        if (/^\d$/.test(event.key)) {
+            event.preventDefault();
+            addDigit(event.key);
+        } else if (event.key === 'Backspace') {
+            event.preventDefault();
+            removeDigit();
+        }
+    });
+
+    // ============ ИНИЦИАЛИЗАЦИЯ САЙТА ============
+
+    function initSite() {
+        if (siteInitialized) return;
+
+        siteInitialized = true;
+
+        preloadIcons();
+        loadThemeSettings();
+        loadReducedMotion();
+
+        initBasicInfo();
+
+        renderAlbums();
+        const class7Button = document.querySelector('.album-btn[onclick*="class7"]');
+        showAlbum('class7', { currentTarget: class7Button });
+
+        selectDay(viewingDay);
+
+        updateLiveStatus();
+
+        // Не создаем несколько одинаковых таймеров
+        if (liveStatusInterval !== null) {
+            clearInterval(liveStatusInterval);
+        }
+
+        liveStatusInterval = setInterval(updateLiveStatus, 60000);
+    }
+</script>
+</body>
+</html>
