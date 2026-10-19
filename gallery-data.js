@@ -270,7 +270,7 @@ function getAlbumsStats() {
             totalPhotos: 0,
             totalVideos: 0,
             albums: []
-        }
+        },
         class7: {
             totalAlbums: albums.class7.length,
             totalPhotos: 0,
