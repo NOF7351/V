@@ -197,6 +197,17 @@ const albums = {
                 { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/Resourses/Album/6/RoyDjoy/16.jpg" }
             ]
         }
+    ],
+    
+    class7: [
+        {
+            name: "-",
+            items: [
+                { type: 'photo', url: "https://raw.githubusercontent.com/NOF7351/V/main/Resourses/Album/5/FortBoyard/1.jpg" }
+                
+            ]
+        }
+        
     ]
 };
 
@@ -260,6 +271,12 @@ function getAlbumsStats() {
             totalVideos: 0,
             albums: []
         }
+        class7: {
+            totalAlbums: albums.class7.length,
+            totalPhotos: 0,
+            totalVideos: 0,
+            albums: []
+        }
     };
 
     albums.class5.forEach(album => {
@@ -283,6 +300,20 @@ function getAlbumsStats() {
         stats.class6.totalPhotos += photos;
         stats.class6.totalVideos += videos;
         stats.class6.albums.push({
+            name: album.name,
+            photos: photos,
+            videos: videos,
+            total: album.items.length
+        });
+    });
+    
+    albums.class7.forEach(album => {
+        const photos = album.items.filter(item => item.type === 'photo').length;
+        const videos = album.items.filter(item => item.type === 'video').length;
+        
+        stats.class7.totalPhotos += photos;
+        stats.class7.totalVideos += videos;
+        stats.class7.albums.push({
             name: album.name,
             photos: photos,
             videos: videos,
