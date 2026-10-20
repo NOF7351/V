@@ -236,7 +236,7 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding-bottom: 80px;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
             -webkit-tap-highlight-color: transparent;
             touch-action: pan-y;
             overflow-x: hidden;
@@ -291,95 +291,69 @@
             font-size: 0.9rem;
         }
 
-        /* --- Navigation --- */
+        /* --- Нижняя навигация: простой дизайн из beta_version.html --- */
         .nav-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: white;
+            background: var(--card);
+            color: var(--text);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            align-items: center;
+            gap: 0;
+            padding: 8px 2px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            border-top: 1px solid rgba(127, 127, 127, 0.15);
             z-index: 1000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: manipulation;
         }
-
-        @media (min-width: 768px) {
-            .nav-bar {
-                position: static;
-                width: auto;
-                justify-content: center;
-                gap: 20px;
-                padding: 20px;
-                background: transparent;
-                box-shadow: none;
-            }
-
-            body {
-                overflow-y: visible;
-            }
-        }
-
         .nav-item {
             border: none;
-            background: none;
-            font-size: 0.8rem;
-            color: #6b7280;
-            cursor: pointer;
+            background: transparent;
+            font-size: 0.68rem;
+            line-height: 1.15;
+            color: var(--muted-text, #6b7280);
             display: flex;
+            flex: 1 1 0;
             flex-direction: column;
             align-items: center;
-            font-weight: bold;
-            padding: 5px;
-            width: 70px;
+            justify-content: center;
+            font-weight: 700;
+            padding: 5px 2px;
+            min-width: 0;
+            max-width: 110px;
             -webkit-user-select: none;
             user-select: none;
             touch-action: manipulation;
+            white-space: nowrap;
+            border-radius: 10px;
         }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
+        .nav-item.active { color: var(--primary); }
         .nav-icon {
-            width: 32px;
-            height: 32px;
+            width: 27px;
+            height: 27px;
             margin-bottom: 4px;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.7;
-            transition: opacity 0.2s, transform 0.2s;
+            opacity: 0.78;
         }
-
-        .nav-item.active .nav-icon {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .nav-item:hover .nav-icon {
-            opacity: 0.9;
-        }
-
+        .nav-item.active .nav-icon { opacity: 1; }
         .nav-item[onclick*="schedule"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/shedule.png');
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png');
         }
-
-        .nav-item[onclick*="rating"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png');
-        }
-
         .nav-item[onclick*="news"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19 2H5C3.34 2 2 3.34 2 5v14c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3zm1 17c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v14zM7 6h10v2H7zm0 4h10v2H7zm0 4h6v2H7z'/%3E%3C/svg%3E");
         }
-
         .nav-item[onclick*="gallery"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png');
         }
-
         .nav-item[onclick*="settings"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/more.png');
+            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/more.png');
         }
 
         /* --- Layout --- */
@@ -1128,6 +1102,49 @@
         body[data-theme="dark"] .news-date { color: #cbd5e1; }
         body[data-theme="dark"] .keyboard-btn { background: #374151; color: #f9fafb; }
         body[data-theme="dark"] .keyboard-btn.backspace { background: #4b252b; color: #fecaca; }
+        body[data-theme="dark"] .card h2,
+        body[data-theme="dark"] .card h3,
+        body[data-theme="dark"] .lesson-row,
+        body[data-theme="dark"] .route-info,
+        body[data-theme="dark"] .route-steps li,
+        body[data-theme="dark"] .location-status,
+        body[data-theme="dark"] .legend,
+        body[data-theme="dark"] .search-results,
+        body[data-theme="dark"] .search-result-item,
+        body[data-theme="dark"] .search-input,
+        body[data-theme="dark"] .share-link,
+        body[data-theme="dark"] .floor-btn,
+        body[data-theme="dark"] .day-btn,
+        body[data-theme="dark"] .album-btn,
+        body[data-theme="dark"] .settings-item,
+        body[data-theme="dark"] #selected-day-title {
+            color: #f9fafb !important;
+        }
+        body[data-theme="dark"] .route-info,
+        body[data-theme="dark"] .location-status,
+        body[data-theme="dark"] .legend,
+        body[data-theme="dark"] .search-results,
+        body[data-theme="dark"] .search-result-item,
+        body[data-theme="dark"] .search-input,
+        body[data-theme="dark"] .share-link,
+        body[data-theme="dark"] .floor-btn,
+        body[data-theme="dark"] .day-btn,
+        body[data-theme="dark"] .album-btn {
+            background-color: #273449;
+            border-color: #374151;
+        }
+        body[data-theme="dark"] .room { background-color: #273449; color: #f9fafb; }
+        body[data-theme="dark"] .room.selected,
+        body[data-theme="dark"] .floor-btn.active,
+        body[data-theme="dark"] .day-btn.active,
+        body[data-theme="dark"] .album-btn.active { background-color: var(--primary); color: #fff !important; }
+        body[data-theme="dark"] input,
+        body[data-theme="dark"] textarea,
+        body[data-theme="dark"] select {
+            background-color: #273449;
+            color: #f9fafb;
+            border-color: #4b5563;
+        }
         .news-tabs { display:flex; gap:8px; margin: 0 0 16px; }
         .news-tab { border:0; border-radius:999px; padding:9px 16px; background:var(--bg); color:var(--text); cursor:pointer; font-weight:600; touch-action:manipulation; }
         .news-tab.active { background:var(--primary); color:white; }
@@ -1146,6 +1163,35 @@
         }
         .album-header { background: var(--primary); }
         .album-header:hover { filter: brightness(.93); }
+
+
+        /* Никаких визуальных эффектов при наведении курсора: интерфейс ориентирован на касания. */
+        .keyboard-btn:hover, .keyboard-btn.backspace:hover, .keyboard-btn.submit:hover,
+        .nav-item:hover, .nav-item:hover .nav-icon, .room:hover, .search-result-item:hover,
+        .share-btn:hover, .share-link:hover, .share-option-btn:hover, .settings-item:hover,
+        .settings-item.danger:hover, .album-header:hover, .toggle-all-btn:hover,
+        .floor-btn:hover, .day-btn:hover, .album-btn:hover, .news-tab:hover,
+        .refresh-btn:hover, .nav-btn:hover, .media-item:hover {
+            filter: none !important;
+            transform: none !important;
+            box-shadow: inherit;
+        }
+        .nav-item:hover { background: transparent !important; }
+        .keyboard-btn:hover { background: #f3f4f6; }
+        body[data-theme="dark"] .keyboard-btn:hover { background: #374151; }
+        .keyboard-btn.backspace:hover { background: #fee2e2 !important; }
+        .keyboard-btn.submit:hover { background: var(--primary) !important; }
+        .media-item:hover { transform: none !important; box-shadow: none !important; }
+        .share-btn:hover { background: var(--share-color) !important; }
+        .share-link:hover { background: var(--card) !important; }
+        .share-option-btn:hover { background: transparent !important; border-color: inherit !important; transform: none !important; }
+        .settings-item:hover, .settings-item.danger:hover { background: transparent !important; }
+        .album-header:hover, .toggle-all-btn:hover { background: var(--primary) !important; }
+        .room:hover { background: var(--card) !important; box-shadow: none !important; }
+        .room.selected:hover { background: var(--primary) !important; }
+        .search-result-item:hover { background: inherit !important; }
+        .floor-btn:hover, .day-btn:hover, .album-btn:hover, .news-tab:hover,
+        .refresh-btn:hover, .nav-btn:hover { filter: none !important; }
 
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1294,17 +1340,12 @@
                             <i class="fas fa-palette" style="color: var(--primary);"></i>
                             <div class="settings-text">
                                 <div class="settings-title">Оформление сайта</div>
-                                <div class="settings-description">Выберите тему и любой основной цвет</div>
+                                <div class="settings-description">Нажмите кнопку и выберите цвет оформления. Цвет текста подстроится автоматически.</div>
                                 <div class="settings-controls">
-                                    <label for="theme-select">Тема</label>
-                                    <select id="theme-select" onchange="applyThemeSettings()" style="width:100%;padding:10px;margin:6px 0 12px;border-radius:8px;">
-                                        <option value="light">Светлая</option>
-                                        <option value="dark">Тёмная</option>
-                                        <option value="blue">Синяя</option>
-                                        <option value="custom">Свой цвет</option>
-                                    </select>
-                                    <label for="theme-color">Основной цвет</label>
-                                    <input id="theme-color" type="color" value="#4f46e5" oninput="applyThemeSettings()" style="width:100%;height:42px;margin-top:6px;">
+                                    <button id="change-theme-button" type="button" onclick="openThemeColorPicker()" style="width:100%;padding:12px 14px;margin-top:10px;border:0;border-radius:10px;background:var(--primary);color:white;font-weight:700;font-size:1rem;touch-action:manipulation;">
+                                        <i class="fas fa-palette"></i> Сменить тему
+                                    </button>
+                                    <input id="theme-color" type="color" value="#4f46e5" aria-label="Выбрать цвет темы" onchange="applyThemeSettings()" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
                                 </div>
                             </div>
                         </div>
@@ -1435,7 +1476,7 @@
         updateSubmitButton();
 
         if (enteredPassword.length === 4) {
-            setTimeout(checkPassword, 300);
+            checkPassword();
         }
     }
 
@@ -2508,9 +2549,7 @@
     function renderChangelog() {
         const container = document.getElementById('changelog-container');
         if (!container) return;
-        const entries = (typeof changelogData !== 'undefined' && Array.isArray(changelogData))
-            ? [...changelogData].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
-            : [];
+        const entries = typeof getAllChangelog === 'function' ? getAllChangelog() : [];
         if (!entries.length) {
             container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text);opacity:.7;">Записей пока нет. Добавьте их в changelog-data.js.</p>';
             return;
@@ -2520,8 +2559,6 @@
                 <div class="news-date">${escapeHtml(entry.date || '')}</div>
                 <div class="news-title">${escapeHtml(entry.title || 'Обновление')}</div>
                 <div class="news-text">${escapeHtml(entry.text || '')}</div>
-                ${Array.isArray(entry.changes) && entry.changes.length
-                    ? `<ul>${entry.changes.map(change => `<li>${escapeHtml(change)}</li>`).join('')}</ul>` : ''}
             </article>`).join('');
     }
 
@@ -2531,45 +2568,63 @@
         })[char]);
     }
 
-    // ============ ТЕМЫ ============
+    // ============ ТЕМА: КНОПКА И ВЫБОР ЦВЕТА ============
+    function openThemeColorPicker() {
+        const picker = document.getElementById('theme-color');
+        if (!picker) return;
+        if (typeof picker.showPicker === 'function') {
+            try { picker.showPicker(); return; } catch (_) {}
+        }
+        picker.click();
+    }
+
+    function getColorLuminance(hex) {
+        const clean = String(hex || '#4f46e5').replace('#', '');
+        if (!/^[0-9a-f]{6}$/i.test(clean)) return 0.2;
+        const rgb = [0, 2, 4].map(index => parseInt(clean.slice(index, index + 2), 16) / 255);
+        const linear = rgb.map(value => value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4));
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+    }
+
     function applyThemeSettings() {
-        const select = document.getElementById('theme-select');
-        const colorPicker = document.getElementById('theme-color');
-        if (!select || !colorPicker) return;
-        const theme = select.value;
-        const chosen = theme === 'blue' ? '#2563eb' : (theme === 'dark' ? '#6366f1' : colorPicker.value);
+        const picker = document.getElementById('theme-color');
+        if (!picker) return;
+        const chosen = /^#[0-9a-f]{6}$/i.test(picker.value) ? picker.value : '#4f46e5';
+        const isDark = getColorLuminance(chosen) < 0.36;
+        const textColor = isDark ? '#f9fafb' : '#111827';
+        const mutedText = isDark ? '#cbd5e1' : '#6b7280';
+        const background = isDark ? '#111827' : '#f3f4f6';
+        const card = isDark ? '#1f2937' : '#ffffff';
+        const secondary = isDark ? '#273449' : '#eef2f7';
+
         document.documentElement.style.setProperty('--primary', chosen);
         document.documentElement.style.setProperty('--share-color', chosen);
-        document.body.dataset.theme = theme === 'dark' ? 'dark' : 'light';
-        if (theme === 'blue') {
-            document.documentElement.style.setProperty('--bg', '#eff6ff');
-            document.documentElement.style.setProperty('--card', '#ffffff');
-            document.documentElement.style.setProperty('--text', '#1e3a8a');
-        } else if (theme === 'dark') {
-            document.documentElement.style.setProperty('--bg', '#111827');
-            document.documentElement.style.setProperty('--card', '#1f2937');
-            document.documentElement.style.setProperty('--text', '#f3f4f6');
-        } else {
-            document.documentElement.style.setProperty('--bg', '#f3f4f6');
-            document.documentElement.style.setProperty('--card', '#ffffff');
-            document.documentElement.style.setProperty('--text', '#1f2937');
-        }
+        document.documentElement.style.setProperty('--bg', background);
+        document.documentElement.style.setProperty('--card', card);
+        document.documentElement.style.setProperty('--text', textColor);
+        document.documentElement.style.setProperty('--muted-text', mutedText);
+        document.documentElement.style.setProperty('--secondary-bg', secondary);
+        document.body.dataset.theme = isDark ? 'dark' : 'light';
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+        const button = document.getElementById('change-theme-button');
+        if (button) button.style.backgroundColor = chosen;
         try {
-            localStorage.setItem('class7v_theme', JSON.stringify({theme, color: colorPicker.value}));
-        } catch (error) { console.warn('Настройки темы не сохранены:', error); }
+            localStorage.setItem('class7v_theme', JSON.stringify({ color: chosen }));
+        } catch (error) {
+            console.warn('Настройки темы не сохранены:', error);
+        }
     }
 
     function loadThemeSettings() {
         try {
             const saved = JSON.parse(localStorage.getItem('class7v_theme') || 'null');
-            if (saved) {
-                const select = document.getElementById('theme-select');
-                const color = document.getElementById('theme-color');
-                if (select) select.value = saved.theme || 'light';
-                if (color && /^#[0-9a-f]{6}$/i.test(saved.color || '')) color.value = saved.color;
-                applyThemeSettings();
-            }
-        } catch (error) { console.warn('Не удалось загрузить тему:', error); }
+            const picker = document.getElementById('theme-color');
+            if (picker && saved && /^#[0-9a-f]{6}$/i.test(saved.color || '')) picker.value = saved.color;
+        } catch (error) {
+            console.warn('Не удалось загрузить тему:', error);
+        }
+        applyThemeSettings();
     }
 
     // ============ РЕЖИМ СЛАБОГО УСТРОЙСТВА ============
