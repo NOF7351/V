@@ -19,7 +19,7 @@
             align-items: center;
             flex-direction: column;
             z-index: 9999;
-            transition: opacity 0.3s ease;
+            transition: none;
         }
 
         .password-container {
@@ -236,7 +236,7 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding-bottom: 80px;
+            padding-bottom: calc(90px + env(safe-area-inset-bottom));
             -webkit-tap-highlight-color: transparent;
             touch-action: pan-y;
             overflow-x: hidden;
@@ -272,7 +272,7 @@
         /* --- Header --- */
         header {
             background: var(--primary);
-            color: white;
+            color: var(--header-text, white);
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -281,105 +281,84 @@
         }
 
         header h1 {
+            color: var(--header-text, white) !important;
             margin: 0;
             font-size: 1.5rem;
         }
 
         header p {
+            color: var(--header-text, white) !important;
             margin: 5px 0 0;
             opacity: 0.8;
             font-size: 0.9rem;
         }
 
-        /* --- Navigation --- */
+        /* --- Нижняя навигация: простой дизайн из beta_version.html --- */
         .nav-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: white;
+            background: var(--card);
+            color: var(--text);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            align-items: center;
+            gap: 0;
+            padding: 8px 2px calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            border-top: 1px solid rgba(127, 127, 127, 0.15);
             z-index: 1000;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: manipulation;
         }
-
-        @media (min-width: 768px) {
-            .nav-bar {
-                position: static;
-                width: auto;
-                justify-content: center;
-                gap: 20px;
-                padding: 20px;
-                background: transparent;
-                box-shadow: none;
-            }
-
-            body {
-                overflow-y: visible;
-            }
-        }
-
         .nav-item {
             border: none;
-            background: none;
-            font-size: 0.8rem;
-            color: #6b7280;
-            cursor: pointer;
+            background: transparent;
+            font-size: 0.68rem;
+            line-height: 1.15;
+            color: var(--muted-text, #6b7280);
             display: flex;
+            flex: 1 1 0;
             flex-direction: column;
             align-items: center;
-            font-weight: bold;
-            padding: 5px;
-            width: 70px;
+            justify-content: center;
+            font-weight: 700;
+            padding: 5px 2px;
+            min-width: 0;
+            max-width: 110px;
             -webkit-user-select: none;
             user-select: none;
             touch-action: manipulation;
+            white-space: nowrap;
+            border-radius: 10px;
         }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
+        .nav-item.active { color: var(--primary); }
         .nav-icon {
-            width: 32px;
-            height: 32px;
+            width: 27px;
+            height: 27px;
             margin-bottom: 4px;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.7;
-            transition: opacity 0.2s, transform 0.2s;
+            opacity: 0.78;
         }
-
-        .nav-item.active .nav-icon {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .nav-item:hover .nav-icon {
-            opacity: 0.9;
-        }
-
+        .nav-item.active .nav-icon { opacity: 1; }
+        /* Все четыре значка нижнего меню — встроенные SVG из дизайна beta_version.html.
+           Вкладку навигации не добавляем: сохраняем исходную логику сайта 7В. */
         .nav-item[onclick*="schedule"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/shedule.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zM7 11h5v5H7v-5z'/%3E%3C/svg%3E");
         }
-
-        .nav-item[onclick*="rating"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/socialrating.png');
-        }
-
         .nav-item[onclick*="news"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/news.png');
+            /* Газета вместо самолёта */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19 2H5C3.34 2 2 3.34 2 5v14c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3zm1 17c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v14zM7 6h10v2H7zm0 4h10v2H7zm0 4h6v2H7z'/%3E%3C/svg%3E");
         }
-
         .nav-item[onclick*="gallery"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/album.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M22 16V4c0-1.1-.9-2-2-2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-11-4 2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z'/%3E%3C/svg%3E");
         }
-
         .nav-item[onclick*="settings"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/refs/heads/main/icons/more.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.02-1.58a.5.5 0 0 0 .12-.56l-1.89-3.28a.5.5 0 0 0-.56-.18l-2.38.96a7.3 7.3 0 0 0-1.66-.88l-.3-2.52a.5.5 0 0 0-.4-.34h-3.78a.5.5 0 0 0-.4.34l-.3 2.52c-.6.2-1.16.5-1.66.88l-2.38-.96a.5.5 0 0 0-.56.18L3.12 8.92a.5.5 0 0 0 .12.56l2.02 1.58a6.5 6.5 0 0 0 0 1.88l-2.02 1.58a.5.5 0 0 0-.12.56l1.89 3.28a.5.5 0 0 0 .56.18l2.38-.96c.5.38 1.06.68 1.66.88l.3 2.52a.5.5 0 0 0 .4.34h3.78a.5.5 0 0 0 .4-.34l.3-2.52c.6-.2 1.16-.5 1.66-.88l2.38.96a.5.5 0 0 0 .56-.18l1.89-3.28a.5.5 0 0 0-.12-.56l-2.02-1.58zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z'/%3E%3C/svg%3E");
         }
 
         /* --- Layout --- */
@@ -1102,6 +1081,235 @@
         .toggle-all-btn:hover {
             background: #4338ca;
         }
+
+        /* Темы и доступность */
+        :root { color-scheme: light; }
+        body[data-theme="dark"] {
+            --bg: #111827; --card: #1f2937; --text: #f3f4f6;
+            color-scheme: dark;
+        }
+        body[data-theme="dark"] .nav-bar,
+        body[data-theme="dark"] .news-item,
+        body[data-theme="dark"] .album-container,
+        body[data-theme="dark"] .password-container,
+        body[data-theme="dark"] .share-modal-content {
+            background: #1f2937; color: #f3f4f6;
+        }
+        body[data-theme="dark"] .album-content,
+        body[data-theme="dark"] .days-selector,
+        body[data-theme="dark"] #now-lesson-display,
+        body[data-theme="dark"] .share-text-notice { background: #273449; color: #f3f4f6; }
+        body[data-theme="dark"] .news-title,
+        body[data-theme="dark"] .news-text,
+        body[data-theme="dark"] .password-title { color: #f3f4f6; }
+        body[data-theme="dark"] .settings-item { border-color: #374151; }
+        body[data-theme="dark"] .settings-description,
+        body[data-theme="dark"] .news-date { color: #cbd5e1; }
+        body[data-theme="dark"] .keyboard-btn { background: #374151; color: #f9fafb; }
+        body[data-theme="dark"] .keyboard-btn.backspace { background: #4b252b; color: #fecaca; }
+        body[data-theme="dark"] .card h2,
+        body[data-theme="dark"] .card h3,
+        body[data-theme="dark"] .lesson-row,
+        body[data-theme="dark"] .route-info,
+        body[data-theme="dark"] .route-steps li,
+        body[data-theme="dark"] .location-status,
+        body[data-theme="dark"] .legend,
+        body[data-theme="dark"] .search-results,
+        body[data-theme="dark"] .search-result-item,
+        body[data-theme="dark"] .search-input,
+        body[data-theme="dark"] .share-link,
+        body[data-theme="dark"] .floor-btn,
+        body[data-theme="dark"] .day-btn,
+        body[data-theme="dark"] .album-btn,
+        body[data-theme="dark"] .settings-item,
+        body[data-theme="dark"] #selected-day-title {
+            color: #f9fafb !important;
+        }
+        body[data-theme="dark"] .route-info,
+        body[data-theme="dark"] .location-status,
+        body[data-theme="dark"] .legend,
+        body[data-theme="dark"] .search-results,
+        body[data-theme="dark"] .search-result-item,
+        body[data-theme="dark"] .search-input,
+        body[data-theme="dark"] .share-link,
+        body[data-theme="dark"] .floor-btn,
+        body[data-theme="dark"] .day-btn,
+        body[data-theme="dark"] .album-btn {
+            background-color: #273449;
+            border-color: #374151;
+        }
+        body[data-theme="dark"] .room { background-color: #273449; color: #f9fafb; }
+        body[data-theme="dark"] .room.selected,
+        body[data-theme="dark"] .floor-btn.active,
+        body[data-theme="dark"] .day-btn.active,
+        body[data-theme="dark"] .album-btn.active { background-color: var(--primary); color: #fff !important; }
+        body[data-theme="dark"] input,
+        body[data-theme="dark"] textarea,
+        body[data-theme="dark"] select {
+            background-color: #273449;
+            color: #f9fafb;
+            border-color: #4b5563;
+        }
+        /* Принудительно обновляем цвет текста во всех основных блоках при тёмной теме.
+           Ранее фон менялся, но многие элементы сохраняли жёстко заданный цвет текста. */
+        body[data-theme="dark"] :is(
+            p, span, h1, h2, h3, h4, h5, h6, label, li, td, th, strong, b, small,
+            .card, .card p, .card div, .card span, .card label,
+            .lesson-name, .lesson-row, .lesson-row span, .lesson-row div,
+            .news-item, .news-item p, .news-item div, .news-title, .news-text,
+            .album-container, .album-container p, .album-container span,
+            .album-content, .album-content p, .album-content span,
+            .settings-item, .settings-item p, .settings-item span, .settings-description,
+            .route-steps, .route-steps li, .search-results, .search-result-item,
+            .share-modal-content, .share-modal-content p, .password-container,
+            .password-title, .password-subtitle, #selected-day-title,
+            .room:not(.selected), .legend, .location-status
+        ) {
+            color: #f3f4f6 !important;
+        }
+        body[data-theme="dark"] :is(.news-date, .settings-description, .album-stats, .muted, .subtitle) {
+            color: #cbd5e1 !important;
+        }
+        /* Сохраняем контраст текста на кнопках и цветных метках. */
+        body[data-theme="dark"] :is(button, .nav-item.active, .day-btn.active, .album-btn.active,
+            .floor-btn.active, .room.selected, .news-tab.active, .share-btn, .refresh-btn,
+            .toggle-all-btn, .photo-badge, .video-badge, .keyboard-btn.backspace) {
+            color: #fff !important;
+        }
+        body[data-theme="dark"] .nav-bar,
+        body[data-theme="dark"] .nav-bar *:not(svg):not(path) { color: #f3f4f6; }
+        body[data-theme="dark"] .nav-bar .active,
+        body[data-theme="dark"] .nav-bar .active * { color: #fff !important; }
+
+        .news-tabs { display:flex; gap:8px; margin: 0 0 16px; }
+        .news-tab { border:0; border-radius:999px; padding:9px 16px; background:var(--bg); color:var(--text); cursor:pointer; font-weight:600; touch-action:manipulation; }
+        .news-tab.active { background:var(--primary); color:white; }
+        .settings-controls { margin-top:12px; }
+        .settings-controls label { display:block; font-weight:600; }
+        .keyboard-btn { min-height:64px; transition:none; transform:none; }
+        .keyboard-btn:hover, .keyboard-btn:active { transform:none; }
+        body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+            transform: none !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+        }
+        .album-header { background: var(--primary); }
+        .album-header:hover { filter: brightness(.93); }
+
+
+        /* Никаких визуальных эффектов при наведении курсора: интерфейс ориентирован на касания. */
+        .keyboard-btn:hover, .keyboard-btn.backspace:hover, .keyboard-btn.submit:hover,
+        .nav-item:hover, .nav-item:hover .nav-icon, .room:hover, .search-result-item:hover,
+        .share-btn:hover, .share-link:hover, .share-option-btn:hover, .settings-item:hover,
+        .settings-item.danger:hover, .album-header:hover, .toggle-all-btn:hover,
+        .floor-btn:hover, .day-btn:hover, .album-btn:hover, .news-tab:hover,
+        .refresh-btn:hover, .nav-btn:hover, .media-item:hover {
+            filter: none !important;
+            transform: none !important;
+            box-shadow: inherit;
+        }
+        .nav-item:hover { background: transparent !important; }
+        .keyboard-btn:hover { background: #f3f4f6; }
+        body[data-theme="dark"] .keyboard-btn:hover { background: #374151; }
+        .keyboard-btn.backspace:hover { background: #fee2e2 !important; }
+        .keyboard-btn.submit:hover { background: var(--primary) !important; }
+        .media-item:hover { transform: none !important; box-shadow: none !important; }
+        .share-btn:hover { background: var(--share-color) !important; }
+        .share-link:hover { background: var(--card) !important; }
+        .share-option-btn:hover { background: transparent !important; border-color: inherit !important; transform: none !important; }
+        .settings-item:hover, .settings-item.danger:hover { background: transparent !important; }
+        .album-header:hover, .toggle-all-btn:hover { background: var(--primary) !important; }
+        .room:hover { background: var(--card) !important; box-shadow: none !important; }
+        .room.selected:hover { background: var(--primary) !important; }
+        .search-result-item:hover { background: inherit !important; }
+        .floor-btn:hover, .day-btn:hover, .album-btn:hover, .news-tab:hover,
+        .refresh-btn:hover, .nav-btn:hover { filter: none !important; }
+
+
+        /* Заголовок использует контрастный цвет, рассчитанный для выбранного оформления. */
+        header, header h1, header p { color: var(--header-text, white) !important; }
+        #password-change-screen {
+            display:none; position:fixed; inset:0; z-index:10000; width:100%; height:100%;
+            height:100dvh; overflow-y:auto; background:var(--bg,#f3f4f6); color:var(--text,#111827);
+            align-items:center; justify-content:center; padding:20px; box-sizing:border-box;
+        }
+        #password-change-screen.open { display:flex; }
+        .password-change-panel { width:100%; max-width:420px; text-align:center; position:relative; margin:auto; }
+        .password-change-close { position:absolute; right:0; top:-6px; border:0; background:transparent; color:var(--text,#111827); font-size:34px; width:44px; height:44px; }
+        .password-change-lock { font-size:32px; color:var(--primary); margin-bottom:14px; }
+        #password-change-title { font-size:1.45rem; margin:0 40px 8px; color:var(--text,#111827); }
+        #password-change-subtitle { margin:0 0 22px; opacity:.75; }
+        .password-change-dots { display:flex; justify-content:center; gap:14px; margin:20px 0; }
+        .password-change-dots span { width:16px; height:16px; border-radius:50%; border:2px solid var(--primary); box-sizing:border-box; }
+        .password-change-dots span.filled { background:var(--primary); }
+        #password-change-error { min-height:24px; color:var(--danger,#ef4444); margin-bottom:8px; font-size:.92rem; }
+        .password-change-keypad { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; width:100%; max-width:330px; margin:0 auto; }
+        .password-change-keypad button { height:clamp(54px,9vh,72px); border:0; border-radius:14px; background:var(--card,#fff); color:var(--text,#111827); font-size:1.45rem; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,.09); touch-action:manipulation; }
+        .password-change-keypad .password-change-delete, .password-change-keypad .password-change-clear { color:var(--primary); }
+        .password-change-step-note { font-size:.82rem; opacity:.7; margin-top:20px; }
+        body[data-theme="dark"] #password-change-screen { background:#111827; color:#f9fafb; }
+        body[data-theme="dark"] #password-change-title, body[data-theme="dark"] .password-change-close { color:#f9fafb; }
+        body[data-theme="dark"] .password-change-keypad button { background:#273449; color:#f9fafb; }
+        @media (max-height:620px) { .password-change-lock { margin-bottom:6px; } #password-change-subtitle { margin-bottom:10px; } .password-change-dots { margin:12px 0; } .password-change-keypad { gap:6px; } .password-change-keypad button { height:48px; } .password-change-step-note { margin-top:10px; } }
+
+        /* Экран смены пароля оформлен так же, как экран входа */
+        #password-change-screen {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            padding: 20px;
+        }
+        .password-change-panel {
+            background: #fff;
+            color: #1f2937;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,.2);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+        .password-change-lock { font-size: 50px; color: #4f46e5; margin-bottom: 15px; }
+        #password-change-title { font-size: 1.6rem; color: #1f2937; margin: 0 30px 8px; font-weight: 600; }
+        #password-change-subtitle { color: #6b7280; margin: 0 0 25px; font-size: .95rem; }
+        .password-change-dots { gap: 15px; margin: 20px 0 25px; }
+        .password-change-dots span { width: 20px; height: 20px; border: 0; background: #e5e7eb; }
+        .password-change-dots span.filled { background: #4f46e5; }
+        #password-change-error { color: #ef4444; min-height: 24px; margin-bottom: 15px; font-size: .9rem; }
+        .password-change-keypad { gap: 12px; margin-bottom: 20px; }
+        .password-change-keypad button {
+            height: 60px; border-radius: 12px; background: #f3f4f6; color: #1f2937;
+            font-size: 24px; box-shadow: none;
+        }
+        .password-change-keypad .password-change-delete,
+        .password-change-keypad .password-change-clear { color: #ef4444; background: #fee2e2; }
+        .password-change-step-note { color: #6b7280; }
+        .password-change-close { color: #6b7280; right: 2px; top: 2px; }
+        body[data-theme="dark"] #password-change-screen {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+        }
+        body[data-theme="dark"] .password-change-panel { background: #1f2937; color: #f3f4f6; }
+        body[data-theme="dark"] #password-change-title,
+        body[data-theme="dark"] .password-change-close { color: #f9fafb; }
+        body[data-theme="dark"] #password-change-subtitle,
+        body[data-theme="dark"] .password-change-step-note { color: #cbd5e1; }
+        body[data-theme="dark"] .password-change-dots span { background: #374151; }
+        body[data-theme="dark"] .password-change-dots span.filled { background: #4f46e5; }
+        body[data-theme="dark"] .password-change-keypad button { background: #374151; color: #f9fafb; }
+        body[data-theme="dark"] .password-change-keypad .password-change-delete,
+        body[data-theme="dark"] .password-change-keypad .password-change-clear { background: #4b252b; color: #fecaca; }
+        @media (max-height:620px) {
+            .password-change-panel { padding: 20px; }
+            .password-change-lock { font-size: 36px; margin-bottom: 6px; }
+            #password-change-subtitle { margin-bottom: 10px; }
+            .password-change-dots { margin: 12px 0; }
+            .password-change-keypad { gap: 6px; }
+            .password-change-keypad button { height: 48px; }
+            .password-change-step-note { margin-top: 10px; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -1109,6 +1317,7 @@
     <script src="schedule-data.js"></script>
     <script src="news-data.js"></script>
     <script src="gallery-data.js"></script>
+    <script src="changelog-data.js"></script>
 </head>
 
 <body class="no-context">
@@ -1120,7 +1329,7 @@
                 <i class="fas fa-lock"></i>
             </div>
             <h2 class="password-title">Доступ к сайту 7В класса</h2>
-            <p class="password-subtitle">Введите 4-значный пароль для входа</p>
+            <p class="password-subtitle">Введите 4-значный пароль — вход произойдёт автоматически</p>
 
             <!-- Индикатор введенных цифр -->
             <div class="password-display">
@@ -1149,9 +1358,6 @@
                     <i class="fas fa-backspace"></i>
                 </button>
                 <button class="keyboard-btn" onclick="addDigit(0)">0</button>
-                <button class="keyboard-btn submit" id="submit-btn" onclick="checkPassword()" disabled>
-                    <i class="fas fa-sign-in-alt"></i> Войти
-                </button>
             </div>
 
             <p class="password-hint">
@@ -1217,8 +1423,13 @@
 
             <div id="news" class="section">
                 <div class="card">
-                    <h2>Последние новости</h2>
-                    <div id="news-container"></div>
+                    <h2>Новости</h2>
+                    <div class="news-tabs" role="tablist" aria-label="Раздел новостей">
+                        <button class="news-tab active" type="button" onclick="showNewsSection('news', event)">Новости</button>
+                        <button class="news-tab" type="button" onclick="showNewsSection('changelog', event)">Change-log</button>
+                    </div>
+                    <div id="news-container" class="news-subsection"></div>
+                    <div id="changelog-container" class="news-subsection" style="display:none;"></div>
                 </div>
             </div>
 
@@ -1227,11 +1438,11 @@
                     <h2>Альбом</h2>
                     <div id="gallery-content">
                         <div class="album-tabs">
-                            <button class="album-btn active" onclick="showAlbum('class5', event)">5 Класс</button>
+                            <button class="album-btn" onclick="showAlbum('class5', event)">5 Класс</button>
                             <button class="album-btn" onclick="showAlbum('class6', event)">6 Класс</button>
-                            <button class="album-btn" onclick="showAlbum('class7', event)">7 Класс</button>
+                            <button class="album-btn active" onclick="showAlbum('class7', event)">7 Класс</button>
                         </div>
-                        <div id="class5-albums"></div>
+                        <div id="class5-albums" style="display: none;"></div>
                         <div id="class6-albums" style="display: none;"></div>
                         <div id="class7-albums"></div>
                     </div>
@@ -1242,24 +1453,43 @@
                 <div class="card">
                     <h2>Ещё</h2>
                     <div class="settings-list">
-                        <!-- Кнопка "Проверить сайт" -->
-                        <div class="settings-item" onclick="checkSiteUpdate()">
-                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
+                        <div class="settings-item" style="cursor:default; align-items:flex-start;">
+                            <i class="fas fa-palette" style="color: var(--primary);"></i>
                             <div class="settings-text">
-                                <div class="settings-title">Проверить сайт</div>
-                                <div class="settings-description">Перейти на страницу обновлений</div>
+                                <div class="settings-title">Оформление сайта</div>
+                                <div class="settings-description">Нажмите кнопку и выберите цвет оформления. Цвет текста подстроится автоматически.</div>
+                                <div class="settings-controls">
+                                    <div class="theme-picker-wrap" style="position:relative;width:100%;margin-top:10px;">
+                                        <button id="change-theme-button" type="button" style="width:100%;padding:12px 14px;border:0;border-radius:10px;background:var(--primary);color:white;font-weight:700;font-size:1rem;touch-action:manipulation;">
+                                            <i class="fas fa-palette"></i> Сменить тему
+                                        </button>
+                                        <!-- Прозрачный, но реально нажимаемый input поверх кнопки: работает и на телефонах. -->
+                                        <input id="theme-color" type="color" value="#4f46e5" aria-label="Выбрать цвет темы" onchange="applyThemeSettings()" oninput="applyThemeSettings()" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;pointer-events:auto;border:0;padding:0;margin:0;">
+                                    </div>
+                                </div>
                             </div>
-                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
                         </div>
-                        
-                        <div class="settings-item" onclick="checkshedule()">
-                            <i class="fas fa-globe" style="color: #3b82f6;"></i>
+                        <div class="settings-item" style="cursor:default;align-items:flex-start;">
+                            <i class="fas fa-mobile-alt" style="color: var(--primary);"></i>
                             <div class="settings-text">
-                                <div class="settings-title">Домашнее задание</div>
-                                <div class="settings-description">Перейти на страницу с расписанием + дз</div>
+                                <div class="settings-title">Режим слабого устройства</div>
+                                <div class="settings-description">Отключает все анимации и плавные переходы</div>
+                                <label style="display:flex;gap:10px;align-items:center;margin-top:10px;">
+                                    <input id="reduced-motion-toggle" type="checkbox" onchange="setReducedMotion(this.checked)" style="width:22px;height:22px;">
+                                    Отключить все анимации
+                                </label>
                             </div>
-                            <i class="fas fa-external-link-alt" style="color: #9ca3af;"></i>
                         </div>
+                        <div class="settings-item" style="cursor:default;align-items:flex-start;">
+                            <i class="fas fa-key" style="color: var(--primary);"></i>
+                            <div class="settings-text">
+                                <div class="settings-title">Изменить пароль</div>
+                                <div class="settings-description">Для смены пароля откроется полноэкранная цифровая клавиатура. Нужно ввести старый пароль, новый и затем подтвердить новый.</div>
+                                <button type="button" onclick="openPasswordChange()" style="padding:10px 14px;margin-top:10px;border:0;border-radius:8px;background:var(--primary);color:white;font-weight:bold;touch-action:manipulation;"><i class="fas fa-key"></i> Сменить пароль</button>
+                                <div id="password-change-message" role="status" style="margin-top:8px;font-size:.9rem;"></div>
+                            </div>
+                        </div>
+
                         
                         <div class="settings-item danger" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i>
@@ -1321,11 +1551,41 @@
 
     </div>
 
+
+    <!-- Полноэкранная смена пароля с собственной цифровой клавиатурой -->
+    <div id="password-change-screen" aria-hidden="true">
+        <div class="password-change-panel">
+            <button class="password-change-close" type="button" onclick="closePasswordChange()" aria-label="Закрыть">×</button>
+            <div class="password-change-lock"><i class="fas fa-key"></i></div>
+            <h2 id="password-change-title">Введите старый пароль</h2>
+            <p id="password-change-subtitle">Введите 4 цифры</p>
+            <div class="password-change-dots" aria-label="Введённые цифры">
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <div id="password-change-error" role="status" aria-live="polite"></div>
+            <div class="password-change-keypad">
+                <button type="button" onclick="passwordChangeDigit(1)">1</button>
+                <button type="button" onclick="passwordChangeDigit(2)">2</button>
+                <button type="button" onclick="passwordChangeDigit(3)">3</button>
+                <button type="button" onclick="passwordChangeDigit(4)">4</button>
+                <button type="button" onclick="passwordChangeDigit(5)">5</button>
+                <button type="button" onclick="passwordChangeDigit(6)">6</button>
+                <button type="button" onclick="passwordChangeDigit(7)">7</button>
+                <button type="button" onclick="passwordChangeDigit(8)">8</button>
+                <button type="button" onclick="passwordChangeDigit(9)">9</button>
+                <button type="button" class="password-change-delete" onclick="passwordChangeBackspace()" aria-label="Удалить последнюю цифру"><i class="fas fa-backspace"></i></button>
+                <button type="button" onclick="passwordChangeDigit(0)">0</button>
+                <button type="button" class="password-change-clear" onclick="passwordChangeClear()" aria-label="Очистить ввод"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="password-change-step-note">Если вы забудете пароль, то обратитесь к @kolianchic2 в тг</p>
+        </div>
+    </div>
+
  <script>
     // ============ СИСТЕМА ПАРОЛЯ С ВИРТУАЛЬНОЙ КЛАВИАТУРОЙ ============
 
     const SITE_PASSWORD = "6730";
-    const PASSWORD_KEY = "class6v_site_access";
+    const PASSWORD_KEY = "class7v_site_access";
 
     let enteredPassword = '';
     let dots = [];
@@ -1364,7 +1624,7 @@
         updateSubmitButton();
 
         if (enteredPassword.length === 4) {
-            setTimeout(checkPassword, 300);
+            checkPassword();
         }
     }
 
@@ -1400,68 +1660,7 @@
 
     // Обновление кнопки отправки
     function updateSubmitButton() {
-        const submitBtn = document.getElementById('submit-btn');
-
-        if (!submitBtn) return;
-
-        submitBtn.disabled = enteredPassword.length !== 4;
-    }
-
-    // Проверка пароля
-    function checkPassword() {
-        const errorElement = document.getElementById('password-error');
-        const successElement = document.getElementById('password-success');
-
-        if (errorElement) errorElement.textContent = '';
-        if (successElement) successElement.textContent = '';
-
-        if (enteredPassword.length !== 4) {
-            if (errorElement) {
-                errorElement.textContent = 'Введите все 4 цифры';
-            }
-
-            shakeDots();
-            return;
-        }
-
-        if (enteredPassword === SITE_PASSWORD) {
-            if (successElement) {
-                successElement.textContent =
-                    'Правильно, телепортирую на главную страницу';
-            }
-
-            dots.forEach(dot => {
-                if (!dot) return;
-
-                dot.style.background = '#10b981';
-                dot.style.animation = 'pulse 0.5s ease-in-out';
-            });
-
-            try {
-                localStorage.setItem(PASSWORD_KEY, 'granted');
-            } catch (error) {
-                console.error('Не удалось сохранить доступ:', error);
-            }
-
-            setTimeout(grantSiteAccess, 800);
-        } else {
-            if (errorElement) {
-                errorElement.textContent = 'Неверный пароль';
-            }
-
-            shakeDots();
-
-            setTimeout(() => {
-                enteredPassword = '';
-
-                updateDots();
-                updateSubmitButton();
-
-                if (errorElement) {
-                    errorElement.textContent = '';
-                }
-            }, 1000);
-        }
+        // Кнопки «Войти» нет: после 4-й цифры пароль проверяется автоматически.
     }
 
     // Анимация ошибки
@@ -1520,25 +1719,6 @@
             window.location.reload();
         }
     }
-
-    // Проверка обновлений сайта
-    function checkSiteUpdate() {
-        window.open(
-            'https://nof7351.github.io/V/Update',
-            '_blank',
-            'noopener'
-        );
-    }
-
-    // Открытие расписания
-    function checkshedule() {
-        window.open(
-            'https://keo.gov39.ru/data/schedule/klgd1548141601/class.php?class=6В&school_uid=klgd1548141601',
-            '_blank',
-            'noopener'
-        );
-    }
-
 
     // ============ БЛОКИРОВКА ЗУМА И ВЫДЕЛЕНИЯ ============
 
@@ -1721,7 +1901,7 @@
             input.value = shareUrl;
         }
 
-        const news = Array.isArray(newsData)
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
             ? newsData.find(n => n.id == newsId)
             : null;
 
@@ -1794,7 +1974,7 @@
     function shareViaTelegram() {
         const shareUrl = createNewsShareUrl(currentNewsId);
 
-        const news = Array.isArray(newsData)
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
             ? newsData.find(n => n.id == currentNewsId)
             : null;
 
@@ -1813,7 +1993,7 @@
     function shareViaWhatsApp() {
         const shareUrl = createNewsShareUrl(currentNewsId);
 
-        const news = Array.isArray(newsData)
+        const news = typeof newsData !== 'undefined' && Array.isArray(newsData)
             ? newsData.find(n => n.id == currentNewsId)
             : null;
 
@@ -1901,7 +2081,7 @@
 
             if (typeof getAllNews === 'function') {
                 sortedNews = getAllNews() || [];
-            } else if (Array.isArray(newsData)) {
+            } else if (typeof newsData !== 'undefined' && Array.isArray(newsData)) {
                 sortedNews = [...newsData].sort((a, b) => b.id - a.id);
             }
 
@@ -2044,8 +2224,7 @@
                 items.forEach(item => {
                     if (item.type === 'photo') {
                         html += `
-                            <div class="media-item"
-                                 onclick="openLightbox('photo', ${JSON.stringify(item.url)})">
+                            <div class="media-item" data-media-type="photo" data-media-url="${String(item.url).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">
                                 <img
                                     src="${item.url}"
                                     draggable="false"
@@ -2060,8 +2239,7 @@
                             'https://placehold.co/400x400/000/fff?text=Play';
 
                         html += `
-                            <div class="media-item"
-                                 onclick="openLightbox('video', ${JSON.stringify(item.url)})">
+                            <div class="media-item" data-media-type="video" data-media-url="${String(item.url).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}">
                                 <img
                                     src="${poster}"
                                     draggable="false"
@@ -2082,6 +2260,13 @@
             });
 
             container.innerHTML = html;
+
+            // Обработчики кликов назначаются отдельно, чтобы URL не ломал HTML-атрибут onclick.
+            container.querySelectorAll('.media-item[data-media-url]').forEach(media => {
+                media.addEventListener('click', () => {
+                    openLightbox(media.dataset.mediaType, media.dataset.mediaUrl);
+                });
+            });
 
             // По умолчанию альбомы раскрыты
             data.forEach((album, index) => {
@@ -2496,6 +2681,308 @@
     }
 
 
+
+    // ============ CHANGE-LOG ============
+    function showNewsSection(section, event) {
+        const isNews = section === 'news';
+        const newsContainer = document.getElementById('news-container');
+        const changelogContainer = document.getElementById('changelog-container');
+        if (newsContainer) newsContainer.style.display = isNews ? 'block' : 'none';
+        if (changelogContainer) changelogContainer.style.display = isNews ? 'none' : 'block';
+        document.querySelectorAll('.news-tab').forEach(button => button.classList.remove('active'));
+        if (event && event.currentTarget) event.currentTarget.classList.add('active');
+        if (!isNews) renderChangelog();
+    }
+
+    function renderChangelog() {
+        const container = document.getElementById('changelog-container');
+        if (!container) return;
+        const entries = typeof getAllChangelog === 'function' ? getAllChangelog() : [];
+        if (!entries.length) {
+            container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text);opacity:.7;">Записей пока нет. Добавьте их в changelog-data.js.</p>';
+            return;
+        }
+        container.innerHTML = entries.map(entry => `
+            <article class="news-item">
+                <div class="news-date">${escapeHtml(entry.date || '')}</div>
+                <div class="news-title">${escapeHtml(entry.title || 'Обновление')}</div>
+                <div class="news-text">${escapeHtml(entry.text || '')}</div>
+            </article>`).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[char]);
+    }
+
+    // ============ ТЕМА: КНОПКА И ВЫБОР ЦВЕТА ============
+    function openThemeColorPicker() {
+        const picker = document.getElementById('theme-color');
+        if (!picker) return;
+        if (typeof picker.showPicker === 'function') {
+            try { picker.showPicker(); return; } catch (_) {}
+        }
+        // На мобильных браузерах click() по скрытому input часто блокируется.
+        // Поэтому сам input расположен прозрачным слоем поверх кнопки и получает касание напрямую.
+        picker.focus();
+        try { picker.click(); } catch (_) {}
+    }
+
+    function getColorLuminance(hex) {
+        const clean = String(hex || '#4f46e5').replace('#', '');
+        if (!/^[0-9a-f]{6}$/i.test(clean)) return 0.2;
+        const rgb = [0, 2, 4].map(index => parseInt(clean.slice(index, index + 2), 16) / 255);
+        const linear = rgb.map(value => value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4));
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+    }
+
+    function applyThemeSettings() {
+        const picker = document.getElementById('theme-color');
+        if (!picker) return;
+        const chosen = /^#[0-9a-f]{6}$/i.test(picker.value) ? picker.value : '#4f46e5';
+        const isDark = getColorLuminance(chosen) < 0.36;
+        const textColor = isDark ? '#f9fafb' : '#111827';
+        const headerTextColor = getColorLuminance(chosen) < 0.42 ? '#ffffff' : '#111827';
+        const mutedText = isDark ? '#cbd5e1' : '#6b7280';
+        const background = isDark ? '#111827' : '#f3f4f6';
+        const card = isDark ? '#1f2937' : '#ffffff';
+        const secondary = isDark ? '#273449' : '#eef2f7';
+
+        document.documentElement.style.setProperty('--primary', chosen);
+        document.documentElement.style.setProperty('--share-color', chosen);
+        document.documentElement.style.setProperty('--bg', background);
+        document.documentElement.style.setProperty('--card', card);
+        document.documentElement.style.setProperty('--text', textColor);
+        document.documentElement.style.setProperty('--header-text', headerTextColor);
+        document.documentElement.style.setProperty('--muted-text', mutedText);
+        document.documentElement.style.setProperty('--secondary-bg', secondary);
+        document.body.dataset.theme = isDark ? 'dark' : 'light';
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+        const button = document.getElementById('change-theme-button');
+        if (button) button.style.backgroundColor = chosen;
+        try {
+            localStorage.setItem('class7v_theme', JSON.stringify({ color: chosen }));
+        } catch (error) {
+            console.warn('Настройки темы не сохранены:', error);
+        }
+    }
+
+    function loadThemeSettings() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('class7v_theme') || 'null');
+            const picker = document.getElementById('theme-color');
+            if (picker && saved && /^#[0-9a-f]{6}$/i.test(saved.color || '')) picker.value = saved.color;
+        } catch (error) {
+            console.warn('Не удалось загрузить тему:', error);
+        }
+        applyThemeSettings();
+    }
+
+    // ============ РЕЖИМ СЛАБОГО УСТРОЙСТВА ============
+    function setReducedMotion(enabled) {
+        document.body.classList.toggle('reduce-motion', Boolean(enabled));
+        try { localStorage.setItem('class7v_reduce_motion', enabled ? '1' : '0'); }
+        catch (error) { console.warn('Не удалось сохранить режим анимаций:', error); }
+    }
+
+    function loadReducedMotion() {
+        let enabled = false;
+        try { enabled = localStorage.getItem('class7v_reduce_motion') === '1'; } catch (_) {}
+        const checkbox = document.getElementById('reduced-motion-toggle');
+        if (checkbox) checkbox.checked = enabled;
+        setReducedMotion(enabled);
+    }
+
+    // ============ ПАРОЛЬ: SHA-256 ============
+    const DEFAULT_PASSWORD_HASH = '0a3455a92d990abf8b62f5a82cdb22d31dce076df6c00c32eda8c5d5caaad389';
+
+    async function hashPassword(password) {
+        if (!window.crypto || !window.crypto.subtle) {
+            // Резервный вариант для браузеров без Web Crypto.
+            return 'plain:' + password;
+        }
+        const bytes = new TextEncoder().encode(password);
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        return Array.from(new Uint8Array(digest)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function getStoredPasswordHash() {
+        try {
+            return localStorage.getItem('class7v_password_hash') || DEFAULT_PASSWORD_HASH;
+        } catch (_) { return DEFAULT_PASSWORD_HASH; }
+    }
+
+    async function checkPassword() {
+        const errorElement = document.getElementById('password-error');
+        const successElement = document.getElementById('password-success');
+        if (errorElement) errorElement.textContent = '';
+        if (successElement) successElement.textContent = '';
+        if (enteredPassword.length !== 4) return;
+        const enteredHash = await hashPassword(enteredPassword);
+        const storedHash = await getStoredPasswordHash();
+        if (enteredHash === storedHash) {
+            if (successElement) successElement.textContent = 'Пароль принят';
+            try { localStorage.setItem(PASSWORD_KEY, 'granted'); } catch (_) {}
+            setTimeout(grantSiteAccess, 100);
+        } else {
+            if (errorElement) errorElement.textContent = 'Неверный пароль';
+            shakeDots();
+            setTimeout(() => {
+                enteredPassword = '';
+                updateDots();
+                updateSubmitButton();
+                if (errorElement) errorElement.textContent = '';
+            }, 500);
+        }
+    }
+
+    // Смена пароля: три последовательных шага через собственную цифровую клавиатуру.
+    let passwordChangeStep = 0; // 0 — старый, 1 — новый, 2 — подтверждение
+    let passwordChangeInput = '';
+    let passwordChangeValues = { current: '', next: '', confirm: '' };
+    let passwordChangeBusy = false;
+
+    function openPasswordChange() {
+        passwordChangeStep = 0;
+        passwordChangeInput = '';
+        passwordChangeValues = { current: '', next: '', confirm: '' };
+        passwordChangeBusy = false;
+        const screen = document.getElementById('password-change-screen');
+        if (!screen) return;
+        screen.classList.add('open');
+        screen.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        updatePasswordChangeScreen();
+    }
+
+    function closePasswordChange() {
+        const screen = document.getElementById('password-change-screen');
+        if (screen) {
+            screen.classList.remove('open');
+            screen.setAttribute('aria-hidden', 'true');
+        }
+        document.body.style.overflow = '';
+        passwordChangeInput = '';
+        passwordChangeValues = { current: '', next: '', confirm: '' };
+        passwordChangeBusy = false;
+    }
+
+    function updatePasswordChangeScreen() {
+        const titles = ['Введите старый пароль', 'Введите новый пароль', 'Повторите новый пароль'];
+        const subtitles = ['Шаг 1 из 3 · Текущий пароль', 'Шаг 2 из 3 · Новый пароль из 4 цифр', 'Шаг 3 из 3 · Подтверждение нового пароля'];
+        const title = document.getElementById('password-change-title');
+        const subtitle = document.getElementById('password-change-subtitle');
+        const error = document.getElementById('password-change-error');
+        if (title) title.textContent = titles[passwordChangeStep];
+        if (subtitle) subtitle.textContent = subtitles[passwordChangeStep];
+        if (error) error.textContent = '';
+        document.querySelectorAll('.password-change-dots span').forEach((dot, index) => {
+            dot.classList.toggle('filled', index < passwordChangeInput.length);
+        });
+    }
+
+    function passwordChangeDigit(digit) {
+        if (passwordChangeBusy || passwordChangeInput.length >= 4) return;
+        const error = document.getElementById('password-change-error');
+        if (error) error.textContent = '';
+        passwordChangeInput += String(digit);
+        document.querySelectorAll('.password-change-dots span').forEach((dot, index) => {
+            dot.classList.toggle('filled', index < passwordChangeInput.length);
+        });
+        if (passwordChangeInput.length === 4) processPasswordChangeStep();
+    }
+
+    function passwordChangeBackspace() {
+        if (passwordChangeBusy) return;
+        passwordChangeInput = passwordChangeInput.slice(0, -1);
+        updatePasswordChangeDotsOnly();
+        const error = document.getElementById('password-change-error');
+        if (error) error.textContent = '';
+    }
+
+    function passwordChangeClear() {
+        if (passwordChangeBusy) return;
+        passwordChangeInput = '';
+        updatePasswordChangeDotsOnly();
+        const error = document.getElementById('password-change-error');
+        if (error) error.textContent = '';
+    }
+
+    function updatePasswordChangeDotsOnly() {
+        document.querySelectorAll('.password-change-dots span').forEach((dot, index) => {
+            dot.classList.toggle('filled', index < passwordChangeInput.length);
+        });
+    }
+
+    async function processPasswordChangeStep() {
+        if (passwordChangeBusy || passwordChangeInput.length !== 4) return;
+        passwordChangeBusy = true;
+        const error = document.getElementById('password-change-error');
+        const typed = passwordChangeInput;
+        try {
+            if (passwordChangeStep === 0) {
+                if (await hashPassword(typed) !== await getStoredPasswordHash()) {
+                    if (error) error.textContent = 'Старый пароль неверный. Попробуйте ещё раз.';
+                    passwordChangeInput = '';
+                    passwordChangeBusy = false;
+                    updatePasswordChangeDotsOnly();
+                    return;
+                }
+                passwordChangeValues.current = typed;
+                passwordChangeStep = 1;
+                passwordChangeInput = '';
+                passwordChangeBusy = false;
+                updatePasswordChangeScreen();
+                return;
+            }
+            if (passwordChangeStep === 1) {
+                passwordChangeValues.next = typed;
+                passwordChangeStep = 2;
+                passwordChangeInput = '';
+                passwordChangeBusy = false;
+                updatePasswordChangeScreen();
+                return;
+            }
+            passwordChangeValues.confirm = typed;
+            if (passwordChangeValues.next !== passwordChangeValues.confirm) {
+                passwordChangeStep = 1;
+                passwordChangeValues.next = '';
+                passwordChangeValues.confirm = '';
+                passwordChangeInput = '';
+                passwordChangeBusy = false;
+                updatePasswordChangeScreen();
+                if (error) error.textContent = 'Пароли не совпали. Введите новый пароль ещё раз.';
+                return;
+            }
+            localStorage.setItem('class7v_password_hash', await hashPassword(passwordChangeValues.next));
+            localStorage.removeItem(PASSWORD_KEY);
+            const message = document.getElementById('password-change-message');
+            if (message) {
+                message.style.color = 'var(--accent)';
+                message.textContent = 'Пароль изменён. При следующем входе используйте новый пароль.';
+            }
+            closePasswordChange();
+            alert('Пароль успешно изменён.');
+        } catch (_) {
+            if (error) error.textContent = 'Не удалось сохранить пароль в этом браузере.';
+            passwordChangeBusy = false;
+        }
+    }
+
+    // Поддержка ввода цифр физической клавиатурой.
+    document.addEventListener('keydown', event => {
+        if (document.getElementById('password-screen')?.style.display === 'none') return;
+        if (/^\d$/.test(event.key)) {
+            event.preventDefault();
+            addDigit(event.key);
+        } else if (event.key === 'Backspace') {
+            event.preventDefault();
+            removeDigit();
+        }
+    });
+
     // ============ ИНИЦИАЛИЗАЦИЯ САЙТА ============
 
     function initSite() {
@@ -2504,10 +2991,14 @@
         siteInitialized = true;
 
         preloadIcons();
+        loadThemeSettings();
+        loadReducedMotion();
 
         initBasicInfo();
 
         renderAlbums();
+        const class7Button = document.querySelector('.album-btn[onclick*="class7"]');
+        showAlbum('class7', { currentTarget: class7Button });
 
         selectDay(viewingDay);
 
@@ -2521,3 +3012,5 @@
         liveStatusInterval = setInterval(updateLiveStatus, 60000);
     }
 </script>
+</body>
+</html>
