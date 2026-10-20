@@ -343,17 +343,20 @@
             opacity: 0.78;
         }
         .nav-item.active .nav-icon { opacity: 1; }
+        /* Все четыре значка нижнего меню — встроенные SVG из дизайна beta_version.html.
+           Вкладку навигации не добавляем: сохраняем исходную логику сайта 7В. */
         .nav-item[onclick*="schedule"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/shedule.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zM7 11h5v5H7v-5z'/%3E%3C/svg%3E");
         }
         .nav-item[onclick*="news"] .nav-icon {
+            /* Газета вместо самолёта */
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19 2H5C3.34 2 2 3.34 2 5v14c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3zm1 17c0 .55-.45 1-1 1H5c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h14c.55 0 1 .45 1 1v14zM7 6h10v2H7zm0 4h10v2H7zm0 4h6v2H7z'/%3E%3C/svg%3E");
         }
         .nav-item[onclick*="gallery"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/album.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M22 16V4c0-1.1-.9-2-2-2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-11-4 2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z'/%3E%3C/svg%3E");
         }
         .nav-item[onclick*="settings"] .nav-icon {
-            background-image: url('https://raw.githubusercontent.com/NOF7351/V/main/icons/more.png');
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.06-.94l2.02-1.58a.5.5 0 0 0 .12-.56l-1.89-3.28a.5.5 0 0 0-.56-.18l-2.38.96a7.3 7.3 0 0 0-1.66-.88l-.3-2.52a.5.5 0 0 0-.4-.34h-3.78a.5.5 0 0 0-.4.34l-.3 2.52c-.6.2-1.16.5-1.66.88l-2.38-.96a.5.5 0 0 0-.56.18L3.12 8.92a.5.5 0 0 0 .12.56l2.02 1.58a6.5 6.5 0 0 0 0 1.88l-2.02 1.58a.5.5 0 0 0-.12.56l1.89 3.28a.5.5 0 0 0 .56.18l2.38-.96c.5.38 1.06.68 1.66.88l.3 2.52a.5.5 0 0 0 .4.34h3.78a.5.5 0 0 0 .4-.34l.3-2.52c.6-.2 1.16-.5 1.66-.88l2.38.96a.5.5 0 0 0 .56-.18l1.89-3.28a.5.5 0 0 0-.12-.56l-2.02-1.58zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z'/%3E%3C/svg%3E");
         }
 
         /* --- Layout --- */
@@ -1342,10 +1345,13 @@
                                 <div class="settings-title">Оформление сайта</div>
                                 <div class="settings-description">Нажмите кнопку и выберите цвет оформления. Цвет текста подстроится автоматически.</div>
                                 <div class="settings-controls">
-                                    <button id="change-theme-button" type="button" onclick="openThemeColorPicker()" style="width:100%;padding:12px 14px;margin-top:10px;border:0;border-radius:10px;background:var(--primary);color:white;font-weight:700;font-size:1rem;touch-action:manipulation;">
-                                        <i class="fas fa-palette"></i> Сменить тему
-                                    </button>
-                                    <input id="theme-color" type="color" value="#4f46e5" aria-label="Выбрать цвет темы" onchange="applyThemeSettings()" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+                                    <div class="theme-picker-wrap" style="position:relative;width:100%;margin-top:10px;">
+                                        <button id="change-theme-button" type="button" style="width:100%;padding:12px 14px;border:0;border-radius:10px;background:var(--primary);color:white;font-weight:700;font-size:1rem;touch-action:manipulation;">
+                                            <i class="fas fa-palette"></i> Сменить тему
+                                        </button>
+                                        <!-- Прозрачный, но реально нажимаемый input поверх кнопки: работает и на телефонах. -->
+                                        <input id="theme-color" type="color" value="#4f46e5" aria-label="Выбрать цвет темы" onchange="applyThemeSettings()" oninput="applyThemeSettings()" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.01;cursor:pointer;pointer-events:auto;border:0;padding:0;margin:0;">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2575,7 +2581,10 @@
         if (typeof picker.showPicker === 'function') {
             try { picker.showPicker(); return; } catch (_) {}
         }
-        picker.click();
+        // На мобильных браузерах click() по скрытому input часто блокируется.
+        // Поэтому сам input расположен прозрачным слоем поверх кнопки и получает касание напрямую.
+        picker.focus();
+        try { picker.click(); } catch (_) {}
     }
 
     function getColorLuminance(hex) {
