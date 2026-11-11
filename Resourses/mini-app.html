@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>7В Класс</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 90px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Нижнее меню --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            border: none;
+            background: transparent;
+            font-size: 0.72rem;
+            color: #6b7280;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.3rem; margin-bottom: 4px; }
+
+        /* --- Расписание --- */
+        .days-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background: #eef2ff;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .day-btn {
+            background: none;
+            border: none;
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .day-btn.active { background: var(--primary); color: white; }
+
+        .lesson-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lesson-time { font-weight: bold; color: var(--primary); min-width: 90px; }
+
+        /* --- Справочник --- */
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .contact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .phone-btn {
+            background: #e0e7ff;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- Присутствие --- */
+        .attendance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .attendance-checkbox {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .form-group { display: flex; gap: 10px; margin-top: 15px; }
+
+        .form-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Подключаем Telegram WebApp скрипт -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <h1>7В Класс</h1>
+        <p>Классный помощник</p>
+    </header>
+
+    <div class="container">
+
+        <!-- РАСПИСАНИЕ -->
+        <div id="schedule" class="section active">
+            <div class="card">
+                <h2><i class="fas fa-clock"></i> Текущий статус</h2>
+                <div id="now-lesson-display" style="font-size: 1.05rem; color: var(--accent); font-weight: 600;">
+                    Уроки идут по расписанию
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-calendar-week"></i> Расписание уроков</h2>
+                <div class="days-selector">
+                    <button class="day-btn active" onclick="selectDay(1)">ПН</button>
+                    <button class="day-btn" onclick="selectDay(2)">ВТ</button>
+                    <button class="day-btn" onclick="selectDay(3)">СР</button>
+                    <button class="day-btn" onclick="selectDay(4)">ЧТ</button>
+                    <button class="day-btn" onclick="selectDay(5)">ПТ</button>
+                </div>
+
+                <h3 id="selected-day-title" style="text-align:center; color: #666; margin-bottom: 15px;">Понедельник</h3>
+                <div id="daily-schedule-list"></div>
+            </div>
+        </div>
+
+        <!-- СПРАВОЧНИК КЛАССА -->
+        <div id="directory" class="section">
+            <div class="card">
+                <h2><i class="fas fa-address-book"></i> Справочник учеников</h2>
+                <input type="text" id="contact-search" class="search-input" placeholder="Поиск по имени..." oninput="filterContacts()">
+                <div id="contacts-list">
+                    <div class="contact-item"><span class="contact-name">Иван Иванов</span><a href="tel:+79001112233" class="phone-btn"><i class="fas fa-phone"></i> +79001112233</a></div>
+                    <div class="contact-item"><span class="contact-name">Петр Петров</span><a href="tel:+79004445566" class="phone-btn"><i class="fas fa-phone"></i> +79004445566</a></div>
+                    <div class="contact-item"><span class="contact-name">Анна Сидорова</span><a href="tel:+79007778899" class="phone-btn"><i class="fas fa-phone"></i> +79007778899</a></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРИСУТСТВИЕ (СИНХРОНИЗАЦИЯ ЧЕРЕЗ BOT) -->
+        <div id="attendance" class="section">
+            <div class="card">
+                <h2><i class="fas fa-user-check"></i> Отметка присутствующих</h2>
+                <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 15px;">При изменении статуса данные отправятся в чат бота:</p>
+                <div id="attendance-list">
+                    <div class="attendance-row">
+                        <span>Иван Иванов</span>
+                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Иван Иванов', this.checked)">
+                    </div>
+                    <div class="attendance-row">
+                        <span>Петр Петров</span>
+                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Петр Петров', this.checked)">
+                    </div>
+                    <div class="attendance-row">
+                        <span>Анна Сидорова</span>
+                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Анна Сидорова', this.checked)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЛИЧНЫЕ СОБЫТИЯ -->
+        <div id="events" class="section">
+            <div class="card">
+                <h2><i class="fas fa-plus-circle"></i> Новое событие</h2>
+                <div class="form-group">
+                    <input type="text" id="event-input" class="form-input" placeholder="Описание события">
+                    <input type="time" id="event-time" class="form-input" style="max-width: 105px;">
+                    <button class="btn-add" onclick="addCustomEvent()">Добавить</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-list-check"></i> Мои события</h2>
+                <div id="custom-events-list" style="color: #6b7280;">Событий пока нет</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('schedule', this)"><i class="fas fa-calendar-alt"></i>Расписание</button>
+        <button class="nav-item" onclick="switchTab('directory', this)"><i class="fas fa-address-book"></i>Справочник</button>
+        <button class="nav-item" onclick="switchTab('attendance', this)"><i class="fas fa-user-check"></i>Присутствие</button>
+        <button class="nav-item" onclick="switchTab('events', this)"><i class="fas fa-tasks"></i>События</button>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем WebApp на весь экран
+
+        const weekSchedule = {
+            1: [{ time: "08:30 - 09:15", name: "Математика" }, { time: "09:25 - 10:10", name: "Физика" }, { time: "10:20 - 11:05", name: "История" }],
+            2: [{ time: "08:30 - 09:15", name: "Русский язык" }, { time: "09:25 - 10:10", name: "Литература" }, { time: "10:20 - 11:05", name: "Биология" }],
+            3: [{ time: "08:30 - 09:15", name: "Информатика" }, { time: "09:25 - 10:10", name: "География" }, { time: "10:20 - 11:05", name: "Физкультура" }],
+            4: [{ time: "08:30 - 09:15", name: "Математика" }, { time: "09:25 - 10:10", name: "Английский язык" }, { time: "10:20 - 11:05", name: "Обществознание" }],
+            5: [{ time: "08:30 - 09:15", name: "Химия" }, { time: "09:25 - 10:10", name: "Физика" }, { time: "10:20 - 11:05", name: "ИЗО" }]
+        };
+
+        const dayNames = { 1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница" };
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // Отправка статуса присутствия боту через Telegram WebApp
+        function toggleStudent(studentName, isPresent) {
+            const data = {
+                action: "toggle_attendance",
+                student: studentName,
+                status: isPresent
+            };
+            if (tg && tg.sendData) {
+                tg.sendData(JSON.stringify(data));
+            } else {
+                console.log("Telegram WebApp не обнаружен, данные не отправлены в бот:", data);
+            }
+        }
+
+        function renderSchedule(dayIdx) {
+            const list = document.getElementById('daily-schedule-list');
+            const title = document.getElementById('selected-day-title');
+            title.innerText = dayNames[dayIdx] || "Расписание";
+
+            const lessons = weekSchedule[dayIdx] || [];
+            let html = '';
+            lessons.forEach(item => {
+                html += `<div class="lesson-row"><span class="lesson-time">${item.time}</span><span>${item.name}</span></div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function selectDay(dayIdx) {
+            document.querySelectorAll('.day-btn').forEach((btn, idx) => btn.classList.toggle('active', (idx + 1) === dayIdx));
+            renderSchedule(dayIdx);
+        }
+
+        function filterContacts() {
+            const query = document.getElementById('contact-search').value.toLowerCase();
+            document.querySelectorAll('.contact-item').forEach(item => {
+                const name = item.querySelector('.contact-name').textContent.toLowerCase();
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function addCustomEvent() {
+            const text = document.getElementById('event-input').value.trim();
+            const time = document.getElementById('event-time').value;
+            const container = document.getElementById('custom-events-list');
+
+            if (!text) return;
+            if (container.textContent === 'Событий пока нет') container.innerHTML = '';
+
+            const item = document.createElement('div');
+            item.className = 'lesson-row';
+            item.innerHTML = `<span>${text}</span><span class="lesson-time">${time || '--:--'}</span>`;
+            container.appendChild(item);
+
+            document.getElementById('event-input').value = '';
+            document.getElementById('event-time').value = '';
+        }
+
+        let currentDay = new Date().getDay();
+        if (currentDay < 1 || currentDay > 5) currentDay = 1;
+        selectDay(currentDay);
+    </script>
+</body>
+</html>
