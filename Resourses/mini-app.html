@@ -198,8 +198,6 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Подключаем Telegram WebApp скрипт -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
@@ -248,25 +246,11 @@
             </div>
         </div>
 
-        <!-- ПРИСУТСТВИЕ (СИНХРОНИЗАЦИЯ ЧЕРЕЗ BOT) -->
+        <!-- ПРИСУТСТВИЕ (СИНХРОНИЗАЦИЯ С СЕРВЕРОМ БОТА) -->
         <div id="attendance" class="section">
             <div class="card">
                 <h2><i class="fas fa-user-check"></i> Отметка присутствующих</h2>
-                <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 15px;">При изменении статуса данные отправятся в чат бота:</p>
-                <div id="attendance-list">
-                    <div class="attendance-row">
-                        <span>Иван Иванов</span>
-                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Иван Иванов', this.checked)">
-                    </div>
-                    <div class="attendance-row">
-                        <span>Петр Петров</span>
-                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Петр Петров', this.checked)">
-                    </div>
-                    <div class="attendance-row">
-                        <span>Анна Сидорова</span>
-                        <input type="checkbox" class="attendance-checkbox" onchange="toggleStudent('Анна Сидорова', this.checked)">
-                    </div>
-                </div>
+                <div id="attendance-list">Загрузка данных...</div>
             </div>
         </div>
 
@@ -298,8 +282,8 @@
     </nav>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем WebApp на весь экран
+        // Ссылка на ваш сервер (замените порт 8080 на тот, который выделен вашим хостингом для веб-части)
+        const API_URL = "http://d3.rionix.cloud:25034/api/attendance";
 
         const weekSchedule = {
             1: [{ time: "08:30 - 09:15", name: "Математика" }, { time: "09:25 - 10:10", name: "Физика" }, { time: "10:20 - 11:05", name: "История" }],
@@ -317,19 +301,46 @@
 
             document.getElementById(tabId).classList.add('active');
             element.classList.add('active');
+
+            if (tabId === 'attendance') {
+                loadAttendance();
+            }
         }
 
-        // Отправка статуса присутствия боту через Telegram WebApp
-        function toggleStudent(studentName, isPresent) {
-            const data = {
-                action: "toggle_attendance",
-                student: studentName,
-                status: isPresent
-            };
-            if (tg && tg.sendData) {
-                tg.sendData(JSON.stringify(data));
-            } else {
-                console.log("Telegram WebApp не обнаружен, данные не отправлены в бот:", data);
+        async function loadAttendance() {
+            const container = document.getElementById('attendance-list');
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                renderAttendance(data);
+            } catch (e) {
+                container.innerHTML = `<div style="color:red;">Ошибка связи с ботом. Проверьте адрес и порт сервера.</div>`;
+            }
+        }
+
+        function renderAttendance(data) {
+            const container = document.getElementById('attendance-list');
+            let html = '';
+            for (const [name, isPresent] of Object.entries(data)) {
+                html += `
+                    <div class="attendance-row">
+                        <span>${name}</span>
+                        <input type="checkbox" class="attendance-checkbox" ${isPresent ? 'checked' : ''} onchange="toggleStudent('${name}', this.checked)">
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        async function toggleStudent(name, isPresent) {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+            } catch (e) {
+                console.error("Ошибка при обновлении:", e);
             }
         }
 
